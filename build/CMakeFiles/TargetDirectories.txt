@@ -1,0 +1,3 @@
+/Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagRep/build/CMakeFiles/zzrep.dir
+/Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagRep/build/CMakeFiles/edit_cache.dir
+/Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagRep/build/CMakeFiles/rebuild_cache.dir
