@@ -441,16 +441,18 @@ std::tuple<int,  int, bool> pivot_conflict (vector<vector<int> > *matrix)
 
 
 // Reduction algorithm: given a column a, find the indices of the columns in M such that the columns sum to a.
-void reduce(vector<int> *a, vector<vector<int>> *M, vector<int> *indices) // FIXME: there's a big either here or in pivot.
+void reduce(vector<int> *a, vector<vector<int>> *M, vector<int> *indices)
 {
     std::vector<vector<int>> I;
+    std::vector<int> pivot_entries;
     // Append a to M.
-    M->push_back(*a);
-    for (int i = 0; i < M->size(); i++) {
-        int p = pivot(&((*M)[i]));
+    M -> push_back(*a);
+    for (int i = 0; i < M->size(); i++) { // FIXME: This is not entered while debugging for some reason.
+        pivot_entries[i] = pivot(&((*M)[i]));
         for (int j = 0; j < i; j++) {
-            if (p == pivot(&((*M)[j]))) {
+            if (pivot_entries[i] == pivot_entries[j]) {
                 add_columns(&((*M)[i]), &((*M)[j]), &((*M)[i]));
+                pivot_entries[i] = pivot(&((*M)[i]));
                 I[i].push_back(j);
             }
         }
