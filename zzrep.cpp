@@ -122,19 +122,19 @@ void ZigzagRep::compute(
         if (filt_op[i]) {
             // INSERTION:
             // A p-simplex is inserted into id[p] and a (p-1)-simplex is inserted into pm1_id. Next, we add a row to Z[p] and C[p], according to the dimension of simp.
-            (id[p]).emplace(simp, i);
+            int j = id[p].size();
+            (id[p]).emplace(simp, j);
             // Add a row with all zeros at the end to Z[p] and C[p].
             int k = C[p].size();
             if (k != 0) {
                 column last_column_C;
                 // Add all zeros to this last column:
                 for (int j = 0; j < k; j++) {
-                    last_column_C[j] = 0;
+                    last_column_C.push_back(0);
                 }
                 C[p].push_back(last_column_C);
-                for (int j = 0; j < Z[p].size(); j++) {
-                    if (j == Z[p].size() - 1) {
-                        Z[p][j].push_back(1);
+                for (int j = 0; j < C[p].size(); j++) {
+                    if (j == C[p].size() - 1) {
                         C[p][j].push_back(1);
                     }
                     else {
@@ -144,8 +144,8 @@ void ZigzagRep::compute(
                 }
             }
             else {
-                Z[p].push_back({1});
                 C[p].push_back({1});
+                if (p == 0)  Z[p].push_back({1});
             }
             bool all_boundary = true;
             // Compute boundary of the simplex:
@@ -153,7 +153,8 @@ void ZigzagRep::compute(
             // Represent the boundary of simp as a sum of columns of Z_{p-1} by a reduction algorithm; I is such set of columns.
             column I;
             if (p != 0) {
-                for (int j = 0; j < p; j++) {
+                int b = C[p-1].size();
+                for (int j = 0; j < b; j++) {
                     bd_simp.push_back(0);
                 }
                 for (int i = 0; i <= p; i++) {
@@ -179,13 +180,21 @@ void ZigzagRep::compute(
                 */
                 vector<int> new_column;
                 if (p != 0)  {
-                        for (int j = 0; j < p; j++) {
-                            bd_simp.push_back(0);
-                        }
-                        new_column[id[p][simp]] = 1;
-                        for (auto a: I) {
-                            add_columns(&new_column, &C[p][a], &new_column);
-                        }
+                    for (int j = 0; j < p; j++) {
+                        bd_simp.push_back(0);
+                    }
+                    new_column[id[p][simp]] = 1;
+                    for (auto a: I) {
+                        add_columns(&new_column, &C[p][a], &new_column);
+                    }
+                    Z[p].push_back(new_column);
+                }
+                else if (p == 0 && k != 0) {
+                    int k = C[p].back().size();
+                    for (int j = 0; j < k; j++) {
+                        new_column.push_back(0);
+                    }
+                    new_column[id[p][simp]] = 1;
                     Z[p].push_back(new_column);
                 }
                 birth_timestamp[p].push_back(i+1);
@@ -432,7 +441,7 @@ std::tuple<int,  int, bool> pivot_conflict (vector<vector<int> > *matrix)
 
 
 // Reduction algorithm: given a column a, find the indices of the columns in M such that the columns sum to a.
-void reduce(vector<int> *a, vector<vector<int>> *M, vector<int> *indices)
+void reduce(vector<int> *a, vector<vector<int>> *M, vector<int> *indices) // FIXME: there's a big either here or in pivot.
 {
     std::vector<vector<int>> I;
     // Append a to M.
