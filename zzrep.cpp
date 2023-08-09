@@ -59,6 +59,10 @@ typedef unordered_map< vector<int>, int,
         Output: 
             pointer to c = a+b.
 */
+
+typedef vector<int> column;
+
+
 void add_columns(std::vector<int> *a, std::vector<int> *b, std::vector<int> *c);
 
 int pivot (std::vector<int> *a);
@@ -102,10 +106,10 @@ void ZigzagRep::compute(
     vector<vector<int> > birth_timestamp;
 
     for (int p = 0; p <= m; p++) {
-        vector<vector<int> > Z_p;
-        vector<vector<int> > C_p;
+        vector<column> Z_p;
+        vector<column> C_p;
         SimplexIdMap id_p;
-        vector<int> birth_timestamp_p;
+        column birth_timestamp_p;
         Z.push_back(Z_p);
         C.push_back(C_p);
         id.push_back(id_p);
@@ -118,45 +122,53 @@ void ZigzagRep::compute(
         if (filt_op[i]) {
             // INSERTION:
             // A p-simplex is inserted into id[p] and a (p-1)-simplex is inserted into pm1_id. Next, we add a row to Z[p] and C[p], according to the dimension of simp.
-            id[p][simp] = i;
+            (id[p]).emplace(simp, i);
             // Add a row with all zeros at the end to Z[p] and C[p].
-            int x = 0;
-            vector<int> last_column_C = simp;
-            // Clear out these last columns to all zero:
-            for (int j = 0; j < last_column_C.size(); j++) {
-                last_column_C[j] = 0;
-            }
-            C[p].push_back(last_column_C);
-            for (int j = 0; j < Z[p].size(); j++) {
-                if (j == Z[p].size() - 1) {
-                    Z[p][j].push_back(1);
-                    C[p][j].push_back(1);
+            int k = C[p].size();
+            if (k != 0) {
+                column last_column_C;
+                // Add all zeros to this last column:
+                for (int j = 0; j < k; j++) {
+                    last_column_C[j] = 0;
                 }
-                else {
-                    Z[p][j].push_back(0);
-                    C[p][j].push_back(0);
+                C[p].push_back(last_column_C);
+                for (int j = 0; j < Z[p].size(); j++) {
+                    if (j == Z[p].size() - 1) {
+                        Z[p][j].push_back(1);
+                        C[p][j].push_back(1);
+                    }
+                    else {
+                        Z[p][j].push_back(0);
+                        C[p][j].push_back(0);
+                    }
                 }
             }
-            // Represent the boundary of simp as a sum of columns of Z_{p-1} by a reduction algorithm; I is such set of columns.
-            vector<int> I;
-            // Compute boundary of the simplex:
-            vector<int> bd_simp;
-            for (int j = 0; j < p; j++) {
-                bd_simp.push_back(0);
+            else {
+                Z[p].push_back({1});
+                C[p].push_back({1});
             }
-            for (int i = 0; i <= p; i++) {
-                // Remove the i-th vertex.
-                vector<int> boundary_simplex = simp;
-                boundary_simplex.erase(boundary_simplex.begin() + i);
-                bd_simp[id[p-1][boundary_simplex]] = 1;
-            }
-            reduce(&bd_simp, &Z[p-1], &I);
-            // Check the birth timestamp of a to check whether all of them are boundaries.
             bool all_boundary = true;
-            for (auto a: I) {
-                if (birth_timestamp[p][a] >= 0) {
-                    all_boundary = false;
-                    break;
+            // Compute boundary of the simplex:
+            column bd_simp;
+            // Represent the boundary of simp as a sum of columns of Z_{p-1} by a reduction algorithm; I is such set of columns.
+            column I;
+            if (p != 0) {
+                for (int j = 0; j < p; j++) {
+                    bd_simp.push_back(0);
+                }
+                for (int i = 0; i <= p; i++) {
+                    // Remove the i-th vertex.
+                    vector<int> boundary_simplex = simp;
+                    boundary_simplex.erase(boundary_simplex.begin() + i);
+                    bd_simp[id[p-1][boundary_simplex]] = 1;
+                }
+                reduce(&bd_simp, &Z[p-1], &I);
+                // Check the birth timestamp of a to check whether all of them are boundaries.
+                for (auto a: I) {
+                    if (birth_timestamp[p][a] >= 0) {
+                        all_boundary = false;
+                        break;
+                    }
                 }
             }
             if (all_boundary) // simp is a boundary
@@ -166,14 +178,16 @@ void ZigzagRep::compute(
                 Append a new column simp + \sum_{a \in I} C^{p}[a] with birth timestamp i+1 to Z^p.
                 */
                 vector<int> new_column;
-                for (int j = 0; j < p; j++) {
-                    bd_simp.push_back(0);
+                if (p != 0)  {
+                        for (int j = 0; j < p; j++) {
+                            bd_simp.push_back(0);
+                        }
+                        new_column[id[p][simp]] = 1;
+                        for (auto a: I) {
+                            add_columns(&new_column, &C[p][a], &new_column);
+                        }
+                    Z[p].push_back(new_column);
                 }
-                new_column[id[p][simp]] = 1;
-                for (auto a: I) {
-                    add_columns(&new_column, &C[p][a], &new_column);
-                }
-                Z[p].push_back(new_column);
                 birth_timestamp[p].push_back(i+1);
             }
             else {
@@ -363,12 +377,12 @@ void ZigzagRep::compute(
                 birth_timestamp[p].erase(birth_timestamp[p].begin() + I[0]);
             }
         }
-        // For each p and each column Z[p][a] of Z[p] with non-negative birth timestamp, output the p-th interval [birth_timestamp_p[a], n].
-        for (int p = 0; p <= m; p++) {
-            for (int a = 0; a < Z[p].size(); a++) {
-                if (birth_timestamp[p][a] >= 0) {
-                    persistence->push_back(std::make_tuple(birth_timestamp[p][a], n, p, Z[p][a]));
-                }
+    }
+    // For each p and each column Z[p][a] of Z[p] with non-negative birth timestamp, output the p-th interval [birth_timestamp_p[a], n].
+    for (int p = 0; p <= m; p++) {
+        for (int a = 0; a < Z[p].size(); a++) {
+            if (birth_timestamp[p][a] >= 0) {
+                persistence->push_back(std::make_tuple(birth_timestamp[p][a], n, p, Z[p][a]));
             }
         }
     }
