@@ -443,19 +443,38 @@ std::tuple<int,  int, bool> pivot_conflict (vector<vector<int> > *matrix)
 // Reduction algorithm: given a column a, find the indices of the columns in M such that the columns sum to a.
 void reduce(vector<int> *a, vector<vector<int>> *M, vector<int> *indices)
 {
-    std::vector<vector<int>> I;
-    std::vector<int> pivot_entries;
     // Append a to M.
     M -> push_back(*a);
-    for (int i = 0; i < M->size(); i++) { // FIXME: This is not entered while debugging for some reason.
-        pivot_entries[i] = pivot(&((*M)[i]));
-        for (int j = 0; j < i; j++) {
-            if (pivot_entries[i] == pivot_entries[j]) {
-                add_columns(&((*M)[i]), &((*M)[j]), &((*M)[i]));
+    int k = M -> size();
+    std::vector<vector<int>> I;
+    std::vector<int> pivot_entries;
+    for (int i = 0; i < M->size(); i++) {
+        pivot_entries.push_back(pivot(&((*M)[i])));
+        std::vector<int> I_i;
+        I.push_back(I_i);
+        bool pivot_conflict = false;
+        int conflicting_column;
+        do
+        {
+            // Check for pivot conflict
+            for (int j = 0; j < i; j++) {
+                if (pivot_entries[i] == pivot_entries[j]) {
+                    pivot_conflict = true;
+                    conflicting_column = j;
+                    break;
+                }
+                else {
+                    pivot_conflict = false;
+                }
+            }
+            // Resolve pivot conflict and keep track of the column that was added in I.
+            if (pivot_conflict) {
+                add_columns(&((*M)[i]), &((*M)[conflicting_column]), &((*M)[i]));
                 pivot_entries[i] = pivot(&((*M)[i]));
-                I[i].push_back(j);
+                I[i].push_back(conflicting_column);
             }
         }
+        while (pivot_conflict);
     }
     // Find all the indices that add to the zeroing of the boundary.
     find_indices(&I, indices);
