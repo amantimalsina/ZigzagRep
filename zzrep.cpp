@@ -205,7 +205,7 @@ void ZigzagRep::compute(
                 Let J consist of indices in I whose corresponding columns in Z_{p−1} have non-negative birth timestamps. 
                 */ 
                 vector<int> J;
-                for (auto a: I) {
+                for (int a: I) {
                     if (birth_timestamp[p-1][a] >= 0) { // Gather all the non-boundary cycles.
                         J.push_back(a);
                     }
@@ -477,20 +477,15 @@ void reduce(vector<int> *a, vector<vector<int>> *M, vector<int> *indices)
         while (pivot_conflict);
     }
     // Find all the indices that add to the zeroing of the boundary.
-    find_indices(&I, indices);
-}
-
-void find_indices(vector<vector<int>> *I, vector<int> *indices)
-{
     std::unordered_map<int, bool> visited;
     // Add all the indices that got added to the last column.
-    indices -> push_back(I -> size() - 1);
+    indices -> push_back(I.size() - 1);
     for (auto i = (indices -> begin()); i != indices -> end(); i++) {
         // Add all the indices that got added to this column.
         for (int j = 0; j < I[*i].size(); j++) {
-            if (!visited[(*I)[*i][j]]) {
-                indices -> push_back((*I)[*i][j]);
-                visited[(*I)[*i][j]] = true;
+            if (!visited[I[*i][j]]) {
+                indices -> push_back(I[*i][j]);
+                visited[I[*i][j]] = true;
             }
         }
     }
