@@ -76,11 +76,11 @@ int pivot (std::vector<int> *a);
             (true, i, j) if there is a pivot conflict between columns i and j,
             (false, -1, -1) otherwise.
 */
-tuple<int,  int, bool> pivot_conflict (std::vector<std::vector<int> > *matrix, vector<int> *pivot_entries);
+tuple<int,  int, bool> pivot_conflict (std::vector<std::vector<int> > *matrix);
 
 int pivot (std::vector<int> *a);
 
-void reduce(vector<int> *a, vector<vector<int> > *M, vector<int> *indices, vector<int> *pivot_entries);
+void reduce(vector<int> *a, vector<vector<int> > *M, vector<int> *indices);
 
 void find_indices(vector<vector<int>> *I, vector<int> *indices);
 
@@ -138,7 +138,7 @@ void ZigzagRep::compute(
                         C[p][j].push_back(1);
                     }
                     else {
-                        Z[p][j].push_back(0);
+                        // Z[p][j].push_back(0);
                         C[p][j].push_back(0);
                     }
                 }
@@ -152,7 +152,6 @@ void ZigzagRep::compute(
             column bd_simp;
             // Represent the boundary of simp as a sum of columns of Z_{p-1} by a reduction algorithm; I is such set of columns.
             column I;
-            vector<int> pivot_entries;
             if (p != 0) {
                 int b = C[p-1].size();
                 for (int j = 0; j < b; j++) {
@@ -164,7 +163,7 @@ void ZigzagRep::compute(
                     boundary_simplex.erase(boundary_simplex.begin() + i);
                     bd_simp[id[p-1][boundary_simplex]] = 1;
                 }
-                reduce(&bd_simp, &Z[p-1], &I, &pivot_entries);
+                reduce(&bd_simp, &Z[p-1], &I);
                 // Check the birth timestamp of a to check whether all of them are boundaries.
                 for (auto a: I) {
                     if (birth_timestamp[p-1][a] >= 0) {
@@ -240,7 +239,7 @@ void ZigzagRep::compute(
                 Avoiding pivot conflicts (column of bd.(simp) with that of another column in Z_{p-1}) as follows:
                     
                 */
-                tuple<int, int, bool> pivot_conflict_tuple =  pivot_conflict(&Z[p-1], &pivot_entries);
+                tuple<int, int, bool> pivot_conflict_tuple =  pivot_conflict(&Z[p-1]);
                 int a = get<0>(pivot_conflict_tuple);
                 int b = get<1>(pivot_conflict_tuple);
                 bool exists_pivot_conflict = get<2>(pivot_conflict_tuple);
@@ -391,10 +390,12 @@ void ZigzagRep::compute(
 void add_columns(vector<int> *a, vector<int> *b, vector<int> *c)
 {
     int length = a->size();
+    vector<int> c_temp;
     // Iterate over a and b and add them bitwise to c.
     for (int i = 0; i < length; i++) {
-        (*c)[i] = (*a)[i] ^ (*b)[i];
+        c_temp.push_back((*a)[i] ^ (*b)[i]);
     }
+    *c = c_temp;
 }
 
 // Goes over a vector of ints and finds the position of the last non-zero element.
@@ -410,15 +411,17 @@ int pivot (vector<int> *a)
 }
 
 // Goes over the columns of the matrix and returns the first pair with the same pivots.
-std::tuple<int,  int, bool> pivot_conflict (vector<vector<int> > *matrix, vector<int> *pivot_entries)
+std::tuple<int,  int, bool> pivot_conflict (vector<vector<int> > *matrix)
 {
-    for (int i = 0; i < matrix->size()-1; i++) {
-        pivot_entries -> push_back(pivot(&((*matrix)[i])));
+    vector<int> pivot_entries;
+    // Recompute pivots:
+    for (int i = 0; i < matrix -> size(); i++) {
+        pivot_entries.push_back(pivot(&(*matrix)[i]));
     }
     for (int i = 0; i < matrix->size()-1; i++) {
-        if ((*pivot_entries)[i] != -1) {
+        if (pivot_entries[i] != -1) {
             for (int j = i+1; j < matrix->size(); j++) {
-                if ((*pivot_entries)[i] == (*pivot_entries)[j]) {
+                if (pivot_entries[i] == pivot_entries[j]) {
                     return std::make_tuple(i, j, true);
                 }
             }
@@ -429,14 +432,15 @@ std::tuple<int,  int, bool> pivot_conflict (vector<vector<int> > *matrix, vector
 
 
 // Reduction algorithm: given a column a, find the indices of the columns in M such that the columns sum to a.
-void reduce(vector<int> *a, vector<vector<int>> *M, vector<int> *indices, vector<int> *pivot_entries)
+void reduce(vector<int> *a, vector<vector<int>> *M, vector<int> *indices)
 {
     // Append a to M.
     M -> push_back(*a);
     int k = M -> size();
     std::vector<vector<int>> I;
+    vector<int> pivot_entries;
     for (int i = 0; i < M->size(); i++) {
-        pivot_entries -> push_back(pivot(&((*M)[i])));
+        pivot_entries.push_back(pivot(&((*M)[i])));
         std::vector<int> I_i;
         I.push_back(I_i);
         bool pivot_conflict = false;
@@ -457,7 +461,7 @@ void reduce(vector<int> *a, vector<vector<int>> *M, vector<int> *indices, vector
             // Resolve pivot conflict and keep track of the column that was added in I.
             if (pivot_conflict) {
                 add_columns(&((*M)[i]), &((*M)[conflicting_column]), &((*M)[i]));
-                (*pivot_entries)[i] = pivot(&((*M)[i]));
+                pivot_entries[i] = pivot(&((*M)[i]));
                 I[i].push_back(conflicting_column);
             }
         }
