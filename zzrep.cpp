@@ -76,11 +76,11 @@ int pivot (std::vector<int> *a);
             (true, i, j) if there is a pivot conflict between columns i and j,
             (false, -1, -1) otherwise.
 */
-tuple<int,  int, bool> pivot_conflict (std::vector<std::vector<int> > *matrix);
+tuple<int,  int, bool> pivot_conflict (std::vector<std::vector<int> > *matrix, vector<int> *pivot_entries);
 
 int pivot (std::vector<int> *a);
 
-void reduce(vector<int> *a, vector<vector<int> > *M, vector<int> *indices);
+void reduce(vector<int> *a, vector<vector<int> > *M, vector<int> *indices, vector<int> *pivot_entries);
 
 void find_indices(vector<vector<int>> *I, vector<int> *indices);
 
@@ -152,6 +152,7 @@ void ZigzagRep::compute(
             column bd_simp;
             // Represent the boundary of simp as a sum of columns of Z_{p-1} by a reduction algorithm; I is such set of columns.
             column I;
+            vector<int> pivot_entries;
             if (p != 0) {
                 int b = C[p-1].size();
                 for (int j = 0; j < b; j++) {
@@ -163,10 +164,10 @@ void ZigzagRep::compute(
                     boundary_simplex.erase(boundary_simplex.begin() + i);
                     bd_simp[id[p-1][boundary_simplex]] = 1;
                 }
-                reduce(&bd_simp, &Z[p-1], &I);
+                reduce(&bd_simp, &Z[p-1], &I, &pivot_entries);
                 // Check the birth timestamp of a to check whether all of them are boundaries.
                 for (auto a: I) {
-                    if (birth_timestamp[p][a] >= 0) {
+                    if (birth_timestamp[p-1][a] >= 0) {
                         all_boundary = false;
                         break;
                     }
@@ -232,16 +233,6 @@ void ZigzagRep::compute(
                 // Output the (p − 1)-th interval [b^{p−1}[k], i].
                 persistence->push_back(std::make_tuple(birth_timestamp[p-1][k], i, p-1, Z[p-1][k]));
                 // Set Z_{p−1}[k] = bd.(simp), C[p][k] = simp, and b^{p−1}[k] = −1.
-                vector<int> bd_simp;
-                for (int j = 0; j < p; j++) {
-                    bd_simp.push_back(0);
-                }
-                for (int i = 0; i <= p; i++) {
-                    // Remove the i-th vertex.
-                    vector<int> boundary_simplex = simp;
-                    boundary_simplex.erase(boundary_simplex.begin() + i);
-                    bd_simp[id[p-1][boundary_simplex]] = 1;
-                }
                 Z[p-1][k] = bd_simp;
                 C[p][k] = simp;
                 birth_timestamp[p-1][k] = -1;
@@ -249,7 +240,7 @@ void ZigzagRep::compute(
                 Avoiding pivot conflicts (column of bd.(simp) with that of another column in Z_{p-1}) as follows:
                     
                 */
-                tuple<int, int, bool> pivot_conflict_tuple =  pivot_conflict(&Z[p-1]);
+                tuple<int, int, bool> pivot_conflict_tuple =  pivot_conflict(&Z[p-1], &pivot_entries);
                 int a = get<0>(pivot_conflict_tuple);
                 int b = get<1>(pivot_conflict_tuple);
                 bool exists_pivot_conflict = get<2>(pivot_conflict_tuple);
@@ -419,37 +410,33 @@ int pivot (vector<int> *a)
 }
 
 // Goes over the columns of the matrix and returns the first pair with the same pivots.
-std::tuple<int,  int, bool> pivot_conflict (vector<vector<int> > *matrix)
+std::tuple<int,  int, bool> pivot_conflict (vector<vector<int> > *matrix, vector<int> *pivot_entries)
 {
-    int prev_pivot = -1;
-    int prev_pivot_column = -1;
-    int current_pivot = -1;
-    int current_pivot_column = -1;
-    bool exists_pivot_conflict = false;
-    for (int i = 0; i < matrix->size(); i++) {
-        current_pivot = pivot(&(*matrix)[i]);
-        current_pivot_column = i;
-        if (current_pivot == prev_pivot) {
-            exists_pivot_conflict = true;
-            break;
-        }
-        prev_pivot = current_pivot;
-        prev_pivot_column = current_pivot_column;
+    for (int i = 0; i < matrix->size()-1; i++) {
+        pivot_entries -> push_back(pivot(&((*matrix)[i])));
     }
-    return std::make_tuple(prev_pivot_column, current_pivot_column, exists_pivot_conflict);
+    for (int i = 0; i < matrix->size()-1; i++) {
+        if ((*pivot_entries)[i] != -1) {
+            for (int j = i+1; j < matrix->size(); j++) {
+                if ((*pivot_entries)[i] == (*pivot_entries)[j]) {
+                    return std::make_tuple(i, j, true);
+                }
+            }
+        }
+    }
+    return std::make_tuple(-1, -1, false);
 }
 
 
 // Reduction algorithm: given a column a, find the indices of the columns in M such that the columns sum to a.
-void reduce(vector<int> *a, vector<vector<int>> *M, vector<int> *indices)
+void reduce(vector<int> *a, vector<vector<int>> *M, vector<int> *indices, vector<int> *pivot_entries)
 {
     // Append a to M.
     M -> push_back(*a);
     int k = M -> size();
     std::vector<vector<int>> I;
-    std::vector<int> pivot_entries;
     for (int i = 0; i < M->size(); i++) {
-        pivot_entries.push_back(pivot(&((*M)[i])));
+        pivot_entries -> push_back(pivot(&((*M)[i])));
         std::vector<int> I_i;
         I.push_back(I_i);
         bool pivot_conflict = false;
@@ -470,7 +457,7 @@ void reduce(vector<int> *a, vector<vector<int>> *M, vector<int> *indices)
             // Resolve pivot conflict and keep track of the column that was added in I.
             if (pivot_conflict) {
                 add_columns(&((*M)[i]), &((*M)[conflicting_column]), &((*M)[i]));
-                pivot_entries[i] = pivot(&((*M)[i]));
+                (*pivot_entries)[i] = pivot(&((*M)[i]));
                 I[i].push_back(conflicting_column);
             }
         }
@@ -478,19 +465,20 @@ void reduce(vector<int> *a, vector<vector<int>> *M, vector<int> *indices)
     }
     // Find all the indices that add to the zeroing of the boundary.
     std::unordered_map<int, bool> visited;
-    // Add all the indices that got added to the last column.
-    indices -> push_back(I.size() - 1);
-    for (auto i = (indices -> begin()); i != indices -> end(); i++) {
-        // Add all the indices that got added to this column.
-        for (int j = 0; j < I[*i].size(); j++) {
-            if (!visited[I[*i][j]]) {
-                indices -> push_back(I[*i][j]);
-                visited[I[*i][j]] = true;
+    // Iterate over the last column of I and add all the indices that got added to this column.
+    for (int i = 0; i < I[k-1].size(); i++) {
+        int c = I[k-1][i];
+        indices -> push_back(c);
+        visited.insert({c, true});
+        if (I[c].size() != 0){
+            for (int j = 0; j < I[c].size(); j++) {
+                if (!visited[I[c][j]]) {
+                    indices -> push_back(I[c][j]);
+                    visited.insert({I[c][j], true});
+                }
             }
         }
     }
-    // Remove the last column.
-    indices -> pop_back();
 }
 
 }// namespace ZZREP
