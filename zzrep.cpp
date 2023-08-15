@@ -140,6 +140,7 @@ void ZigzagRep::compute(
                     else {
                         // Z[p][j].push_back(0);
                         C[p][j].push_back(0);
+                        if (p == 0)  Z[p][j].push_back({0});
                     }
                 }
             }
@@ -180,10 +181,7 @@ void ZigzagRep::compute(
                 */
                 vector<int> new_column;
                 if (p != 0)  {
-                    for (int j = 0; j < p; j++) {
-                        bd_simp.push_back(0);
-                    }
-                    new_column[id[p][simp]] = 1;
+                    new_column = C[p].back();
                     for (auto a: I) {
                         add_columns(&new_column, &C[p][a], &new_column);
                     }
@@ -210,30 +208,33 @@ void ZigzagRep::compute(
                         J.push_back(a);
                     }
                 }
-                /*
-                If φ_{b^{p−1}[c]−1} (the arrow at b^{p−1}[c]−1) points backward for all c in J, let k be the smallest index in J; 
-                otherwise, let k be the largest c in J such that φ_{b^{p−1}[c]−1} points forward. 
-                */
+                // Check if arrow at b^{p−1}[c]−1 points backward for all c in J
                 int k;
                 bool arrow_backward = true;
-                // Check if arrow at b^{p−1}[c]−1 points backward for all c in J
                 for (auto c: J) {
                     if (filt_op[birth_timestamp[p-1][c]-1]) {
                         arrow_backward = false;
                         break;
                     }
                 }
+                sort(J.begin(), J.end());
                 if (arrow_backward) {
+                    // the arrow at b^{p−1}[c]−1) points backward for all c in J, let k be the smallest index in J.
                     k = *J.begin();
                 }
                 else {
-                    k = *J.rbegin();
+                    // let k be the largest c in J such that φ_{b^{p−1}[c]−1} points forward. 
+                    for (k = *J.rbegin(); k >= 0; k--) {
+                        if (filt_op[birth_timestamp[p-1][k]-1]) {
+                            break;
+                        }
+                    }
                 }
                 // Output the (p − 1)-th interval [b^{p−1}[k], i].
                 persistence->push_back(std::make_tuple(birth_timestamp[p-1][k], i, p-1, Z[p-1][k]));
                 // Set Z_{p−1}[k] = bd.(simp), C[p][k] = simp, and b^{p−1}[k] = −1.
                 Z[p-1][k] = bd_simp;
-                C[p][k] = simp;
+                // C[p][k] = simp;
                 birth_timestamp[p-1][k] = -1;
                 /*
                 Avoiding pivot conflicts (column of bd.(simp) with that of another column in Z_{p-1}) as follows:
@@ -467,6 +468,7 @@ void reduce(vector<int> *a, vector<vector<int>> *M, vector<int> *indices)
         }
         while (pivot_conflict);
     }
+    M -> pop_back();
     // Find all the indices that add to the zeroing of the boundary.
     std::unordered_map<int, bool> visited;
     // Iterate over the last column of I and add all the indices that got added to this column.
