@@ -125,7 +125,7 @@ void ZigzagRep::compute(
             int j = id[p].size();
             (id[p]).emplace(simp, j);
             // Add a row with all zeros at the end to Z[p] and C[p].
-            int k = C[p].size();
+            int k = id[p].size() - 1;
             if (k != 0) {
                 column last_column_C;
                 // Add all zeros to this last column:
@@ -154,7 +154,7 @@ void ZigzagRep::compute(
             // Represent the boundary of simp as a sum of columns of Z_{p-1} by a reduction algorithm; I is such set of columns.
             column I;
             if (p != 0) {
-                int b = C[p-1].size();
+                int b = id[p-1].size();
                 for (int j = 0; j < b; j++) {
                     bd_simp.push_back(0);
                 }
@@ -209,7 +209,7 @@ void ZigzagRep::compute(
                     }
                 }
                 // Check if arrow at b^{p−1}[c]−1 points backward for all c in J
-                int k;
+                int l;
                 bool arrow_backward = true;
                 for (auto c: J) {
                     if (filt_op[birth_timestamp[p-1][c]-1]) {
@@ -220,22 +220,29 @@ void ZigzagRep::compute(
                 sort(J.begin(), J.end());
                 if (arrow_backward) {
                     // the arrow at b^{p−1}[c]−1) points backward for all c in J, let k be the smallest index in J.
-                    k = *J.begin();
+                    l = *J.begin();
                 }
                 else {
                     // let k be the largest c in J such that φ_{b^{p−1}[c]−1} points forward. 
-                    for (k = *J.rbegin(); k >= 0; k--) {
-                        if (filt_op[birth_timestamp[p-1][k]-1]) {
+                    for (auto i = J.size()-1; i != 0; i--) {
+                        if (filt_op[birth_timestamp[p-1][J[i]]-1]) {
+                            l = J[i];
                             break;
                         }
                     }
                 }
-                // Output the (p − 1)-th interval [b^{p−1}[k], i].
-                persistence->push_back(std::make_tuple(birth_timestamp[p-1][k], i, p-1, Z[p-1][k]));
-                // Set Z_{p−1}[k] = bd.(simp), C[p][k] = simp, and b^{p−1}[k] = −1.
-                Z[p-1][k] = bd_simp;
-                // C[p][k] = simp;
-                birth_timestamp[p-1][k] = -1;
+                // Output the (p − 1)-th interval [b^{p−1}[l], i].
+                persistence->push_back(std::make_tuple(birth_timestamp[p-1][l], i, p-1, Z[p-1][l]));
+                // Set Z_{p−1}[l] = bd.(simp), C[p][l] = simp, and b^{p−1}[l] = −1.
+                Z[p-1][l] = bd_simp;
+                if (C[p][l].size() != 0)
+                {
+                    C[p][l] = C[p].back();
+                }
+                else {
+                    C[p].push_back(C[p].back());
+                }
+                birth_timestamp[p-1][l] = -1;
                 /*
                 Avoiding pivot conflicts (column of bd.(simp) with that of another column in Z_{p-1}) as follows:
                     
