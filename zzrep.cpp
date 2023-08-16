@@ -223,8 +223,8 @@ void ZigzagRep::compute(
                     l = *J.begin();
                 }
                 else {
-                    // let k be the largest c in J such that φ_{b^{p−1}[c]−1} points forward. 
-                    for (auto i = J.size()-1; i != 0; i--) {
+                    // let k be the largest c in J such that φ_{b^{p−1}[c]−1} points forward.
+                    for (auto i = J.size()-1; i >= 0; i--) {
                         if (filt_op[birth_timestamp[p-1][J[i]]-1]) {
                             l = J[i];
                             break;
@@ -288,15 +288,15 @@ void ZigzagRep::compute(
                     break;
                 }
             } 
-            if (existence)// Case: Birth.
+            if (!existence)// Case: Birth.
             {   
                 int a, b;
-                bool boundary_pairs_bool;
+                bool boundary_pairs_bool = false;
                 for (int i = 0; i < Z[p-1].size(); i++) 
                 {
                     for (int j = 0; j < Z[p-1].size(); j++) 
                     {
-                        if (birth_timestamp[p-1][i] < 0 && birth_timestamp[p-1][j] < 0 && (C[p][i][id[p][simp]]==1) && (C[p][j][id[p][simp]]==1)) 
+                        if (i != j && birth_timestamp[p-1][i] < 0 && birth_timestamp[p-1][j] < 0 && (C[p][i][id[p][simp]]==1) && (C[p][j][id[p][simp]]==1)) 
                         {
                             a = i; b = j; boundary_pairs_bool = true;
                         }
@@ -342,39 +342,41 @@ void ZigzagRep::compute(
             else // Case: Death.
             {
                 // Update C[p] so that no columns contain the simplex.
-                for (int a = 0; a < Z[p-1].size(); a++)
+                for (int a = 0; a < Z[p].size(); a++)
                 {
-                    if (Z[p-1][a][id[p][simp]]==1) {
+                    if (Z[p][a][id[p][simp]]==1) {
                         for (int b = 0; b < C[p].size(); b++) 
                         {
-                            if ((C[p][b][id[p][simp]]==1) && (birth_timestamp[p-1][b] < 0)) // each column in C[p][b] containing the simplex for which Z_{p-1}[b] is a boundary).
+                            if (C[p][b][id[p][simp]]==1) // each column in C[p][b] containing the simplex.
                             {    
-                                add_columns(&Z[p][a], &C[p][b], &C[p][b]);
                                 add_columns(&C[p][b], &Z[p][a], &C[p][b]);
                             }
                         }
                     }
                 }
+                // TODO: Remove the last zero row and update id as well.
                 // Remove the simplex from Z[p]
                 // I contains the columns that contain the simplex.
                 vector<int> I;
-                for (int a = 0; a < Z[p-1].size(); a++) // each column Z[p][a] containing the simplex
+                for (int a = 0; a < Z[p].size(); a++) // each column Z[p][a] containing the simplex
                 {
-                    if (Z[p-1][a][id[p][simp]]==1) I.push_back(a);
+                    if (Z[p][a][id[p][simp]]==1) I.push_back(a);
                 }
                 // sort I in the order of the birth timestamps where the order is the total order as above.
                 sort(I.begin(), I.end(), [&](int &a, int &b){ return ((I[a] == b) || ((I[a] < b) && (filt_op[I[b]-1])) || ((I[a] > I[b]) && (!(filt_op[I[a]-1]))));});
                 vector<int> z = Z[p][I[0]];
                 for (auto a: I)
                 {
-                    if (pivot(&Z[p][a]) > pivot(&z)) {
-                        add_columns(&Z[p][a], &z, &Z[p][a]);
-                    }   
-                    else 
-                    {
-                        vector<int> temp = Z[p][a];
-                        add_columns(&Z[p][a], &z, &Z[p][a]);
-                        z = temp;
+                    if (a != I[0]) {
+                        if (pivot(&Z[p][a]) > pivot(&z)) {
+                            add_columns(&Z[p][a], &z, &Z[p][a]);
+                        }   
+                        else 
+                        {
+                            vector<int> temp = Z[p][a];
+                            add_columns(&Z[p][a], &z, &Z[p][a]);
+                            z = temp;
+                        }
                     }
                 }
                 // Output the p-th interval [birth_timestamp_p[I[0]], i].
