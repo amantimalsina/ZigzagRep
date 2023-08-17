@@ -3,69 +3,21 @@
 #include <algorithm>
 #include <unordered_map>
 #include <tuple>
-#include <boost/container_hash/hash.hpp> // Changed functional to container_hash
+#include <boost/bimap.hpp>
+#include <boost/dynamic_bitset.hpp>
 
 using namespace std;
 
 namespace ZZREP { 
- 
-template <class ElemType>
-class VecHash { 
-public:
-    size_t operator()(const vector<ElemType>& v) const; 
-};
 
-template <class ElemType>
-size_t VecHash<ElemType>
-    ::operator()(const vector<ElemType>& v) const {
+typedef boost::bimaps::bimap<vector<int>, int> SimplexIdMap;
+typedef SimplexIdMap::value_type SimplexIdPair;
 
-    size_t seed = 0;
+typedef boost::dynamic_bitset<> column;
 
-    for (auto e : v) { boost::hash_combine(seed, e); }
+void add_columns(column *a, column *b, column *c);
 
-    return seed;
-}
-
-template <class ElemType>
-class VecEqual { 
-public:
-    bool operator()(const vector<ElemType>& v1, 
-        const vector<ElemType>& v2) const; 
-};
-
-template <class ElemType>
-bool VecEqual<ElemType>
-    ::operator()(const vector<ElemType>& v1, 
-        const vector<ElemType>& v2) const {
-
-    if (v1.size() != v2.size()) { return false; }
-
-    for (auto i = 0; i < v1.size(); i ++) {
-        if (v1[i] != v2[i]) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-typedef unordered_map< vector<int>, int,
-    VecHash<int>, VecEqual<int> > SimplexIdMap;
-/*
-        Description: 
-            Adds two binary vectors using bitwise XOR
-        Input: 
-             binary vectors a,b.
-        Output: 
-            pointer to c = a+b.
-*/
-
-typedef vector<int> column;
-
-
-void add_columns(std::vector<int> *a, std::vector<int> *b, std::vector<int> *c);
-
-int pivot (std::vector<int> *a);
+int pivot (column *a);
 
 /*
         Description: 
@@ -76,18 +28,16 @@ int pivot (std::vector<int> *a);
             (true, i, j) if there is a pivot conflict between columns i and j,
             (false, -1, -1) otherwise.
 */
-tuple<int,  int, bool> pivot_conflict (std::vector<std::vector<int> > *matrix);
+tuple<int,  int, bool> pivot_conflict (std::vector<column> *matrix);
 
-int pivot (std::vector<int> *a);
+int pivot (column *a);
 
-void reduce(vector<int> *a, vector<vector<int> > *M, vector<int> *indices);
-
-void find_indices(vector<vector<int>> *I, vector<int> *indices);
+void reduce(column *a, vector<column> *M, vector<int> *indices);
 
 void ZigzagRep::compute(
         const std::vector<vector<int> > &filt_simp, 
         const std::vector<bool> &filt_op,
-        std::vector <tuple <int, int, int, vector<int> > > *persistence, int m) {
+        std::vector <tuple <int, int, int, std::vector<std::vector<int> > > > *persistence, int m) {
     
     persistence -> clear();
     int n = filt_simp.size();
@@ -96,20 +46,20 @@ void ZigzagRep::compute(
     1. The number of columns of Z[p] and C[p-1] equals rank Z_p(K_i) and the number of rows of Z[p] and C[p-1] equals n.
     2. Each column of Z[p] and C[p] represents a p-chain in K_i such that for each simplex s in K_i, s belongs to the p-chain if and only if the bit with index id[s] in the column equals 1.
     */
-    vector<vector<vector<int> > > Z;
-    vector<vector<vector<int> > > C;
+    vector<vector<column> > Z;
+    vector<vector<column> > C;
     /*
     Define a unique integral id less than n to each simplex.
     Moreover, for each column Z_p[j], a birth timestamp b_p[j] is maintained.
     */
     vector<SimplexIdMap> id;
-    vector<vector<int> > birth_timestamp;
+    vector<vector<int>> birth_timestamp;
 
     for (int p = 0; p <= m; p++) {
         vector<column> Z_p;
         vector<column> C_p;
         SimplexIdMap id_p;
-        column birth_timestamp_p;
+        vector<int> birth_timestamp_p;
         Z.push_back(Z_p);
         C.push_back(C_p);
         id.push_back(id_p);
@@ -123,7 +73,7 @@ void ZigzagRep::compute(
             // INSERTION:
             // A p-simplex is inserted into id[p] and a (p-1)-simplex is inserted into pm1_id. Next, we add a row to Z[p] and C[p], according to the dimension of simp.
             int j = id[p].size();
-            (id[p]).emplace(simp, j);
+            (id[p]).insert(SimplexIdPair(simp, j));
             // Add a row with all zeros at the end to Z[p] and C[p].
             int k = id[p].size() - 1;
             if (k != 0) {
@@ -137,27 +87,27 @@ void ZigzagRep::compute(
                     else {
                         // Z[p][j].push_back(0);
                         C[p][j].push_back(0);
-                        if (p == 0)  Z[p][j].push_back({0});
+                        if (p == 0)  Z[p][j].push_back(0);
                     }
                 }
             }
             else {
-                C[p].push_back({1});
-                if (p == 0)  Z[p].push_back({1});
+                C[p].push_back(column(1,1));
+                if (p == 0)  Z[p].push_back(column(1,1));
             }
             bool all_boundary = true;
             // Compute boundary of the simplex:
             column bd_simp;
             // Represent the boundary of simp as a sum of columns of Z_{p-1} by a reduction algorithm; I is such set of columns.
-            column I;
+            vector<int> I;
             if (p != 0) {
+                column temp(id[p-1].size(), 0);
+                bd_simp = temp;
                 for (int i = 0; i <= p; i++) { 
-                    column temp(id[p-1].size(), 0);
-                    bd_simp = temp;
                     // Remove the i-th vertex.
                     vector<int> boundary_simplex = simp;
                     boundary_simplex.erase(boundary_simplex.begin() + i);
-                    bd_simp[id[p-1][boundary_simplex]] = 1;
+                    bd_simp[id[p-1].left.at(boundary_simplex)] = 1;
                 }
                 reduce(&bd_simp, &Z[p-1], &I);
                 // Check the birth timestamp of a to check whether all of them are boundaries.
@@ -174,7 +124,7 @@ void ZigzagRep::compute(
                 An interval in dimension p gets born: 
                 Append a new column simp + \sum_{a \in I} C^{p}[a] with birth timestamp i+1 to Z^p.
                 */
-                vector<int> new_column;
+                column new_column;
                 if (p != 0)  {
                     new_column = C[p].back();
                     for (auto a: I) {
@@ -185,7 +135,7 @@ void ZigzagRep::compute(
                 else if (p == 0 && k != 0) {
                     column temp(C[p].back().size(), 0);
                     new_column = temp;
-                    new_column[id[p][simp]] = 1;
+                    new_column[id[p].left.at(simp)] = 1;
                     Z[p].push_back(new_column);
                 }
                 birth_timestamp[p].push_back(i+1);
@@ -225,7 +175,13 @@ void ZigzagRep::compute(
                     }
                 }
                 // Output the (p − 1)-th interval [b^{p−1}[l], i].
-                persistence->push_back(std::make_tuple(birth_timestamp[p-1][l], i, p-1, Z[p-1][l]));
+                vector<vector<int>> representative;
+                for (int i = 0; i < Z[p-1][l].size(); i++) {
+                    if (Z[p-1][l][i] == 1) {
+                        representative.push_back(id[p-1].right.at(i));
+                    }
+                }
+                persistence->push_back(std::make_tuple(birth_timestamp[p-1][l], i, p-1, representative));
                 // Set Z_{p−1}[l] = bd.(simp), C[p][l] = simp, and b^{p−1}[l] = −1.
                 Z[p-1][l] = bd_simp;
                 if (C[p][l].size() != 0)
@@ -245,7 +201,7 @@ void ZigzagRep::compute(
                 int b = get<1>(pivot_conflict_tuple);
                 bool exists_pivot_conflict = get<2>(pivot_conflict_tuple);
                 while (exists_pivot_conflict) {
-                    vector<int> Z_pm1_aplusb;
+                    column Z_pm1_aplusb;
                     add_columns(&Z[p-1][a], &Z[p-1][b], &Z_pm1_aplusb);
                     if (birth_timestamp[p-1][a] < 0 && birth_timestamp[p-1][b] < 0) {
                         Z[p-1][a] = Z_pm1_aplusb;
@@ -273,10 +229,11 @@ void ZigzagRep::compute(
                     exists_pivot_conflict = get<2>(pivot_conflict_tuple);
                     }
             }
-        } else { // Case: Arrow points backward.
+        } 
+        else { // Case: Arrow points backward.
             bool existence = false;
             for (auto column: Z[p]) {
-                if (column[id[p][simp]]==1) {
+                if (column[id[p].left.at(simp)]==1) {
                     existence = true;
                     break;
                 }
@@ -289,15 +246,15 @@ void ZigzagRep::compute(
                 {
                     for (int j = 0; j < Z[p-1].size(); j++) 
                     {
-                        if (i != j && birth_timestamp[p-1][i] < 0 && birth_timestamp[p-1][j] < 0 && (C[p][i][id[p][simp]]==1) && (C[p][j][id[p][simp]]==1)) 
+                        if (i != j && birth_timestamp[p-1][i] < 0 && birth_timestamp[p-1][j] < 0 && (C[p][i][id[p].left.at(simp)]==1) && (C[p][j][id[p].left.at(simp)]==1)) 
                         {
                             a = i; b = j; boundary_pairs_bool = true;
                         }
                     }
                 }
                 while (boundary_pairs_bool) {
-                    vector<int> Z_pm1_aplusb;
-                    vector<int> C_p_aplusb;
+                    column Z_pm1_aplusb;
+                    column C_p_aplusb;
                     add_columns(&Z[p-1][a], &Z[p-1][b], &Z_pm1_aplusb);
                     add_columns(&C[p][a], &C[p][b], &C_p_aplusb);
                     if (pivot(&Z[p-1][a]) > pivot(&Z[p-1][b])) 
@@ -314,7 +271,7 @@ void ZigzagRep::compute(
                     {
                         for (int j = 0; j < Z[p-1].size(); j++) 
                         {
-                            if (birth_timestamp[p-1][i] < 0 && birth_timestamp[p-1][j] < 0 && (C[p][i][id[p][simp]]==1) && (C[p][j][id[p][simp]]==1)) 
+                            if (birth_timestamp[p-1][i] < 0 && birth_timestamp[p-1][j] < 0 && (C[p][i][id[p].left.at(simp)]==1) && (C[p][j][id[p].left.at(simp)]==1)) 
                             {
                                 a = i; b = j; boundary_pairs_bool = true;
                             }
@@ -322,10 +279,10 @@ void ZigzagRep::compute(
                     }
                 }
                 // find the only column Z_{p-1}[a] with negative birth timestamp such that C[p][a] contains the simplex.
-                vector<int> column;
+                column column;
                 int x = 0;
                 for (x = 0; x < Z[p-1].size(); x++) {
-                    if ((birth_timestamp[p-1][x] < 0) && (C[p][x][id[p][simp]]==1)) {
+                    if ((birth_timestamp[p-1][x] < 0) && (C[p][x][id[p].left.at(simp)]==1)) {
                         column = Z[p-1][x];
                         break;
                     }
@@ -337,10 +294,10 @@ void ZigzagRep::compute(
                 // Update C[p] so that no columns contain the simplex.
                 for (int a = 0; a < Z[p].size(); a++)
                 {
-                    if (Z[p][a][id[p][simp]]==1) {
+                    if (Z[p][a][id[p].left.at(simp)]==1) {
                         for (int b = 0; b < C[p].size(); b++) 
                         {
-                            if (C[p][b][id[p][simp]]==1) // each column in C[p][b] containing the simplex.
+                            if (C[p][b][id[p].left.at(simp)]==1) // each column in C[p][b] containing the simplex.
                             {    
                                 add_columns(&C[p][b], &Z[p][a], &C[p][b]);
                             }
@@ -352,13 +309,13 @@ void ZigzagRep::compute(
                 vector<int> I;
                 for (int a = 0; a < Z[p].size(); a++) // each column Z[p][a] containing the simplex
                 {
-                    if (Z[p][a][id[p][simp]]==1) I.push_back(a);
+                    if (Z[p][a][id[p].left.at(simp)]==1) I.push_back(a);
                 }
                 // sort I in the order of the birth timestamps where the order is the total order as above.
                 sort(I.begin(), I.end(), [&](int &a, int &b){ return ((I[a] == b) || ((I[a] < b) && (filt_op[I[b]-1])) || ((I[a] > I[b]) && (!(filt_op[I[a]-1]))));});
                 int alpha = I[0];
                 I.erase(I.begin());
-                vector<int> z = Z[p][alpha];
+                column z = Z[p][alpha];
                 for (auto a: I)
                 {
                     if (pivot(&Z[p][a]) > pivot(&z)) {
@@ -366,40 +323,47 @@ void ZigzagRep::compute(
                     }   
                     else 
                     {
-                        vector<int> temp = Z[p][a];
+                        column temp = Z[p][a];
                         add_columns(&Z[p][a], &z, &Z[p][a]);
                         z = temp;
                     }
                 }
                 // Output the p-th interval [birth_timestamp_p[I[0]], i].
-                persistence->push_back(std::make_tuple(birth_timestamp[p][alpha], i, p, Z[p][alpha]));
+                vector<vector<int>> representative;
+                for (int i = 0; i < Z[p][alpha].size(); i++) {
+                    if (Z[p][alpha][i] == 1) {
+                        representative.push_back(id[p].right.at(i));
+                    }
+                }
+                persistence->push_back(std::make_tuple(birth_timestamp[p][alpha], i, p, representative));
                 // Delete the column Z[p][I[0]] from Z[p] and delete birth_timestamp_p[I[0]] from birth_timestamp_p.
                 Z[p].erase(Z[p].begin() + alpha);
                 birth_timestamp[p].erase(birth_timestamp[p].begin() + alpha);
+                /* 
+                UPDATE: There is no point in clearing this. This may cause memory overload but allows for bitwise operations.
                 // Remove the zero row and update id as well.
                 for (unsigned i = 0; i < C[p].size(); ++i)
                 {
-                if (C[p][i].size() > id[p][simp])
+                if (C[p][i].size() > id[p].left.at(simp))
                 {
                     C[p][i].erase(C[p][i].begin() + id[p][simp]);
                 }
                 }
                 for (unsigned i = 0; i < Z[p].size(); ++i)
                 {
-                if (Z[p][i].size() > id[p][simp])
+                if (Z[p][i].size() > id[p].left.at(simp))
                 {
                     Z[p][i].erase(Z[p][i].begin() + id[p][simp]);
                 }
                 }
                 // Iterate over id[p] and decrease the indices of the simplices that have index greater than id[simp].
-                for (auto it = id[p].begin(); it != id[p].end(); ++it)
+                SimplexIdMap::right_iterator it = id[p].right.lower_bound(id[p].left.at(simp));
+                for (; it != id[p].right.end(); ++it)
                 {
-                    if (it->second > id[p][simp])
-                    {
-                        it->second--;
-                    }
+                    id[p].right.modify_key( it, it->first - 1 );
                 }
                 id[p].erase(simp);
+                */
             }
         }
     }
@@ -407,16 +371,22 @@ void ZigzagRep::compute(
     for (int p = 0; p <= m; p++) {
         for (int a = 0; a < Z[p].size(); a++) {
             if (birth_timestamp[p][a] >= 0) {
-                persistence->push_back(std::make_tuple(birth_timestamp[p][a], n, p, Z[p][a]));
+                vector<vector<int>> representative;
+                for (int i = 0; i < Z[p][a].size(); i++) {
+                    if (Z[p][a][i] == 1) {
+                        representative.push_back(id[p].right.at(i));
+                    }
+                }
+                persistence->push_back(std::make_tuple(birth_timestamp[p][a], n, p, representative));
             }
         }
     }
 }
 
-void add_columns(vector<int> *a, vector<int> *b, vector<int> *c)
+void add_columns(column *a, column *b, column *c)
 {
     int length = a->size();
-    vector<int> c_temp;
+    column c_temp;
     // Iterate over a and b and add them bitwise to c.
     for (int i = 0; i < length; i++) {
         c_temp.push_back((*a)[i] ^ (*b)[i]);
@@ -425,7 +395,7 @@ void add_columns(vector<int> *a, vector<int> *b, vector<int> *c)
 }
 
 // Goes over a vector of ints and finds the position of the last non-zero element.
-int pivot (vector<int> *a)
+int pivot (column *a)
 {
     int length = a->size();
     for (int i = length - 1; i >= 0; i--) {
@@ -437,7 +407,7 @@ int pivot (vector<int> *a)
 }
 
 // Goes over the columns of the matrix and returns the first pair with the same pivots.
-std::tuple<int,  int, bool> pivot_conflict (vector<vector<int> > *matrix)
+std::tuple<int,  int, bool> pivot_conflict (vector<column > *matrix)
 {
     vector<int> pivot_entries;
     // Recompute pivots:
@@ -458,7 +428,7 @@ std::tuple<int,  int, bool> pivot_conflict (vector<vector<int> > *matrix)
 
 
 // Reduction algorithm: given a column a, find the indices of the columns in M such that the columns sum to a.
-void reduce(vector<int> *a, vector<vector<int>> *M, vector<int> *indices)
+void reduce(column *a, vector<column> *M, vector<int> *indices)
 {
     // Append a to M.
     M -> push_back(*a);

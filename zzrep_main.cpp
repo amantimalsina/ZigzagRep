@@ -62,7 +62,7 @@ int main(const int argc, const char *argv[]) {
 
     filt_fin.close();
 
-    std::vector< std::tuple<int, int, int, std::vector<int>>> persistence;
+    std::vector< std::tuple<int, int, int, std::vector<std::vector<int> >>> persistence;
     ZZREP::ZigzagRep zzr;
     zzr.compute(
         filt_simp, 
@@ -78,7 +78,10 @@ int main(const int argc, const char *argv[]) {
         pers_fout << std::get<2>(e) << " " << std::get<0>(e) 
             << " " << std::get<1>(e) << std::endl;   
         pers_fout << "rep: " << std::endl;
-        for (auto i : std::get<3>(e)) { pers_fout << i << " "; } 
+        for (auto simp : std::get<3>(e)) {
+            for (auto i : simp) {pers_fout << i << " ";}
+            pers_fout << std::endl;
+        } 
         pers_fout << std::endl << "-----------------------" << std::endl;    
     }
 
