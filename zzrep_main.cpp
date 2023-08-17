@@ -76,7 +76,10 @@ int main(const int argc, const char *argv[]) {
     // Change this to also display representatives.
     for (const auto& e : persistence) {
         pers_fout << std::get<2>(e) << " " << std::get<0>(e) 
-            << " " << std::get<1>(e) << std::endl;    
+            << " " << std::get<1>(e) << std::endl;   
+        pers_fout << "rep: " << std::endl;
+        for (auto i : std::get<3>(e)) { pers_fout << i << " "; } 
+        pers_fout << std::endl << "-----------------------" << std::endl;    
     }
 
     return 0;

@@ -127,11 +127,8 @@ void ZigzagRep::compute(
             // Add a row with all zeros at the end to Z[p] and C[p].
             int k = id[p].size() - 1;
             if (k != 0) {
-                column last_column_C;
+                column last_column_C(k, 0);
                 // Add all zeros to this last column:
-                for (int j = 0; j < k; j++) {
-                    last_column_C.push_back(0);
-                }
                 C[p].push_back(last_column_C);
                 for (int j = 0; j < C[p].size(); j++) {
                     if (j == C[p].size() - 1) {
@@ -154,11 +151,9 @@ void ZigzagRep::compute(
             // Represent the boundary of simp as a sum of columns of Z_{p-1} by a reduction algorithm; I is such set of columns.
             column I;
             if (p != 0) {
-                int b = id[p-1].size();
-                for (int j = 0; j < b; j++) {
-                    bd_simp.push_back(0);
-                }
-                for (int i = 0; i <= p; i++) {
+                for (int i = 0; i <= p; i++) { 
+                    column temp(id[p-1].size(), 0);
+                    bd_simp = temp;
                     // Remove the i-th vertex.
                     vector<int> boundary_simplex = simp;
                     boundary_simplex.erase(boundary_simplex.begin() + i);
@@ -188,10 +183,8 @@ void ZigzagRep::compute(
                     Z[p].push_back(new_column);
                 }
                 else if (p == 0 && k != 0) {
-                    int k = C[p].back().size();
-                    for (int j = 0; j < k; j++) {
-                        new_column.push_back(0);
-                    }
+                    column temp(C[p].back().size(), 0);
+                    new_column = temp;
                     new_column[id[p][simp]] = 1;
                     Z[p].push_back(new_column);
                 }
@@ -397,6 +390,14 @@ void ZigzagRep::compute(
                 {
                     Z[p][i].erase(Z[p][i].begin() + id[p][simp]);
                 }
+                }
+                // Iterate over id[p] and decrease the indices of the simplices that have index greater than id[simp].
+                for (auto it = id[p].begin(); it != id[p].end(); ++it)
+                {
+                    if (it->second > id[p][simp])
+                    {
+                        it->second--;
+                    }
                 }
                 id[p].erase(simp);
             }
