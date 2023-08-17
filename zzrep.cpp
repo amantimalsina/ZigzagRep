@@ -354,7 +354,6 @@ void ZigzagRep::compute(
                         }
                     }
                 }
-                // TODO: Remove the last zero row and update id as well.
                 // Remove the simplex from Z[p]
                 // I contains the columns that contain the simplex.
                 vector<int> I;
@@ -364,26 +363,42 @@ void ZigzagRep::compute(
                 }
                 // sort I in the order of the birth timestamps where the order is the total order as above.
                 sort(I.begin(), I.end(), [&](int &a, int &b){ return ((I[a] == b) || ((I[a] < b) && (filt_op[I[b]-1])) || ((I[a] > I[b]) && (!(filt_op[I[a]-1]))));});
-                vector<int> z = Z[p][I[0]];
+                int alpha = I[0];
+                I.erase(I.begin());
+                vector<int> z = Z[p][alpha];
                 for (auto a: I)
                 {
-                    if (a != I[0]) {
-                        if (pivot(&Z[p][a]) > pivot(&z)) {
-                            add_columns(&Z[p][a], &z, &Z[p][a]);
-                        }   
-                        else 
-                        {
-                            vector<int> temp = Z[p][a];
-                            add_columns(&Z[p][a], &z, &Z[p][a]);
-                            z = temp;
-                        }
+                    if (pivot(&Z[p][a]) > pivot(&z)) {
+                        add_columns(&Z[p][a], &z, &Z[p][a]);
+                    }   
+                    else 
+                    {
+                        vector<int> temp = Z[p][a];
+                        add_columns(&Z[p][a], &z, &Z[p][a]);
+                        z = temp;
                     }
                 }
                 // Output the p-th interval [birth_timestamp_p[I[0]], i].
-                persistence->push_back(std::make_tuple(birth_timestamp[p][I[0]], i, p, Z[p][I[0]]));
+                persistence->push_back(std::make_tuple(birth_timestamp[p][alpha], i, p, Z[p][alpha]));
                 // Delete the column Z[p][I[0]] from Z[p] and delete birth_timestamp_p[I[0]] from birth_timestamp_p.
-                Z[p].erase(Z[p].begin() + I[0]);
-                birth_timestamp[p].erase(birth_timestamp[p].begin() + I[0]);
+                Z[p].erase(Z[p].begin() + alpha);
+                birth_timestamp[p].erase(birth_timestamp[p].begin() + alpha);
+                // Remove the zero row and update id as well.
+                for (unsigned i = 0; i < C[p].size(); ++i)
+                {
+                if (C[p][i].size() > id[p][simp])
+                {
+                    C[p][i].erase(C[p][i].begin() + id[p][simp]);
+                }
+                }
+                for (unsigned i = 0; i < Z[p].size(); ++i)
+                {
+                if (Z[p][i].size() > id[p][simp])
+                {
+                    Z[p][i].erase(Z[p][i].begin() + id[p][simp]);
+                }
+                }
+                id[p].erase(simp);
             }
         }
     }
