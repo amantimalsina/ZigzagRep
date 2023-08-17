@@ -34,6 +34,8 @@ int pivot (column *a);
 
 void reduce(column *a, vector<column> *M, vector<int> *indices);
 
+int find_last(column *a);
+
 void ZigzagRep::compute(
         const std::vector<vector<int> > &filt_simp, 
         const std::vector<bool> &filt_op,
@@ -385,25 +387,23 @@ void ZigzagRep::compute(
 
 void add_columns(column *a, column *b, column *c)
 {
-    int length = a->size();
-    column c_temp;
-    // Iterate over a and b and add them bitwise to c.
-    for (int i = 0; i < length; i++) {
-        c_temp.push_back((*a)[i] ^ (*b)[i]);
-    }
-    *c = c_temp;
+    *c = (*a) ^ (*b);
 }
 
 // Goes over a vector of ints and finds the position of the last non-zero element.
 int pivot (column *a)
 {
-    int length = a->size();
-    for (int i = length - 1; i >= 0; i--) {
-        if ((*a)[i] != 0) {
-            return i;
-        }
+    typedef boost::dynamic_bitset<>::size_type size_type;
+    const size_type npos = boost::dynamic_bitset<>::npos;
+    size_type first_idx = (*a).find_first();
+    size_type current_idx = first_idx;
+    if (first_idx != npos)
+    {
+      do {
+         current_idx = (*a).find_next(current_idx);
+      } while ((*a).find_next(current_idx) != boost::dynamic_bitset<>::npos);
     }
-    return -1;
+    return current_idx;
 }
 
 // Goes over the columns of the matrix and returns the first pair with the same pivots.
@@ -414,7 +414,7 @@ std::tuple<int,  int, bool> pivot_conflict (vector<column > *matrix)
     for (int i = 0; i < matrix -> size(); i++) {
         pivot_entries.push_back(pivot(&(*matrix)[i]));
     }
-    for (int i = 0; i < matrix->size()-1; i++) {
+    for (int i =         0; i < matrix->size()-1; i++) {
         if (pivot_entries[i] != -1) {
             for (int j = i+1; j < matrix->size(); j++) {
                 if (pivot_entries[i] == pivot_entries[j]) {
@@ -433,11 +433,11 @@ void reduce(column *a, vector<column> *M, vector<int> *indices)
     // Append a to M.
     M -> push_back(*a);
     int k = M -> size();
-    std::vector<vector<int>> I;
+    vector<vector<int>> I;
     vector<int> pivot_entries;
     for (int i = 0; i < M->size(); i++) {
         pivot_entries.push_back(pivot(&((*M)[i])));
-        std::vector<int> I_i;
+        vector<int> I_i;
         I.push_back(I_i);
         bool pivot_conflict = false;
         int conflicting_column;
@@ -456,7 +456,8 @@ void reduce(column *a, vector<column> *M, vector<int> *indices)
             }
             // Resolve pivot conflict and keep track of the column that was added in I.
             if (pivot_conflict) {
-                add_columns(&((*M)[i]), &((*M)[conflicting_column]), &((*M)[i]));
+                cout << "Pivot conflict: " << pivot_conflict << endl;
+                (*M)[i] ^= (*M)[conflicting_column];
                 pivot_entries[i] = pivot(&((*M)[i]));
                 I[i].push_back(conflicting_column);
             }
