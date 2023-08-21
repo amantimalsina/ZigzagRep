@@ -74,6 +74,7 @@ void ZigzagRep::compute(
         if (filt_op[i]) {
             // INSERTION:
             // A p-simplex is inserted into id[p] and a (p-1)-simplex is inserted into pm1_id. Next, we add a row to Z[p] and C[p], according to the dimension of simp.
+            // TODO: Examine how the bitset is updated as the simplices are added.
             int j = id[p].size();
             (id[p]).insert(SimplexIdPair(simp, j));
             // Add a row with all zeros at the end to Z[p] and C[p].
@@ -105,7 +106,8 @@ void ZigzagRep::compute(
             if (p != 0) {
                 column temp(id[p-1].size(), 0);
                 bd_simp = temp;
-                for (int i = 0; i <= p; i++) { 
+                for (int i = 0; i <= p; i++) {
+                    // TODO: Check whether this boundary computation is correct with bitsets. 
                     // Remove the i-th vertex.
                     vector<int> boundary_simplex = simp;
                     boundary_simplex.erase(boundary_simplex.begin() + i);
@@ -135,6 +137,7 @@ void ZigzagRep::compute(
                     Z[p].push_back(new_column);
                 }
                 else if (p == 0 && k != 0) {
+                    // TODO: Nice check of bitset initialization.
                     column temp(C[p].back().size(), 0);
                     new_column = temp;
                     new_column[id[p].left.at(simp)] = 1;
@@ -185,6 +188,7 @@ void ZigzagRep::compute(
                 }
                 persistence->push_back(std::make_tuple(birth_timestamp[p-1][l], i, p-1, representative));
                 // Set Z_{p−1}[l] = bd.(simp), C[p][l] = simp, and b^{p−1}[l] = −1.
+                // TODO: Check what happens here with the boundary invariant.
                 Z[p-1][l] = bd_simp;
                 if (C[p][l].size() != 0)
                 {
