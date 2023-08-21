@@ -393,6 +393,7 @@ void add_columns(column *a, column *b, column *c)
 // Goes over a vector of ints and finds the position of the last non-zero element.
 int pivot (column *a)
 {
+    /*
     typedef boost::dynamic_bitset<>::size_type size_type;
     const size_type npos = boost::dynamic_bitset<>::npos;
     size_type first_idx = (*a).find_first();
@@ -404,6 +405,8 @@ int pivot (column *a)
       } while ((*a).find_next(current_idx) != boost::dynamic_bitset<>::npos);
     }
     return current_idx;
+    */
+   return ((*a).size() - 1) - (*a).find_first();
 }
 
 // Goes over the columns of the matrix and returns the first pair with the same pivots.
@@ -414,7 +417,7 @@ std::tuple<int,  int, bool> pivot_conflict (vector<column > *matrix)
     for (int i = 0; i < matrix -> size(); i++) {
         pivot_entries.push_back(pivot(&(*matrix)[i]));
     }
-    for (int i =         0; i < matrix->size()-1; i++) {
+    for (int i = 0; i < matrix->size()-1; i++) {
         if (pivot_entries[i] != -1) {
             for (int j = i+1; j < matrix->size(); j++) {
                 if (pivot_entries[i] == pivot_entries[j]) {
@@ -450,13 +453,9 @@ void reduce(column *a, vector<column> *M, vector<int> *indices)
                     conflicting_column = j;
                     break;
                 }
-                else {
-                    pivot_conflict = false;
-                }
             }
             // Resolve pivot conflict and keep track of the column that was added in I.
             if (pivot_conflict) {
-                cout << "Pivot conflict: " << pivot_conflict << endl;
                 (*M)[i] ^= (*M)[conflicting_column];
                 pivot_entries[i] = pivot(&((*M)[i]));
                 I[i].push_back(conflicting_column);
