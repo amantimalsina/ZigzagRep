@@ -74,10 +74,9 @@ void ZigzagRep::compute(
         if (filt_op[i]) {
             // INSERTION:
             // A p-simplex is inserted into id[p] and a (p-1)-simplex is inserted into pm1_id. Next, we add a row to Z[p] and C[p], according to the dimension of simp.
-            int j = id[p].size();
-            (id[p]).insert(SimplexIdPair(simp, j));
+            int k = id[p].size();
+            (id[p]).insert(SimplexIdPair(simp, k));
             // Add a row with all zeros at the end to Z[p] and C[p].
-            int k = id[p].size() - 1;
             if (k != 0) {
                 column last_column_C(k, 0);
                 // Add all zeros to this last column:
@@ -111,7 +110,12 @@ void ZigzagRep::compute(
                     boundary_simplex.erase(boundary_simplex.begin() + i);
                     bd_simp[id[p-1].left.at(boundary_simplex)] = 1;
                 }
-                reduce(&bd_simp, &Z[p-1], &I);
+                // Copy Z[p-1] to a new matrix and reduce it:
+                vector<column> Z_pm1;
+                for (int i = 0; i < Z[p-1].size(); i++) {
+                    Z_pm1.push_back(Z[p-1][i]);
+                }
+                reduce(&bd_simp, &Z_pm1, &I);
                 // Check the birth timestamp of a to check whether all of them are boundaries.
                 for (auto a: I) {
                     if (birth_timestamp[p-1][a] >= 0) {
@@ -211,7 +215,7 @@ void ZigzagRep::compute(
                     if (birth_timestamp[p-1][a] < 0 && birth_timestamp[p-1][b] < 0) {
                         Z[p-1][a] = Z_pm1_aplusb;
                         //add_columns(&C[p][a], &C[p][b], &C[p][a]);
-                        C[p][a] = C[p][a] ^ C[p][b];
+                        // C[p][a] ^= C[p][b];
                     }
                     else if (birth_timestamp[p-1][a] < 0 && birth_timestamp[p-1][b] >= 0) {
                         Z[p-1][b] = Z_pm1_aplusb;
