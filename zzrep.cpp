@@ -130,7 +130,7 @@ void ZigzagRep::compute(
                 if (p != 0)  {
                     new_column = C[p].back();
                     for (auto a: I) {
-                        add_columns(&new_column, &C[p][a], &new_column);
+                        new_column ^= C[p][a];
                     }
                     Z[p].push_back(new_column);
                 }
@@ -182,32 +182,36 @@ void ZigzagRep::compute(
                 }
                 persistence->push_back(std::make_tuple(birth_timestamp[p-1][l], i, p-1, representative));
                 // Set Z_{p−1}[l] = bd.(simp), C[p][l] = simp, and b^{p−1}[l] = −1.
-                // TODO: Check what happens here with the boundary invariant.
-                // UPDATE: Simple case solved.
                 Z[p-1][l] = bd_simp;
                 if (C[p][l].empty())
                 {
-                    C[p].push_back(C[p].back());
+                    column current_chain = C[p].back();
+                    int s = C[p].size();
+                    // We need to add (l-s) many columns to C[p] so that to.
+                    while (s != l) {
+                        column temp(id[p].size(), 0);
+                        C[p].push_back(temp);
+                        s = C[p].size();
+                    }
+                    C[p].push_back(current_chain);
                 }
-                else {
-                    C[p][l] = C[p].back();
-                }
+                // C[p][l] = current_chain;
                 birth_timestamp[p-1][l] = -1;
                 /*
                 Avoiding pivot conflicts (column of bd.(simp) with that of another column in Z_{p-1}) as follows:
-                    
                 */
-               // TODO: Check if there's a bug here.
                 tuple<int, int> pivot_conflict_tuple =  pivot_conflict(&Z[p-1]);
                 int a = get<0>(pivot_conflict_tuple);
                 int b = get<1>(pivot_conflict_tuple);
                 bool exists_pivot_conflict = (a != b);
                 while (exists_pivot_conflict) {
                     column Z_pm1_aplusb;
-                    add_columns(&Z[p-1][a], &Z[p-1][b], &Z_pm1_aplusb);
+                    //add_columns(&Z[p-1][a], &Z[p-1][b], &Z_pm1_aplusb);
+                    Z_pm1_aplusb = Z[p-1][a] ^ Z[p-1][b];
                     if (birth_timestamp[p-1][a] < 0 && birth_timestamp[p-1][b] < 0) {
                         Z[p-1][a] = Z_pm1_aplusb;
-                        add_columns(&C[p][a], &C[p][b], &C[p][a]);
+                        //add_columns(&C[p][a], &C[p][b], &C[p][a]);
+                        C[p][a] = C[p][a] ^ C[p][b];
                     }
                     else if (birth_timestamp[p-1][a] < 0 && birth_timestamp[p-1][b] >= 0) {
                         Z[p-1][b] = Z_pm1_aplusb;
@@ -257,8 +261,10 @@ void ZigzagRep::compute(
                 while (boundary_pairs_bool) {
                     column Z_pm1_aplusb;
                     column C_p_aplusb;
-                    add_columns(&Z[p-1][a], &Z[p-1][b], &Z_pm1_aplusb);
-                    add_columns(&C[p][a], &C[p][b], &C_p_aplusb);
+                    //add_columns(&Z[p-1][a], &Z[p-1][b], &Z_pm1_aplusb);
+                    Z_pm1_aplusb = Z[p-1][a] ^ Z[p-1][b];
+                    //add_columns(&C[p][a], &C[p][b], &C_p_aplusb);
+                    C_p_aplusb = C[p][a] ^ C[p][b];
                     if (pivot(&Z[p-1][a]) > pivot(&Z[p-1][b])) 
                     {
                         Z[p-1][a] = Z_pm1_aplusb;
@@ -301,7 +307,8 @@ void ZigzagRep::compute(
                         {
                             if (C[p][b][id[p].left.at(simp)]==1) // each column in C[p][b] containing the simplex.
                             {    
-                                add_columns(&C[p][b], &Z[p][a], &C[p][b]);
+                                //add_columns(&C[p][b], &Z[p][a], &C[p][b]);
+                                C[p][b] = C[p][b] ^ Z[p][a];
                             }
                         }
                     }
@@ -321,12 +328,14 @@ void ZigzagRep::compute(
                 for (auto a: I)
                 {
                     if (pivot(&Z[p][a]) > pivot(&z)) {
-                        add_columns(&Z[p][a], &z, &Z[p][a]);
+                        // add_columns(&Z[p][a], &z, &Z[p][a]);
+                        Z[p][a] = Z[p][a] ^ z;
                     }   
                     else 
                     {
                         column temp = Z[p][a];
-                        add_columns(&Z[p][a], &z, &Z[p][a]);
+                        // add_columns(&Z[p][a], &z, &Z[p][a]);
+                        Z[p][a] = Z[p][a] ^ z;
                         z = temp;
                     }
                 }
