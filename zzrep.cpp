@@ -74,7 +74,6 @@ void ZigzagRep::compute(
         if (filt_op[i]) {
             // INSERTION:
             // A p-simplex is inserted into id[p] and a (p-1)-simplex is inserted into pm1_id. Next, we add a row to Z[p] and C[p], according to the dimension of simp.
-            // TODO: Examine how the bitset is updated as the simplices are added.
             int j = id[p].size();
             (id[p]).insert(SimplexIdPair(simp, j));
             // Add a row with all zeros at the end to Z[p] and C[p].
@@ -107,7 +106,6 @@ void ZigzagRep::compute(
                 column temp(id[p-1].size(), 0);
                 bd_simp = temp;
                 for (int i = 0; i <= p; i++) {
-                    // TODO: Check whether this boundary computation is correct with bitsets. 
                     // Remove the i-th vertex.
                     vector<int> boundary_simplex = simp;
                     boundary_simplex.erase(boundary_simplex.begin() + i);
@@ -137,11 +135,7 @@ void ZigzagRep::compute(
                     Z[p].push_back(new_column);
                 }
                 else if (p == 0 && k != 0) {
-                    // TODO: Nice check of bitset initialization.
-                    column temp(C[p].back().size(), 0);
-                    new_column = temp;
-                    new_column[id[p].left.at(simp)] = 1;
-                    Z[p].push_back(new_column);
+                    Z[p].push_back(C[p].back());
                 }
                 birth_timestamp[p].push_back(i+1);
             }
@@ -189,19 +183,21 @@ void ZigzagRep::compute(
                 persistence->push_back(std::make_tuple(birth_timestamp[p-1][l], i, p-1, representative));
                 // Set Z_{p−1}[l] = bd.(simp), C[p][l] = simp, and b^{p−1}[l] = −1.
                 // TODO: Check what happens here with the boundary invariant.
+                // UPDATE: Simple case solved.
                 Z[p-1][l] = bd_simp;
-                if (C[p][l].size() != 0)
+                if (C[p][l].empty())
                 {
-                    C[p][l] = C[p].back();
+                    C[p].push_back(C[p].back());
                 }
                 else {
-                    C[p].push_back(C[p].back());
+                    C[p][l] = C[p].back();
                 }
                 birth_timestamp[p-1][l] = -1;
                 /*
                 Avoiding pivot conflicts (column of bd.(simp) with that of another column in Z_{p-1}) as follows:
                     
                 */
+               // TODO: Check if there's a bug here.
                 tuple<int, int, bool> pivot_conflict_tuple =  pivot_conflict(&Z[p-1]);
                 int a = get<0>(pivot_conflict_tuple);
                 int b = get<1>(pivot_conflict_tuple);
@@ -410,7 +406,13 @@ int pivot (column *a)
     }
     return current_idx;
     */
-   return ((*a).size() - 1) - (*a).find_first();
+    int first = (*a).find_first();
+    if (first != -1) {
+        return ((*a).size() - 1) - (*a).find_first();
+    }
+    else{
+        return -1;
+    }
 }
 
 // Goes over the columns of the matrix and returns the first pair with the same pivots.
@@ -432,7 +434,6 @@ std::tuple<int,  int, bool> pivot_conflict (vector<column > *matrix)
     }
     return std::make_tuple(-1, -1, false);
 }
-
 
 // Reduction algorithm: given a column a, find the indices of the columns in M such that the columns sum to a.
 void reduce(column *a, vector<column> *M, vector<int> *indices)
@@ -457,6 +458,7 @@ void reduce(column *a, vector<column> *M, vector<int> *indices)
                     conflicting_column = j;
                     break;
                 }
+                pivot_conflict = false;
             }
             // Resolve pivot conflict and keep track of the column that was added in I.
             if (pivot_conflict) {
