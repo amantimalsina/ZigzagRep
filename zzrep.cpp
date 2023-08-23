@@ -28,7 +28,7 @@ int pivot (column *a);
             (true, i, j) if there is a pivot conflict between columns i and j,
             (false, -1, -1) otherwise.
 */
-tuple<int,  int, bool> pivot_conflict (std::vector<column> *matrix);
+tuple<int,  int> pivot_conflict (std::vector<column> *matrix);
 
 int pivot (column *a);
 
@@ -198,10 +198,10 @@ void ZigzagRep::compute(
                     
                 */
                // TODO: Check if there's a bug here.
-                tuple<int, int, bool> pivot_conflict_tuple =  pivot_conflict(&Z[p-1]);
+                tuple<int, int> pivot_conflict_tuple =  pivot_conflict(&Z[p-1]);
                 int a = get<0>(pivot_conflict_tuple);
                 int b = get<1>(pivot_conflict_tuple);
-                bool exists_pivot_conflict = get<2>(pivot_conflict_tuple);
+                bool exists_pivot_conflict = (a != b);
                 while (exists_pivot_conflict) {
                     column Z_pm1_aplusb;
                     add_columns(&Z[p-1][a], &Z[p-1][b], &Z_pm1_aplusb);
@@ -228,7 +228,7 @@ void ZigzagRep::compute(
                     pivot_conflict_tuple =  pivot_conflict(&Z[p-1]);
                     a = get<0>(pivot_conflict_tuple);
                     b = get<1>(pivot_conflict_tuple);
-                    exists_pivot_conflict = get<2>(pivot_conflict_tuple);
+                    exists_pivot_conflict = (a != b);
                     }
             }
         } 
@@ -416,23 +416,24 @@ int pivot (column *a)
 }
 
 // Goes over the columns of the matrix and returns the first pair with the same pivots.
-std::tuple<int,  int, bool> pivot_conflict (vector<column > *matrix)
+std::tuple<int,  int> pivot_conflict (vector<column > *matrix)
 {
     vector<int> pivot_entries;
     // Recompute pivots:
-    for (int i = 0; i < matrix -> size(); i++) {
+    for (int i = 0; i < matrix -> size(); ++i) {
         pivot_entries.push_back(pivot(&(*matrix)[i]));
     }
-    for (int i = 0; i < matrix->size()-1; i++) {
+    for (int i = 0; i < matrix->size()-1; ++i) {
         if (pivot_entries[i] != -1) {
-            for (int j = i+1; j < matrix->size(); j++) {
+            int j = i + 1;
+            for (; j < matrix->size(); ++j) {
                 if (pivot_entries[i] == pivot_entries[j]) {
-                    return std::make_tuple(i, j, true);
+                    return std::make_tuple(i, j);
                 }
             }
         }
     }
-    return std::make_tuple(-1, -1, false);
+    return std::make_tuple(0, 0);
 }
 
 // Reduction algorithm: given a column a, find the indices of the columns in M such that the columns sum to a.
