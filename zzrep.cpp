@@ -86,10 +86,11 @@ void ZigzagRep::compute(
                         C[p][j].push_back(1);
                     }
                     else {
-                        // Z[p][j].push_back(0);
                         C[p][j].push_back(0);
-                        if (p == 0)  Z[p][j].push_back(0);
                     }
+                }
+                for (int j = 0; j < Z[p].size(); ++j) {
+                    Z[p][j].push_back(0);
                 }
             }
             else {
@@ -108,7 +109,8 @@ void ZigzagRep::compute(
                     // Remove the i-th vertex.
                     vector<int> boundary_simplex = simp;
                     boundary_simplex.erase(boundary_simplex.begin() + i);
-                    bd_simp[id[p-1].left.at(boundary_simplex)] = 1;
+                    int idx = id[p-1].left.at(boundary_simplex);
+                    bd_simp[idx] = 1;
                 }
                 // Copy Z[p-1] to a new matrix and reduce it:
                 vector<column> Z_pm1;
