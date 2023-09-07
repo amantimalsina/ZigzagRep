@@ -281,6 +281,7 @@ void ZigzagRep::compute(
                         Z[p-1][b] = Z_pm1_aplusb;
                         C[p][b] = C_p_aplusb;
                     }
+                    // TODO: loop taking too long; efficiency?
                     for (int i = 0; i < Z[p-1].size(); i++) 
                     {
                         for (int j = 0; j < Z[p-1].size(); j++) 
