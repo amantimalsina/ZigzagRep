@@ -128,7 +128,7 @@ void ZigzagRep::compute(
                     }
                 }
             }
-            if (all_boundary) // simp is a boundary
+            if (all_boundary) // simp completes a cycle
             {
                 /*
                 An interval in dimension p gets born: 
@@ -192,7 +192,7 @@ void ZigzagRep::compute(
                 persistence->push_back(std::make_tuple(birth_timestamp[p-1][l], i, p-1, representative));
                 // Set Z_{p−1}[l] = bd.(simp), C[p][l] = simp, and b^{p−1}[l] = −1.
                 Z[p-1][l] = bd_simp;
-                cycle_to_chain[p-1].insert(CycleToChainPair(k, l));
+                cycle_to_chain[p-1].insert(CycleToChainPair(l, k));
                 // C[p][l] = current_chain;
                 birth_timestamp[p-1][l] = -1;
                 /*
@@ -201,6 +201,7 @@ void ZigzagRep::compute(
                 tuple<int, int> pivot_conflict_tuple =  pivot_conflict(&Z[p-1]);
                 int a = get<0>(pivot_conflict_tuple);
                 int b = get<1>(pivot_conflict_tuple);
+                std::cout << "a: " << a << " b: " << b << std::endl;
                 bool exists_pivot_conflict = (a != b);
                 while (exists_pivot_conflict) {
                     column Z_pm1_aplusb;
@@ -317,11 +318,10 @@ void ZigzagRep::compute(
                     if (Z[p][a][id[p].left.at(simp)]==1) {
                         for (int b = 0; b < C[p].size(); b++) 
                         {
-                            int chain_b = cycle_to_chain[p][b];
-                            if (C[p][chain_b][id[p].left.at(simp)]==1) // each column in C[p][chain_b] containing the simplex.
+                            if (C[p][b][id[p].left.at(simp)]==1) // each column in C[p][chain_b] containing the simplex.
                             {    
                                 //add_columns(&C[p][b], &Z[p][a], &C[p][b]);
-                                C[p][chain_b] = C[p][chain_b] ^ Z[p][a];
+                                C[p][b] ^= Z[p][a];
                             }
                         }
                     }
@@ -415,26 +415,13 @@ void add_columns(column *a, column *b, column *c)
 // Goes over a vector of ints and finds the position of the last non-zero element.
 int pivot (column *a)
 {
-    /*
-    typedef boost::dynamic_bitset<>::size_type size_type;
-    const size_type npos = boost::dynamic_bitset<>::npos;
-    size_type first_idx = (*a).find_first();
-    size_type current_idx = first_idx;
-    if (first_idx != npos)
-    {
-      do {
-         current_idx = (*a).find_next(current_idx);
-      } while ((*a).find_next(current_idx) != boost::dynamic_bitset<>::npos);
+    int pivot = -1;
+    for (int i = 0; i < a->size(); ++i) {
+        if ((*a)[i] == 1) {
+            pivot = i;
+        }
     }
-    return current_idx;
-    */
-    int first = (*a).find_first();
-    if (first != -1) {
-        return ((*a).size() - 1) - (*a).find_first();
-    }
-    else{
-        return -1;
-    }
+    return pivot;
 }
 
 // Goes over the columns of the matrix and returns the first pair with the same pivots.
@@ -444,6 +431,7 @@ std::tuple<int,  int> pivot_conflict (vector<column > *matrix)
     // Recompute pivots:
     for (int i = 0; i < matrix -> size(); ++i) {
         pivot_entries.push_back(pivot(&(*matrix)[i]));
+        std::cout << "pivot for i: " << i << ": " << pivot_entries[i] << std::endl;
     }
     for (int i = 0; i < matrix->size()-1; ++i) {
         if (pivot_entries[i] != -1) {
