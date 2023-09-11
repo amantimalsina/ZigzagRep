@@ -112,12 +112,7 @@ void ZigzagRep::compute(
                     int idx = id[p-1].left.at(boundary_simplex);
                     bd_simp[idx] = 1;
                 }
-                // Copy Z[p-1] to a new matrix and reduce it:
-                vector<column> Z_pm1;
-                for (int i = 0; i < Z[p-1].size(); i++) {
-                    Z_pm1.push_back(Z[p-1][i]);
-                }
-                reduce(&bd_simp, &Z_pm1, &I);
+                reduce(&bd_simp, &Z[p-1], &I);
                 // Check the birth timestamp of a to check whether all of them are boundaries.
                 for (auto a: I) {
                     if (birth_timestamp[p-1][a] >= 0) {
@@ -282,13 +277,13 @@ void ZigzagRep::compute(
                         C[p][b] = C_p_aplusb;
                     }
                     // TODO: loop taking too long; efficiency?
-                    for (int i = 0; i < Z[p-1].size(); i++) 
+                    for (int x = 0; x < Z[p-1].size(); x++) 
                     {
-                        for (int j = 0; j < Z[p-1].size(); j++) 
+                        for (int y = 0; y < Z[p-1].size(); y++) 
                         {
-                            if (birth_timestamp[p-1][i] < 0 && birth_timestamp[p-1][j] < 0 && (C[p][i][id[p].left.at(simp)]==1) && (C[p][j][id[p].left.at(simp)]==1)) 
+                            if (birth_timestamp[p-1][x] < 0 && birth_timestamp[p-1][y] < 0 && (C[p][x][id[p].left.at(simp)]==1) && (C[p][y][id[p].left.at(simp)]==1)) 
                             {
-                                a = i; b = j; boundary_pairs_bool = true;
+                                a = x; b = y; boundary_pairs_bool = true;
                             }
                         }
                     }
