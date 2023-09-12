@@ -61,6 +61,8 @@ int main(const int argc, const char *argv[]) {
 
 
     filt_fin.close();
+    filt_simp.pop_back();
+    filt_op.pop_back();
 
     std::vector< std::tuple<int, int, int, std::vector<std::vector<int> >>> persistence;
     ZZREP::ZigzagRep zzr;

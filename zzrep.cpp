@@ -75,7 +75,8 @@ void ZigzagRep::compute(
     for (int i = 0; i < n; ++i) {
         const vector<int> &simp = filt_simp[i];
         int p = simp.size() - 1; // p denotes the dimension of the simplex.
-        
+        std::cout << "Currently Processing: " << i << "th simplex" << std::endl;
+
         if (filt_op[i]) {
             // INSERTION:
             // A p-simplex is inserted into id[p] and a (p-1)-simplex is inserted into pm1_id. Next, we add a row to Z[p] and C[p], according to the dimension of simp.
@@ -201,7 +202,6 @@ void ZigzagRep::compute(
                 tuple<int, int> pivot_conflict_tuple =  pivot_conflict(&Z[p-1]);
                 int a = get<0>(pivot_conflict_tuple);
                 int b = get<1>(pivot_conflict_tuple);
-                std::cout << "a: " << a << " b: " << b << std::endl;
                 bool exists_pivot_conflict = (a != b);
                 while (exists_pivot_conflict) {
                     column Z_pm1_aplusb;
@@ -239,8 +239,9 @@ void ZigzagRep::compute(
         } 
         else { // Case: Arrow points backward.
             bool existence = false;
+            int idx = id[p].left.at(simp);
             for (auto column: Z[p]) {
-                if (column[id[p].left.at(simp)]==1) {
+                if (column[idx]==1) {
                     existence = true;
                     break;
                 }
@@ -251,13 +252,22 @@ void ZigzagRep::compute(
                 bool boundary_pairs_bool = false;
                 for (int x = 0; x < Z[p-1].size(); x++) 
                 {
-                    for (int y = 0; y < Z[p-1].size(); y++) 
+                    for (int y = x + 1; y < Z[p-1].size(); y++) 
                     {
-                        int chain_x = cycle_to_chain[p-1][x];
-                        int chain_y = cycle_to_chain[p-1][y];
-                        if (x != y && birth_timestamp[p-1][x] < 0 && birth_timestamp[p-1][y] < 0 && (C[p][chain_x][id[p].left.at(simp)]==1) && (C[p][chain_y][id[p].left.at(simp)]==1)) 
+                        if (birth_timestamp[p-1][x] < 0)
                         {
-                            a = x; b = y; boundary_pairs_bool = true;
+                            if (birth_timestamp[p-1][y] < 0)
+                            {
+                                int chain_x = cycle_to_chain[p-1][x];
+                                int chain_y = cycle_to_chain[p-1][y];
+                                if (C[p][chain_x][idx]==1)
+                                {
+                                    if (C[p][chain_y][idx]==1)
+                                    {
+                                        a = x; b = y; boundary_pairs_bool = true;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -280,45 +290,52 @@ void ZigzagRep::compute(
                         Z[p-1][b] = Z_pm1_aplusb;
                         C[p][chain_b] = C_p_aplusb;
                     }
-                    // TODO: loop taking too long; efficiency?
+                    boundary_pairs_bool = false;
                     for (int x = 0; x < Z[p-1].size(); x++) 
                     {
-                        for (int y = 0; y < Z[p-1].size(); y++) 
+                        for (int y = x + 1; y < Z[p-1].size(); y++) 
                         {
-                            int chain_x = cycle_to_chain[p-1][x];
-                            int chain_y = cycle_to_chain[p-1][y];
-                            if (x != y && birth_timestamp[p-1][x] < 0 && birth_timestamp[p-1][y] < 0 && (C[p][chain_x][id[p].left.at(simp)]==1) && (C[p][chain_y][id[p].left.at(simp)]==1)) 
+                            if (birth_timestamp[p-1][x] < 0)
                             {
-                                a = x; b = y; boundary_pairs_bool = true;
+                                if (birth_timestamp[p-1][y] < 0)
+                                {
+                                    int chain_x = cycle_to_chain[p-1][x];
+                                    int chain_y = cycle_to_chain[p-1][y];
+                                    if (C[p][chain_x][idx]==1)
+                                    {
+                                        if (C[p][chain_y][idx]==1)
+                                        {
+                                            a = x; b = y; boundary_pairs_bool = true;
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
                 // find the only column Z_{p-1}[a] with negative birth timestamp such that C[p][a] contains the simplex.
-                column column;
-                int x = 0;
-                for (x = 0; x < Z[p-1].size(); x++) {
-                    int chain_x = cycle_to_chain[p-1][x];
-                    if ((birth_timestamp[p-1][x] < 0) && (C[p][chain_x][id[p].left.at(simp)]==1)) {
-                        column = Z[p-1][x];
+                int only_idx = 0;
+                for (only_idx = 0; only_idx < Z[p-1].size(); only_idx++) {
+                    int chain_x = cycle_to_chain[p-1][only_idx];
+                    if ((birth_timestamp[p-1][only_idx] < 0) && (C[p][chain_x][idx]==1)) {
                         // Update the pth chain matrix so that the rows do not contain the simplex.
-                        C[p][chain_x][id[p].left.at(simp)] = 0;
+                        C[p][chain_x][idx] = 0;
                         break;
                     }
                 }
-                birth_timestamp[p-1][x] = i+1;
+                birth_timestamp[p-1][only_idx] = i+1;
                 // Remove the cycle to chain record.
-                cycle_to_chain[p-1].erase(x);
+                cycle_to_chain[p-1].erase(only_idx);
             }
             else // Case: Death.
             {
                 // Update C[p] so that no columns contain the simplex.
                 for (int a = 0; a < Z[p].size(); a++)
                 {
-                    if (Z[p][a][id[p].left.at(simp)]==1) {
+                    if (Z[p][a][idx]==1) {
                         for (int b = 0; b < C[p].size(); b++) 
                         {
-                            if (C[p][b][id[p].left.at(simp)]==1) // each column in C[p][chain_b] containing the simplex.
+                            if (C[p][b][idx]==1) // each column in C[p][chain_b] containing the simplex.
                             {    
                                 //add_columns(&C[p][b], &Z[p][a], &C[p][b]);
                                 C[p][b] ^= Z[p][a];
@@ -331,7 +348,7 @@ void ZigzagRep::compute(
                 vector<int> I;
                 for (int a = 0; a < Z[p].size(); a++) // each column Z[p][a] containing the simplex
                 {
-                    if (Z[p][a][id[p].left.at(simp)]==1) I.push_back(a);
+                    if (Z[p][a][idx]==1) I.push_back(a);
                 }
                 // sort I in the order of the birth timestamps where the order is the total order as above.
                 sort(I.begin(), I.end(), [&](int &a, int &b){ return ((I[a] == b) || ((I[a] < b) && (filt_op[I[b]-1])) || ((I[a] > I[b]) && (!(filt_op[I[a]-1]))));});
@@ -363,31 +380,6 @@ void ZigzagRep::compute(
                 // Delete the column Z[p][I[0]] from Z[p] and delete birth_timestamp_p[I[0]] from birth_timestamp_p.
                 Z[p].erase(Z[p].begin() + alpha);
                 birth_timestamp[p].erase(birth_timestamp[p].begin() + alpha);
-                /* 
-                UPDATE: There is no point in clearing this. This may cause memory overload but allows for bitwise operations.
-                // Remove the zero row and update id as well.
-                for (unsigned i = 0; i < C[p].size(); ++i)
-                {
-                if (C[p][i].size() > id[p].left.at(simp))
-                {
-                    C[p][i].erase(C[p][i].begin() + id[p][simp]);
-                }
-                }
-                for (unsigned i = 0; i < Z[p].size(); ++i)
-                {
-                if (Z[p][i].size() > id[p].left.at(simp))
-                {
-                    Z[p][i].erase(Z[p][i].begin() + id[p][simp]);
-                }
-                }
-                // Iterate over id[p] and decrease the indices of the simplices that have index greater than id[simp].
-                SimplexIdMap::right_iterator it = id[p].right.lower_bound(id[p].left.at(simp));
-                for (; it != id[p].right.end(); ++it)
-                {
-                    id[p].right.modify_key( it, it->first - 1 );
-                }
-                id[p].erase(simp);
-                */
             }
         }
     }
@@ -431,7 +423,6 @@ std::tuple<int,  int> pivot_conflict (vector<column > *matrix)
     // Recompute pivots:
     for (int i = 0; i < matrix -> size(); ++i) {
         pivot_entries.push_back(pivot(&(*matrix)[i]));
-        std::cout << "pivot for i: " << i << ": " << pivot_entries[i] << std::endl;
     }
     for (int i = 0; i < matrix->size()-1; ++i) {
         if (pivot_entries[i] != -1) {
