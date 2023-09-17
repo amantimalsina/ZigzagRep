@@ -38,6 +38,7 @@ void reduce(column *a, vector<column> *M, vector<int> *indices);
 
 int find_last(column *a);
 
+
 void ZigzagRep::compute(
         const std::vector<vector<int> > &filt_simp, 
         const std::vector<bool> &filt_op,
@@ -75,8 +76,6 @@ void ZigzagRep::compute(
     for (int i = 0; i < n; ++i) {
         const vector<int> &simp = filt_simp[i];
         int p = simp.size() - 1; // p denotes the dimension of the simplex.
-        std::cout << "Currently Processing: " << i << "th simplex" << std::endl;
-
         if (filt_op[i]) {
             // INSERTION:
             // A p-simplex is inserted into id[p] and a (p-1)-simplex is inserted into pm1_id. Next, we add a row to Z[p] and C[p], according to the dimension of simp.
