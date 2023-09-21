@@ -60,6 +60,7 @@ void ZigzagRep::compute(
     vector<SimplexIdMap> id;
     vector<vector<int>> birth_timestamp;
     vector<CycleToChainMap> cycle_to_chain;
+    bool next_op = filt_op[1];
 
     for (int p = 0; p <= m; p++) {
         vector<column> Z_p;
@@ -76,6 +77,9 @@ void ZigzagRep::compute(
     for (int i = 0; i < n; ++i) {
         const vector<int> &simp = filt_simp[i];
         int p = simp.size() - 1; // p denotes the dimension of the simplex.
+        if (i != n) {
+            next_op = filt_op[i+1];
+        }
         if (filt_op[i]) {
             // INSERTION:
             // A p-simplex is inserted into id[p] and a (p-1)-simplex is inserted into pm1_id. Next, we add a row to Z[p] and C[p], according to the dimension of simp.
@@ -147,6 +151,8 @@ void ZigzagRep::compute(
                     Z[p].push_back(C[p].back());
                 }
                 birth_timestamp[p].push_back(i+1);
+                cycle_to_chain[p].insert(CycleToChainPair(k, k));
+                // TODO: Record this cycle for storing representatives at this stage. This is getting born and we simply store the cycle at this point.
             }
             else {
                 // An interval in dimension p-1 dies.
