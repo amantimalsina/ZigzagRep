@@ -12,8 +12,10 @@ namespace ZZREP {
 
 typedef boost::bimaps::bimap<vector<int>, int> SimplexIdMap;
 typedef std::unordered_map<int, int> CycleToChainMap;
+typedef std::unordered_map<int, int> RepToCycleMap;
 typedef SimplexIdMap::value_type SimplexIdPair;
 typedef CycleToChainMap::value_type CycleToChainPair;
+typedef RepToCycleMap::value_type RepToCyclePair;
 
 typedef boost::dynamic_bitset<> column;
 
@@ -38,6 +40,7 @@ void reduce(column *a, vector<column> *M, vector<int> *indices);
 
 int find_last(column *a);
 
+int index_binary_search(vector<int> &a, int x);
 
 void ZigzagRep::compute(
         const std::vector<vector<int> > &filt_simp, 
@@ -61,6 +64,13 @@ void ZigzagRep::compute(
     vector<vector<int>> birth_timestamp;
     vector<CycleToChainMap> cycle_to_chain;
     bool next_op = filt_op[1];
+
+    /*
+    Representative Data Structures:
+    */
+    vector<vector<vector<column>>> representatives; // representatives[p][i][j] is a p-cycle representative corresponding to the interval i at point j.
+    vector<vector<vector<int>>> index_rep; // a sorted list for each p and the filtration index j corresponding to index of representatives[p][i][j] for i in Z[p].
+    vector<RepToCycleMap> rep_to_cycle; // a map from the index of representatives[p][i][j] to the index of the cycle in Z[p] that it represents.
 
     for (int p = 0; p <= m; p++) {
         vector<column> Z_p;
@@ -152,7 +162,10 @@ void ZigzagRep::compute(
                 }
                 birth_timestamp[p].push_back(i+1);
                 cycle_to_chain[p].insert(CycleToChainPair(k, k));
-                // TODO: Record this cycle for storing representatives at this stage. This is getting born and we simply store the cycle at this point.
+                // Record this cycle for storing representatives at this stage. This is getting born and we simply store the cycle at this point.
+                representatives[p][i].push_back(new_column);
+                index_rep[p][i].push_back(k);
+                rep_to_cycle[p].insert(RepToCyclePair(k, k));
             }
             else {
                 // An interval in dimension p-1 dies.
@@ -195,6 +208,27 @@ void ZigzagRep::compute(
                         representative.push_back(id[p-1].right.at(i));
                     }
                 }
+                /* Representative updates for the forward case: */
+                // Iterate over J and update the representatives.
+                for (auto j: J) {
+                    if (j != l) {
+                        // Get the points where the representatives are stored for j:
+                        vector<int> index_rep_j = index_rep[p-1][birth_timestamp[p-1][j]-1];  
+                        // Iterate over the representatives and update them:
+                        for (auto r: index_rep_j) {
+                            // Find the smallest index closes to r in index_rep[p-1][l][r] and get the reprentative at that index:
+                            int index_rep_l = index_binary_search(index_rep[p-1][j], r);
+                            column representative_l = representatives[p-1][birth_timestamp[p-1][l]-1][index_rep_l];
+                            column representative_j = representatives[p-1][birth_timestamp[p-1][j]-1][r];
+                            // Update the representative by adding a column pointing to r:
+                            representatives[p-1][birth_timestamp[p-1][l]-1].push_back(representative_l ^ representative_j);
+                            index_rep[p-1][birth_timestamp[p-1][l]-1].push_back(r);
+                            // Update the map from representatives to cycles:
+                            rep_to_cycle[p-1].insert(r, l);
+                        }
+                    }
+                }
+
                 persistence->push_back(std::make_tuple(birth_timestamp[p-1][l], i, p-1, representative));
                 // Set Z_{p−1}[l] = bd.(simp), C[p][l] = simp, and b^{p−1}[l] = −1.
                 Z[p-1][l] = bd_simp;
@@ -331,6 +365,10 @@ void ZigzagRep::compute(
                 birth_timestamp[p-1][only_idx] = i+1;
                 // Remove the cycle to chain record.
                 cycle_to_chain[p-1].erase(only_idx);
+                // Record this cycle for storing representatives at this stage. This is getting born and we simply store the cycle at this point.
+                representatives[p-1][i].push_back(Z[p-1][only_idx]);
+                index_rep[p-1][i].push_back(only_idx);
+                rep_to_cycle[p-1].insert(RepToCyclePair(only_idx, only_idx));
             }
             else // Case: Death.
             {
@@ -382,6 +420,27 @@ void ZigzagRep::compute(
                     }
                 }
                 persistence->push_back(std::make_tuple(birth_timestamp[p][alpha], i, p, representative));
+                /* Representative updates for the backward case: */
+                // Iterate over I and update the representatives.
+                for (auto a: I) {
+                    if (a != alpha) {
+                        // Get the points where the representatives are stored for j:
+                        vector<int> index_rep_alpha = index_rep[p][birth_timestamp[p][alpha]-1];
+                        // Iterate over the representatives and update them:
+                        for (auto r: index_rep_alpha) {
+                            // Find the smallest index closes to r in index_rep[p-1][l][r] and get the reprentative at that index:
+                            int index_rep_a = index_binary_search(index_rep[p][a], r);
+                            column representative_a = representatives[p-1][birth_timestamp[p-1][a]-1][index_rep_a];
+                            column representative_alpha = representatives[p-1][birth_timestamp[p][alpha]-1][r];
+                            // Update the representative by adding a column pointing to r:
+                            representatives[p-1][birth_timestamp[p-1][a]-1].push_back(representative_a ^ representative_alpha);
+                            index_rep[p-1][birth_timestamp[p-1][a]-1].push_back(r);
+                            rep_to_cycle[p-1].insert(r, a);
+                        }
+                    }
+                }
+
+
                 // Delete the column Z[p][I[0]] from Z[p] and delete birth_timestamp_p[I[0]] from birth_timestamp_p.
                 Z[p].erase(Z[p].begin() + alpha);
                 birth_timestamp[p].erase(birth_timestamp[p].begin() + alpha);
@@ -494,5 +553,28 @@ void reduce(column *a, vector<column> *M, vector<int> *indices)
         }
     }
 }
+
+/* 
+Implementation of index binary search:
+*/
+int index_binary_search(vector<int> &a, int x){
+    int l = 0;
+    int r = a.size() - 1;
+    int m;
+    while (l <= r) {
+        m = l + (r - l) / 2;
+        if (a[m] == x) {
+            return m;
+        }
+        else if (a[m] < x) {
+            l = m + 1;
+        }
+        else {
+            r = m - 1;
+        }
+    }
+    return m;
+}
+
 
 }// namespace ZZREP
