@@ -225,6 +225,10 @@ void ZigzagRep::compute(
                 current_chain[id[p].left.at(simp)] = 1;
                 C[p].push_back(current_chain);
                 (cycle_to_chain[p-1]).insert(CycleToChainPair(l, C[p].size()-1));
+                // Print the cycle to chain bimap at this stage:
+                for (auto it = cycle_to_chain[p-1].begin(); it != cycle_to_chain[p-1].end(); ++it) {
+                    std::cout << it->left << " " << it->right << "\n";
+                }
                 birth_timestamp[p-1][l] = -1;
                 /*
                 Avoiding pivot conflicts (column of bd.(simp) with that of another column in Z_{p-1}) as follows:
@@ -347,14 +351,15 @@ void ZigzagRep::compute(
                 // find the only column Z_{p-1}[a] with negative birth timestamp such that C[p][a] contains the simplex.
                 int only_idx = 0;
                 for (only_idx = 0; only_idx < Z[p-1].size(); only_idx++) {
-                    int chain_x = cycle_to_chain[p-1].left.at(only_idx);
-                    if ((birth_timestamp[p-1][only_idx] < 0) && (C[p][chain_x][only_idx]==1)) {
-                        // Update the pth chain matrix so that the rows do not contain the simplex.
-                        C[p][chain_x][only_idx] = 0;
-                        birth_timestamp[p-1][only_idx] = i+1;
-                        // Remove the cycle to chain record.
-                        cycle_to_chain[p-1].left.erase(only_idx);
-                        break;
+                    if (birth_timestamp[p-1][only_idx] < 0) {
+                        int chain_only_idx = cycle_to_chain[p-1].left.at(only_idx);
+                        if (C[p][chain_only_idx][idx]==1) {
+                            C[p][chain_only_idx][idx] = 0;
+                            birth_timestamp[p-1][only_idx] = i+1;
+                            // Remove the cycle to chain record.
+                            cycle_to_chain[p-1].left.erase(only_idx);
+                            break;
+                        }
                     }
                 }
                 // Record this cycle for storing representatives at this stage. This is getting born and we simply store the cycle at this point.
@@ -372,7 +377,7 @@ void ZigzagRep::compute(
                     if (Z[p][a][idx]==1) {
                         for (int b = 0; b < C[p].size(); b++) 
                         {
-                            int cycle_b = cycle_to_chain[p].right.at(b);
+                            int cycle_b = cycle_to_chain[p-1].right.at(b);
                             if (birth_timestamp[p-1][cycle_b] < 0){
                                 if (C[p][b][idx]==1) // each column in C[p][chain_b] containing the simplex s.t. Z[p-1][b] is a boundary.
                                 {    
