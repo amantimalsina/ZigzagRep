@@ -5,6 +5,7 @@
 #include <tuple>
 #include <boost/bimap.hpp>
 #include <boost/dynamic_bitset.hpp>
+#include <vector>
 
 using namespace std;
 
@@ -55,6 +56,7 @@ void ZigzagRep::compute(
     2. Each column of Z[p] and C[p] represents a p-chain in K_i such that for each simplex s in K_i, s belongs to the p-chain if and only if the bit with index id[s] in the column equals 1.
     */
     vector<vector<column> > Z;
+    vector<vector<int>> boundary_cycle_indices;
     vector<vector<column> > C;
     /*
     Define a unique integral id less than n to each simplex.
@@ -78,7 +80,9 @@ void ZigzagRep::compute(
         SimplexIdMap id_p;
         CycleToChainMap cycle_to_chain_p;
         vector<int> birth_timestamp_p;
+        vector<int> boundary_cycle_indices_p;
         Z.push_back(Z_p);
+        boundary_cycle_indices.push_back(boundary_cycle_indices_p);
         C.push_back(C_p);
         id.push_back(id_p);
         cycle_to_chain.push_back(cycle_to_chain_p);
@@ -230,6 +234,7 @@ void ZigzagRep::compute(
                     std::cout << it->left << " " << it->right << "\n";
                 }
                 birth_timestamp[p-1][l] = -1;
+                boundary_cycle_indices[p-1].push_back(l);
                 /*
                 Avoiding pivot conflicts (column of bd.(simp) with that of another column in Z_{p-1}) as follows:
                 FIXME: Check if this is correct or not.
@@ -287,23 +292,23 @@ void ZigzagRep::compute(
             {   
                 int a, b;
                 bool boundary_pairs_bool = false;
-                for (int x = 0; x < Z[p-1].size(); x++) 
+                // Print cycle to chain at p-1 at this point:
+                for (auto it = cycle_to_chain[p-1].begin(); it != cycle_to_chain[p-1].end(); ++it) {
+                    std::cout << it->left << " " << it->right << "\n";
+                }
+                for (int x = 0; x < boundary_cycle_indices[p-1].size(); x++) 
                 {
-                    for (int y = x + 1; y < Z[p-1].size(); y++) 
+                    for (int y = x + 1; y < boundary_cycle_indices[p-1].size(); y++) 
                     {
-                        if (birth_timestamp[p-1][x] < 0)
+                        int cycle_x = boundary_cycle_indices[p-1][x];
+                        int cycle_y = boundary_cycle_indices[p-1][y];
+                        int chain_x = (cycle_to_chain[p-1]).left.at(cycle_x);
+                        int chain_y = (cycle_to_chain[p-1]).left.at(cycle_y);
+                        if (C[p][chain_x][idx]==1)
                         {
-                            if (birth_timestamp[p-1][y] < 0)
+                            if (C[p][chain_y][idx]==1)
                             {
-                                int chain_x = (cycle_to_chain[p-1]).left.at(x);
-                                int chain_y = (cycle_to_chain[p-1]).left.at(y);
-                                if (C[p][chain_x][idx]==1)
-                                {
-                                    if (C[p][chain_y][idx]==1)
-                                    {
-                                        a = x; b = y; boundary_pairs_bool = true;
-                                    }
-                                }
+                                a = cycle_x; b = cycle_y; boundary_pairs_bool = true;
                             }
                         }
                     }
@@ -326,40 +331,35 @@ void ZigzagRep::compute(
                         C[p][chain_b] = C_p_aplusb;
                     }
                     boundary_pairs_bool = false;
-                    for (int x = 0; x < Z[p-1].size(); x++) 
+                    for (int x = 0; x < boundary_cycle_indices[p-1].size(); x++) 
                     {
-                        for (int y = x + 1; y < Z[p-1].size(); y++) 
+                        for (int y = x + 1; y < boundary_cycle_indices[p-1].size(); y++) 
                         {
-                            if (birth_timestamp[p-1][x] < 0)
+                            int cycle_x = boundary_cycle_indices[p-1][x];
+                            int cycle_y = boundary_cycle_indices[p-1][y];
+                            int chain_x = (cycle_to_chain[p-1]).left.at(cycle_x);
+                            int chain_y = (cycle_to_chain[p-1]).left.at(cycle_y);
+                            if (C[p][chain_x][idx]==1)
                             {
-                                if (birth_timestamp[p-1][y] < 0)
+                                if (C[p][chain_y][idx]==1)
                                 {
-                                    int chain_x = (cycle_to_chain[p-1]).left.at(x);
-                                    int chain_y = (cycle_to_chain[p-1]).left.at(y);
-                                    if (C[p][chain_x][idx]==1)
-                                    {
-                                        if (C[p][chain_y][idx]==1)
-                                        {
-                                            a = x; b = y; boundary_pairs_bool = true;
-                                        }
-                                    }
+                                    a = cycle_x; b = cycle_y; boundary_pairs_bool = true;
                                 }
                             }
                         }
                     }
                 }
                 // find the only column Z_{p-1}[a] with negative birth timestamp such that C[p][a] contains the simplex.
-                int only_idx = 0;
-                for (only_idx = 0; only_idx < Z[p-1].size(); only_idx++) {
-                    if (birth_timestamp[p-1][only_idx] < 0) {
-                        int chain_only_idx = cycle_to_chain[p-1].left.at(only_idx);
-                        if (C[p][chain_only_idx][idx]==1) {
-                            C[p][chain_only_idx][idx] = 0;
-                            birth_timestamp[p-1][only_idx] = i+1;
-                            // Remove the cycle to chain record.
-                            cycle_to_chain[p-1].left.erase(only_idx);
-                            break;
-                        }
+                int only_idx;
+                for (int b_idx = 0; b_idx < boundary_cycle_indices[p-1].size(); b_idx++) {
+                    only_idx = boundary_cycle_indices[p-1][b_idx];
+                    int chain_only_idx = cycle_to_chain[p-1].left.at(only_idx);
+                    if (C[p][chain_only_idx][idx] == 1) {
+                        C[p][chain_only_idx][idx] = 0;
+                        birth_timestamp[p-1][only_idx] = i+1;
+                        // Remove the cycle to chain record.
+                        cycle_to_chain[p-1].left.erase(only_idx);
+                        break;
                     }
                 }
                 // Record this cycle for storing representatives at this stage. This is getting born and we simply store the cycle at this point.
@@ -377,13 +377,13 @@ void ZigzagRep::compute(
                     if (Z[p][a][idx]==1) {
                         for (int b = 0; b < C[p].size(); b++) 
                         {
-                            int cycle_b = cycle_to_chain[p-1].right.at(b);
-                            if (birth_timestamp[p-1][cycle_b] < 0){
-                                if (C[p][b][idx]==1) // each column in C[p][chain_b] containing the simplex s.t. Z[p-1][b] is a boundary.
-                                {    
-                                    //add_columns(&C[p][b], &Z[p][a], &C[p][b]);
-                                    C[p][b] ^= Z[p][a];
-                                }
+                            if (C[p][b][idx] == 1) // each column in C[p][chain_b] containing the simplex s.t. Z[p-1][b] is a boundary.
+                            {  
+                                int cycle_b = cycle_to_chain[p-1].right.at(b);
+                                if (birth_timestamp[p-1][cycle_b] < 0){  
+                                        //add_columns(&C[p][b], &Z[p][a], &C[p][b]);
+                                        C[p][b] ^= Z[p][a];
+                                    }
                             }
                         }
                     }
