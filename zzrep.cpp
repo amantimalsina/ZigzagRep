@@ -11,7 +11,7 @@ using namespace std;
 namespace ZZREP { 
 
 typedef boost::bimaps::bimap<vector<int>, int> SimplexIdMap;
-typedef std::unordered_map<int, int> CycleToChainMap;
+typedef boost::bimaps::bimap<int, int> CycleToChainMap;
 typedef std::unordered_map<int, int> RepToCycleMap;
 typedef SimplexIdMap::value_type SimplexIdPair;
 typedef CycleToChainMap::value_type CycleToChainPair;
@@ -87,9 +87,6 @@ void ZigzagRep::compute(
     for (int i = 0; i < n; ++i) {
         const vector<int> &simp = filt_simp[i];
         int p = simp.size() - 1; // p denotes the dimension of the simplex.
-        if (i != n) {
-            next_op = filt_op[i+1];
-        }
         if (filt_op[i]) {
             // INSERTION:
             // A p-simplex is inserted into id[p] and a (p-1)-simplex is inserted into pm1_id. Next, we add a row to Z[p] and C[p], according to the dimension of simp.
@@ -97,23 +94,14 @@ void ZigzagRep::compute(
             (id[p]).insert(SimplexIdPair(simp, k));
             // Add a row with all zeros at the end to Z[p] and C[p].
             if (k != 0) {
-                column last_column_C(k, 0);
-                // Add all zeros to this last column:
-                C[p].push_back(last_column_C);
                 for (int j = 0; j < C[p].size(); j++) {
-                    if (j == C[p].size() - 1) {
-                        C[p][j].push_back(1);
-                    }
-                    else {
-                        C[p][j].push_back(0);
-                    }
+                    C[p][j].push_back(0);
                 }
                 for (int j = 0; j < Z[p].size(); ++j) {
                     Z[p][j].push_back(0);
                 }
             }
             else {
-                C[p].push_back(column(1,1));
                 if (p == 0) {
                     Z[p].push_back(column(1,1));
                 }
@@ -148,24 +136,25 @@ void ZigzagRep::compute(
                 An interval in dimension p gets born: 
                 Append a new column simp + \sum_{a \in I} C^{p}[a] with birth timestamp i+1 to Z^p.
                 */
-                column new_column;
+                column new_column = column(id[p].size(), 0); // New column with of size id[p].size() with 1 appended at the end.
+                new_column[id[p].left.at(simp)] = 1;
                 if (p != 0)  {
-                    new_column = C[p].back();
                     for (auto a: I) {
-                        int chain_a = cycle_to_chain[p-1][a];
+                        int chain_a = cycle_to_chain[p-1].left.at(a);
                         new_column ^= C[p][chain_a];
                     }
                     Z[p].push_back(new_column);
                 }
                 else if (p == 0 && k != 0) {
-                    Z[p].push_back(C[p].back());
+                    Z[p].push_back(new_column);
                 }
                 birth_timestamp[p].push_back(i+1);
-                cycle_to_chain[p].insert(CycleToChainPair(k, k));
+                /*
                 // Record this cycle for storing representatives at this stage. This is getting born and we simply store the cycle at this point.
                 representatives[p][i].push_back(new_column);
                 index_rep[p][i].push_back(k);
                 rep_to_cycle[p].insert(RepToCyclePair(k, k));
+                */
             }
             else {
                 // An interval in dimension p-1 dies.
@@ -208,7 +197,7 @@ void ZigzagRep::compute(
                         representative.push_back(id[p-1].right.at(i));
                     }
                 }
-                /* Representative updates for the forward case: */
+                /* Representative updates for the forward case: 
                 // Iterate over J and update the representatives.
                 for (auto j: J) {
                     if (j != l) {
@@ -224,19 +213,22 @@ void ZigzagRep::compute(
                             representatives[p-1][birth_timestamp[p-1][l]-1].push_back(representative_l ^ representative_j);
                             index_rep[p-1][birth_timestamp[p-1][l]-1].push_back(r);
                             // Update the map from representatives to cycles:
-                            rep_to_cycle[p-1].insert(r, l);
+                            rep_to_cycle[p-1].insert(RepToCyclePair(r, l));
                         }
                     }
                 }
-
+                */
                 persistence->push_back(std::make_tuple(birth_timestamp[p-1][l], i, p-1, representative));
                 // Set Z_{p−1}[l] = bd.(simp), C[p][l] = simp, and b^{p−1}[l] = −1.
                 Z[p-1][l] = bd_simp;
-                cycle_to_chain[p-1].insert(CycleToChainPair(l, k));
-                // C[p][l] = current_chain;
+                column current_chain(id[p].size(), 0);
+                current_chain[id[p].left.at(simp)] = 1;
+                C[p].push_back(current_chain);
+                (cycle_to_chain[p-1]).insert(CycleToChainPair(l, C[p].size()-1));
                 birth_timestamp[p-1][l] = -1;
                 /*
                 Avoiding pivot conflicts (column of bd.(simp) with that of another column in Z_{p-1}) as follows:
+                FIXME: Check if this is correct or not.
                 */
                 tuple<int, int> pivot_conflict_tuple =  pivot_conflict(&Z[p-1]);
                 int a = get<0>(pivot_conflict_tuple);
@@ -249,9 +241,11 @@ void ZigzagRep::compute(
                     if (birth_timestamp[p-1][a] < 0 && birth_timestamp[p-1][b] < 0) {
                         Z[p-1][a] = Z_pm1_aplusb;
                         // Update chain matrices to reflect this addition (use the cycletochainmap):
-                        int chain_a = cycle_to_chain[p-1][a];
-                        int chain_b = cycle_to_chain[p-1][b];
+                        int chain_a = cycle_to_chain[p-1].left.at(a);
+                        int chain_b = cycle_to_chain[p-1].left.at(b);
                         C[p][chain_a] = C[p][chain_a] ^ C[p][chain_b];
+                        // FIXME: Check if we need to update the cycle to chain map:
+                        // cycle_to_chain[p-1].erase(b);
                     }
                     else if (birth_timestamp[p-1][a] < 0 && birth_timestamp[p-1][b] >= 0) {
                         Z[p-1][b] = Z_pm1_aplusb;
@@ -297,8 +291,8 @@ void ZigzagRep::compute(
                         {
                             if (birth_timestamp[p-1][y] < 0)
                             {
-                                int chain_x = cycle_to_chain[p-1][x];
-                                int chain_y = cycle_to_chain[p-1][y];
+                                int chain_x = (cycle_to_chain[p-1]).left.at(x);
+                                int chain_y = (cycle_to_chain[p-1]).left.at(y);
                                 if (C[p][chain_x][idx]==1)
                                 {
                                     if (C[p][chain_y][idx]==1)
@@ -313,11 +307,9 @@ void ZigzagRep::compute(
                 while (boundary_pairs_bool) {
                     column Z_pm1_aplusb;
                     column C_p_aplusb;
-                    //add_columns(&Z[p-1][a], &Z[p-1][b], &Z_pm1_aplusb);
                     Z_pm1_aplusb = Z[p-1][a] ^ Z[p-1][b];
-                    int chain_a = cycle_to_chain[p-1][a];
-                    int chain_b = cycle_to_chain[p-1][b];
-                    //add_columns(&C[p][a], &C[p][b], &C_p_aplusb);
+                    int chain_a = (cycle_to_chain[p-1]).left.at(a);
+                    int chain_b = (cycle_to_chain[p-1]).left.at(b);
                     C_p_aplusb = C[p][chain_a] ^ C[p][chain_b];
                     if (pivot(&Z[p-1][a]) > pivot(&Z[p-1][b])) 
                     {
@@ -338,8 +330,8 @@ void ZigzagRep::compute(
                             {
                                 if (birth_timestamp[p-1][y] < 0)
                                 {
-                                    int chain_x = cycle_to_chain[p-1][x];
-                                    int chain_y = cycle_to_chain[p-1][y];
+                                    int chain_x = (cycle_to_chain[p-1]).left.at(x);
+                                    int chain_y = (cycle_to_chain[p-1]).left.at(y);
                                     if (C[p][chain_x][idx]==1)
                                     {
                                         if (C[p][chain_y][idx]==1)
@@ -355,20 +347,22 @@ void ZigzagRep::compute(
                 // find the only column Z_{p-1}[a] with negative birth timestamp such that C[p][a] contains the simplex.
                 int only_idx = 0;
                 for (only_idx = 0; only_idx < Z[p-1].size(); only_idx++) {
-                    int chain_x = cycle_to_chain[p-1][only_idx];
-                    if ((birth_timestamp[p-1][only_idx] < 0) && (C[p][chain_x][idx]==1)) {
+                    int chain_x = cycle_to_chain[p-1].left.at(only_idx);
+                    if ((birth_timestamp[p-1][only_idx] < 0) && (C[p][chain_x][only_idx]==1)) {
                         // Update the pth chain matrix so that the rows do not contain the simplex.
-                        C[p][chain_x][idx] = 0;
+                        C[p][chain_x][only_idx] = 0;
+                        birth_timestamp[p-1][only_idx] = i+1;
+                        // Remove the cycle to chain record.
+                        cycle_to_chain[p-1].left.erase(only_idx);
                         break;
                     }
                 }
-                birth_timestamp[p-1][only_idx] = i+1;
-                // Remove the cycle to chain record.
-                cycle_to_chain[p-1].erase(only_idx);
                 // Record this cycle for storing representatives at this stage. This is getting born and we simply store the cycle at this point.
+                /* 
                 representatives[p-1][i].push_back(Z[p-1][only_idx]);
                 index_rep[p-1][i].push_back(only_idx);
                 rep_to_cycle[p-1].insert(RepToCyclePair(only_idx, only_idx));
+                */
             }
             else // Case: Death.
             {
@@ -378,10 +372,13 @@ void ZigzagRep::compute(
                     if (Z[p][a][idx]==1) {
                         for (int b = 0; b < C[p].size(); b++) 
                         {
-                            if (C[p][b][idx]==1) // each column in C[p][chain_b] containing the simplex.
-                            {    
-                                //add_columns(&C[p][b], &Z[p][a], &C[p][b]);
-                                C[p][b] ^= Z[p][a];
+                            int cycle_b = cycle_to_chain[p].right.at(b);
+                            if (birth_timestamp[p-1][cycle_b] < 0){
+                                if (C[p][b][idx]==1) // each column in C[p][chain_b] containing the simplex s.t. Z[p-1][b] is a boundary.
+                                {    
+                                    //add_columns(&C[p][b], &Z[p][a], &C[p][b]);
+                                    C[p][b] ^= Z[p][a];
+                                }
                             }
                         }
                     }
@@ -400,6 +397,7 @@ void ZigzagRep::compute(
                 column z = Z[p][alpha];
                 for (auto a: I)
                 {
+                    // FIXME: Don't we need to update the cycle to chain map?
                     if (pivot(&Z[p][a]) > pivot(&z)) {
                         // add_columns(&Z[p][a], &z, &Z[p][a]);
                         Z[p][a] = Z[p][a] ^ z;
@@ -420,7 +418,7 @@ void ZigzagRep::compute(
                     }
                 }
                 persistence->push_back(std::make_tuple(birth_timestamp[p][alpha], i, p, representative));
-                /* Representative updates for the backward case: */
+                /* Representative updates for the backward case:
                 // Iterate over I and update the representatives.
                 for (auto a: I) {
                     if (a != alpha) {
@@ -435,12 +433,11 @@ void ZigzagRep::compute(
                             // Update the representative by adding a column pointing to r:
                             representatives[p-1][birth_timestamp[p-1][a]-1].push_back(representative_a ^ representative_alpha);
                             index_rep[p-1][birth_timestamp[p-1][a]-1].push_back(r);
-                            rep_to_cycle[p-1].insert(r, a);
+                            rep_to_cycle[p-1].insert(RepToCyclePair(r, a));
                         }
                     }
                 }
-
-
+                */
                 // Delete the column Z[p][I[0]] from Z[p] and delete birth_timestamp_p[I[0]] from birth_timestamp_p.
                 Z[p].erase(Z[p].begin() + alpha);
                 birth_timestamp[p].erase(birth_timestamp[p].begin() + alpha);
