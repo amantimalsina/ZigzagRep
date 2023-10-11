@@ -11,37 +11,18 @@ using namespace std;
 
 namespace ZZREP { 
 
+/* HELPER DATA STRUCTURES: */
 typedef boost::bimaps::bimap<vector<int>, int> SimplexIdMap;
 typedef boost::bimaps::bimap<int, int> CycleToChainMap;
-typedef std::unordered_map<int, int> RepToCycleMap;
 typedef SimplexIdMap::value_type SimplexIdPair;
 typedef CycleToChainMap::value_type CycleToChainPair;
-typedef RepToCycleMap::value_type RepToCyclePair;
-
 typedef boost::dynamic_bitset<> column;
 
+/* HELPER FUNCTIONS FOR REDUCTION: */
 void add_columns(column *a, column *b, column *c);
-
 int pivot (column *a);
-
-/*
-        Description: 
-            Explores if there is a pivot conflict among the columns in a matrix . 
-        Input: 
-            A vector of vectors of ints representing a 2D matrix.
-        Output: 
-            (true, i, j) if there is a pivot conflict between columns i and j,
-            (false, -1, -1) otherwise.
-*/
 tuple<int,  int> pivot_conflict (std::vector<column> *matrix);
-
-int pivot (column *a);
-
 void reduce(column *a, vector<column> *M, vector<int> *indices);
-
-int find_last(column *a);
-
-int index_binary_search(vector<int> &a, int x);
 
 void ZigzagRep::compute(
         const std::vector<vector<int> > &filt_simp, 
@@ -64,39 +45,34 @@ void ZigzagRep::compute(
     */
     vector<SimplexIdMap> id;
     vector<vector<int>> birth_timestamp;
-    vector<CycleToChainMap> cycle_to_chain;
-    bool next_op = filt_op[1];
-
     /*
-    Representative Data Structures:
+    Each column of Z[p] that is a boundary is associated with its corresponding chain in C[p+1] such that \partial C[p+1][j] = Z[p][j].
     */
-    vector<vector<vector<column>>> representatives; // representatives[p][i][j] is a p-cycle representative corresponding to the interval i at point j.
-    vector<vector<vector<int>>> index_rep; // a sorted list for each p and the filtration index j corresponding to index of representatives[p][i][j] for i in Z[p].
-    vector<RepToCycleMap> rep_to_cycle; // a map from the index of representatives[p][i][j] to the index of the cycle in Z[p] that it represents.
-
+    vector<CycleToChainMap> bd_to_chain;
+    // Initialize the data structures.
     for (int p = 0; p <= m; p++) {
         vector<column> Z_p;
         vector<column> C_p;
         SimplexIdMap id_p;
-        CycleToChainMap cycle_to_chain_p;
+        CycleToChainMap bd_to_chain_p;
         vector<int> birth_timestamp_p;
         vector<int> boundary_cycle_indices_p;
         Z.push_back(Z_p);
         boundary_cycle_indices.push_back(boundary_cycle_indices_p);
         C.push_back(C_p);
         id.push_back(id_p);
-        cycle_to_chain.push_back(cycle_to_chain_p);
+        bd_to_chain.push_back(bd_to_chain_p);
         birth_timestamp.push_back(birth_timestamp_p);
     }
+    // Compute the zigzag persistence.
     for (int i = 0; i < n; ++i) {
         const vector<int> &simp = filt_simp[i];
         int p = simp.size() - 1; // p denotes the dimension of the simplex.
-        if (filt_op[i]) {
-            // INSERTION:
-            // A p-simplex is inserted into id[p] and a (p-1)-simplex is inserted into pm1_id. Next, we add a row to Z[p] and C[p], according to the dimension of simp.
+        if (filt_op[i]) { // INSERTION
+            // A p-simplex is inserted into id[p].
             int k = id[p].size();
             (id[p]).insert(SimplexIdPair(simp, k));
-            // Add a row with all zeros at the end to Z[p] and C[p].
+            // Next, we add a row of all zeros to Z[p] and C[p] for indicating the insertion of a new p-simplex which increases the respective ranks by 1.
             if (k != 0) {
                 for (int j = 0; j < C[p].size(); j++) {
                     C[p][j].push_back(0);
@@ -105,17 +81,12 @@ void ZigzagRep::compute(
                     Z[p][j].push_back(0);
                 }
             }
-            else {
-                if (p == 0) {
-                    Z[p].push_back(column(1,1));
-                }
-            }
-            bool all_boundary = true;
-            // Compute boundary of the simplex:
-            column bd_simp;
             // Represent the boundary of simp as a sum of columns of Z_{p-1} by a reduction algorithm; I is such set of columns.
+            bool all_boundary = true;
+            column bd_simp;
             vector<int> I;
             if (p != 0) {
+                // Compute boundary of the simplex:
                 column temp(id[p-1].size(), 0);
                 bd_simp = temp;
                 for (int i = 0; i <= p; i++) {
@@ -126,7 +97,7 @@ void ZigzagRep::compute(
                     bd_simp[idx] = 1;
                 }
                 reduce(&bd_simp, &Z[p-1], &I);
-                // Check the birth timestamp of a to check whether all of them are boundaries.
+                // Check the birth timestamps to check whether all of them are boundaries.
                 for (auto a: I) {
                     if (birth_timestamp[p-1][a] >= 0) {
                         all_boundary = false;
@@ -134,36 +105,25 @@ void ZigzagRep::compute(
                     }
                 }
             }
-            if (all_boundary) // simp completes a cycle
+            if (all_boundary) // The inserted simplex covers a (p-1)-boundary (an interval in dimension p gets born) FIXME: Do we need to update the cycle to chain map here?
             {
                 /*
-                An interval in dimension p gets born: 
                 Append a new column simp + \sum_{a \in I} C^{p}[a] with birth timestamp i+1 to Z^p.
                 */
                 column new_column = column(id[p].size(), 0); // New column with of size id[p].size() with 1 appended at the end.
                 new_column[id[p].left.at(simp)] = 1;
                 if (p != 0)  {
                     for (auto a: I) {
-                        int chain_a = cycle_to_chain[p-1].left.at(a);
+                        int chain_a = bd_to_chain[p-1].left.at(a);
                         new_column ^= C[p][chain_a];
                     }
-                    Z[p].push_back(new_column);
                 }
-                else if (p == 0 && k != 0) {
-                    Z[p].push_back(new_column);
-                }
+                Z[p].push_back(new_column);
                 birth_timestamp[p].push_back(i+1);
-                /*
-                // Record this cycle for storing representatives at this stage. This is getting born and we simply store the cycle at this point.
-                representatives[p][i].push_back(new_column);
-                index_rep[p][i].push_back(k);
-                rep_to_cycle[p].insert(RepToCyclePair(k, k));
-                */
             }
-            else {
-                // An interval in dimension p-1 dies.
+            else { // The inserted simplex kills a (p-1)-cycle (an interval in dimension (p-1) dies).
                 /*
-                Let J consist of indices in I whose corresponding columns in Z_{p−1} have non-negative birth timestamps. 
+                Let J consist of indices in I whose corresponding columns in Z[p−1] have non-negative birth timestamps. 
                 */ 
                 vector<int> J;
                 for (int a: I) {
@@ -171,8 +131,8 @@ void ZigzagRep::compute(
                         J.push_back(a);
                     }
                 }
+                sort(J.begin(), J.end());
                 // Check if arrow at b^{p−1}[c]−1 points backward for all c in J
-                int l;
                 bool arrow_backward = true;
                 for (auto c: J) {
                     if (filt_op[birth_timestamp[p-1][c]-1]) {
@@ -180,13 +140,12 @@ void ZigzagRep::compute(
                         break;
                     }
                 }
-                sort(J.begin(), J.end());
+                // If the arrow at {b^{p−1}[c]−1} points backward for all c in J, let l be the smallest index in J. Otherwise, let l be the largest c in J such that the arrow at {b^{p−1}[c]−1} points forward.
+                int l;
                 if (arrow_backward) {
-                    // the arrow at b^{p−1}[c]−1) points backward for all c in J, let k be the smallest index in J.
                     l = *J.begin();
                 }
                 else {
-                    // let k be the largest c in J such that φ_{b^{p−1}[c]−1} points forward.
                     for (auto i = J.size()-1; i >= 0; i--) {
                         if (filt_op[birth_timestamp[p-1][J[i]]-1]) {
                             l = J[i];
@@ -194,50 +153,30 @@ void ZigzagRep::compute(
                         }
                     }
                 }
-                // Output the (p − 1)-th interval [b^{p−1}[l], i].
+                // Output the (p − 1)-th interval [b^{p−1}[l], i] after gathering the relevant representative.
                 vector<vector<int>> representative;
                 for (int i = 0; i < Z[p-1][l].size(); i++) {
                     if (Z[p-1][l][i] == 1) {
                         representative.push_back(id[p-1].right.at(i));
                     }
                 }
-                /* Representative updates for the forward case: 
-                // Iterate over J and update the representatives.
-                for (auto j: J) {
-                    if (j != l) {
-                        // Get the points where the representatives are stored for j:
-                        vector<int> index_rep_j = index_rep[p-1][birth_timestamp[p-1][j]-1];  
-                        // Iterate over the representatives and update them:
-                        for (auto r: index_rep_j) {
-                            // Find the smallest index closes to r in index_rep[p-1][l][r] and get the reprentative at that index:
-                            int index_rep_l = index_binary_search(index_rep[p-1][j], r);
-                            column representative_l = representatives[p-1][birth_timestamp[p-1][l]-1][index_rep_l];
-                            column representative_j = representatives[p-1][birth_timestamp[p-1][j]-1][r];
-                            // Update the representative by adding a column pointing to r:
-                            representatives[p-1][birth_timestamp[p-1][l]-1].push_back(representative_l ^ representative_j);
-                            index_rep[p-1][birth_timestamp[p-1][l]-1].push_back(r);
-                            // Update the map from representatives to cycles:
-                            rep_to_cycle[p-1].insert(RepToCyclePair(r, l));
-                        }
-                    }
-                }
-                */
                 persistence->push_back(std::make_tuple(birth_timestamp[p-1][l], i, p-1, representative));
-                // Set Z_{p−1}[l] = bd.(simp), C[p][l] = simp, and b^{p−1}[l] = −1.
+                /* 
+                UPDATE:
+                */
+                // Set Z[p−1][l] = bd_simp.
                 Z[p-1][l] = bd_simp;
+                // Set C[p][l] = simp and update the boundary-to-chain map. //TODO: Can't we just iterate over bd_to_chain map instead of iterating over the boundary cycle indices?
                 column current_chain(id[p].size(), 0);
                 current_chain[id[p].left.at(simp)] = 1;
                 C[p].push_back(current_chain);
-                (cycle_to_chain[p-1]).insert(CycleToChainPair(l, C[p].size()-1));
-                // Print the cycle to chain bimap at this stage:
-                for (auto it = cycle_to_chain[p-1].begin(); it != cycle_to_chain[p-1].end(); ++it) {
-                    std::cout << it->left << " " << it->right << "\n";
-                }
+                (bd_to_chain[p-1]).insert(CycleToChainPair(l, C[p].size()-1));
+                // Set b^{p−1}[l] = −1 and record l as a boundary cycle index.
                 birth_timestamp[p-1][l] = -1;
                 boundary_cycle_indices[p-1].push_back(l);
                 /*
-                Avoiding pivot conflicts (column of bd.(simp) with that of another column in Z_{p-1}) as follows:
-                FIXME: Check if this is correct or not.
+                TODO: Intially the only pivot conflict can happen with the boundary simplex so we can just check for that.
+                Avoiding pivot conflicts (column of bd_simp with that of another column in Z[p-1]) as follows:
                 */
                 tuple<int, int> pivot_conflict_tuple =  pivot_conflict(&Z[p-1]);
                 int a = get<0>(pivot_conflict_tuple);
@@ -250,11 +189,11 @@ void ZigzagRep::compute(
                     if (birth_timestamp[p-1][a] < 0 && birth_timestamp[p-1][b] < 0) {
                         Z[p-1][a] = Z_pm1_aplusb;
                         // Update chain matrices to reflect this addition (use the cycletochainmap):
-                        int chain_a = cycle_to_chain[p-1].left.at(a);
-                        int chain_b = cycle_to_chain[p-1].left.at(b);
+                        int chain_a = bd_to_chain[p-1].left.at(a);
+                        int chain_b = bd_to_chain[p-1].left.at(b);
                         C[p][chain_a] = C[p][chain_a] ^ C[p][chain_b];
                         // FIXME: Check if we need to update the cycle to chain map:
-                        // cycle_to_chain[p-1].erase(b);
+                        // bd_to_chain[p-1].erase(b);
                     }
                     else if (birth_timestamp[p-1][a] < 0 && birth_timestamp[p-1][b] >= 0) {
                         Z[p-1][b] = Z_pm1_aplusb;
@@ -268,7 +207,6 @@ void ZigzagRep::compute(
                             Z[p-1][b] = Z_pm1_aplusb;
                         }
                         else {
-
                             Z[p-1][a] = Z_pm1_aplusb;
                         }
                     }
@@ -279,31 +217,30 @@ void ZigzagRep::compute(
                     }
             }
         } 
-        else { // Case: Arrow points backward.
+        else { // DELETION:
+            // Find the index of the simplex in id[p].
             bool existence = false;
             int idx = id[p].left.at(simp);
+            // Check if the simplex exists in Z[p].
             for (auto column: Z[p]) {
                 if (column[idx]==1) {
                     existence = true;
                     break;
                 }
             } 
-            if (!existence)// Case: Birth.
+            if (!existence)// The deleted simplex does not constitute a cycle and its boundary now becomes a (p-1)-cycle (An interval in dimension (p-1) gets born).
             {   
+                // TODO: Streamline this part of the code.
                 int a, b;
                 bool boundary_pairs_bool = false;
-                // Print cycle to chain at p-1 at this point:
-                for (auto it = cycle_to_chain[p-1].begin(); it != cycle_to_chain[p-1].end(); ++it) {
-                    std::cout << it->left << " " << it->right << "\n";
-                }
                 for (int x = 0; x < boundary_cycle_indices[p-1].size(); x++) 
                 {
                     for (int y = x + 1; y < boundary_cycle_indices[p-1].size(); y++) 
                     {
                         int cycle_x = boundary_cycle_indices[p-1][x];
                         int cycle_y = boundary_cycle_indices[p-1][y];
-                        int chain_x = (cycle_to_chain[p-1]).left.at(cycle_x);
-                        int chain_y = (cycle_to_chain[p-1]).left.at(cycle_y);
+                        int chain_x = (bd_to_chain[p-1]).left.at(cycle_x);
+                        int chain_y = (bd_to_chain[p-1]).left.at(cycle_y);
                         if (C[p][chain_x][idx]==1)
                         {
                             if (C[p][chain_y][idx]==1)
@@ -317,8 +254,8 @@ void ZigzagRep::compute(
                     column Z_pm1_aplusb;
                     column C_p_aplusb;
                     Z_pm1_aplusb = Z[p-1][a] ^ Z[p-1][b];
-                    int chain_a = (cycle_to_chain[p-1]).left.at(a);
-                    int chain_b = (cycle_to_chain[p-1]).left.at(b);
+                    int chain_a = (bd_to_chain[p-1]).left.at(a);
+                    int chain_b = (bd_to_chain[p-1]).left.at(b);
                     C_p_aplusb = C[p][chain_a] ^ C[p][chain_b];
                     if (pivot(&Z[p-1][a]) > pivot(&Z[p-1][b])) 
                     {
@@ -337,8 +274,8 @@ void ZigzagRep::compute(
                         {
                             int cycle_x = boundary_cycle_indices[p-1][x];
                             int cycle_y = boundary_cycle_indices[p-1][y];
-                            int chain_x = (cycle_to_chain[p-1]).left.at(cycle_x);
-                            int chain_y = (cycle_to_chain[p-1]).left.at(cycle_y);
+                            int chain_x = (bd_to_chain[p-1]).left.at(cycle_x);
+                            int chain_y = (bd_to_chain[p-1]).left.at(cycle_y);
                             if (C[p][chain_x][idx]==1)
                             {
                                 if (C[p][chain_y][idx]==1)
@@ -349,26 +286,21 @@ void ZigzagRep::compute(
                         }
                     }
                 }
-                // find the only column Z_{p-1}[a] with negative birth timestamp such that C[p][a] contains the simplex.
+                // find the only column Z[p-1][a] with negative birth timestamp such that C[p][a] contains the simplex.
                 int only_idx;
                 for (int b_idx = 0; b_idx < boundary_cycle_indices[p-1].size(); b_idx++) {
                     only_idx = boundary_cycle_indices[p-1][b_idx];
-                    int chain_only_idx = cycle_to_chain[p-1].left.at(only_idx);
+                    int chain_only_idx = bd_to_chain[p-1].left.at(only_idx);
                     if (C[p][chain_only_idx][idx] == 1) {
                         C[p][chain_only_idx][idx] = 0;
                         birth_timestamp[p-1][only_idx] = i+1;
-                        // Remove the cycle to chain record.
-                        cycle_to_chain[p-1].left.erase(only_idx);
+                        // Remove the boundary to chain record.
+                        bd_to_chain[p-1].left.erase(only_idx);
                         break;
                     }
                 }
-                // Record this cycle for storing representatives at this stage. This is getting born and we simply store the cycle at this point.
-                /* 
-                representatives[p-1][i].push_back(Z[p-1][only_idx]);
-                index_rep[p-1][i].push_back(only_idx);
-                rep_to_cycle[p-1].insert(RepToCyclePair(only_idx, only_idx));
-                */
             }
+            // TODO: Resume the cleansing from here:
             else // Case: Death.
             {
                 // Update C[p] so that no columns contain the simplex.
@@ -379,7 +311,7 @@ void ZigzagRep::compute(
                         {
                             if (C[p][b][idx] == 1) // each column in C[p][chain_b] containing the simplex s.t. Z[p-1][b] is a boundary.
                             {  
-                                int cycle_b = cycle_to_chain[p-1].right.at(b);
+                                int cycle_b = bd_to_chain[p-1].right.at(b);
                                 if (birth_timestamp[p-1][cycle_b] < 0){  
                                         //add_columns(&C[p][b], &Z[p][a], &C[p][b]);
                                         C[p][b] ^= Z[p][a];
@@ -423,26 +355,6 @@ void ZigzagRep::compute(
                     }
                 }
                 persistence->push_back(std::make_tuple(birth_timestamp[p][alpha], i, p, representative));
-                /* Representative updates for the backward case:
-                // Iterate over I and update the representatives.
-                for (auto a: I) {
-                    if (a != alpha) {
-                        // Get the points where the representatives are stored for j:
-                        vector<int> index_rep_alpha = index_rep[p][birth_timestamp[p][alpha]-1];
-                        // Iterate over the representatives and update them:
-                        for (auto r: index_rep_alpha) {
-                            // Find the smallest index closes to r in index_rep[p-1][l][r] and get the reprentative at that index:
-                            int index_rep_a = index_binary_search(index_rep[p][a], r);
-                            column representative_a = representatives[p-1][birth_timestamp[p-1][a]-1][index_rep_a];
-                            column representative_alpha = representatives[p-1][birth_timestamp[p][alpha]-1][r];
-                            // Update the representative by adding a column pointing to r:
-                            representatives[p-1][birth_timestamp[p-1][a]-1].push_back(representative_a ^ representative_alpha);
-                            index_rep[p-1][birth_timestamp[p-1][a]-1].push_back(r);
-                            rep_to_cycle[p-1].insert(RepToCyclePair(r, a));
-                        }
-                    }
-                }
-                */
                 // Delete the column Z[p][I[0]] from Z[p] and delete birth_timestamp_p[I[0]] from birth_timestamp_p.
                 Z[p].erase(Z[p].begin() + alpha);
                 birth_timestamp[p].erase(birth_timestamp[p].begin() + alpha);
@@ -555,28 +467,5 @@ void reduce(column *a, vector<column> *M, vector<int> *indices)
         }
     }
 }
-
-/* 
-Implementation of index binary search:
-*/
-int index_binary_search(vector<int> &a, int x){
-    int l = 0;
-    int r = a.size() - 1;
-    int m;
-    while (l <= r) {
-        m = l + (r - l) / 2;
-        if (a[m] == x) {
-            return m;
-        }
-        else if (a[m] < x) {
-            l = m + 1;
-        }
-        else {
-            r = m - 1;
-        }
-    }
-    return m;
-}
-
 
 }// namespace ZZREP
