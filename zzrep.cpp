@@ -1,6 +1,7 @@
 #include "zzrep.h"
 
 #include <algorithm>
+#include <map>
 #include <unordered_map>
 #include <tuple>
 #include <boost/bimap.hpp>
@@ -12,11 +13,15 @@ using namespace std;
 namespace ZZREP { 
 
 /* HELPER DATA STRUCTURES: */
+typedef boost::dynamic_bitset<> column;
 typedef boost::bimaps::bimap<vector<int>, int> SimplexIdMap;
 typedef boost::bimaps::bimap<int, int> BdToChainMap;
+typedef std::unordered_map<int, int> CycleToBundleMap;
+typedef std::unordered_map<int, int> IntervalToBundleMap;
 typedef SimplexIdMap::value_type SimplexIdPair;
 typedef BdToChainMap::value_type BdToChainPair;
-typedef boost::dynamic_bitset<> column;
+typedef CycleToBundleMap::value_type CycleToBundlePair;
+typedef IntervalToBundleMap::value_type IntervalToBundlePair;
 
 /* DECLARATION OF HELPER FUNCTIONS: */
 int pivot (column *a);
@@ -38,6 +43,14 @@ void ZigzagRep::compute(
     vector<vector<column> > C(m); // A chain matrix C[p] for each dimension p so that the chains in C[p] are associated with the the boundary cycles in Z[p-1].
     vector<vector<int> > birth_timestamp(m); // For each column Z[p][j], a birth timestamp is maintained, where a negative value implies that the column pertains to a boundary.
     vector<BdToChainMap> bd_to_chain(m); // Maps between indices of Z[p-1] and C[p] such that \partial C[p+1][j] = Z[p][bd_to_chain[j]] for all j such that birth_timestamp[p-1][j] < 0.
+    // Data structures for storing the intervals and cycles in order to compute representatives: TODO: Describe the data structures.
+    vector<tuple<int, int, int> > intervals(m);
+    vector<vector<column> > nontrivial_bundles(m);
+    vector<vector<int> > nontrivial_bundle_timestamps(m);
+    vector<vector<column> > trivial_bundles(m);
+    vector<vector<int> > trivial_bundle_timestamps(m);
+    vector<CycleToBundleMap> cycle_to_bundle(m);
+    vector<IntervalToBundlePair> interval_to_bundle(m); // A clever way to implement this is to instead use the indices as bit strings.
     /*
     COMPUTATION of zigzag persistence:
     */
@@ -49,7 +62,8 @@ void ZigzagRep::compute(
             int k = id[p].size();
             (id[p]).insert(SimplexIdPair(simp, k));
             // Next, we add a row of all zeros to Z[p] and C[p] for indicating the insertion of a new p-simplex which increases the respective ranks by 1.
-            if (k != 0) {
+            if (k != 0) 
+            {
                 for (int j = 0; j < C[p].size(); j++) {
                     C[p][j].push_back(0);
                 }
@@ -81,7 +95,7 @@ void ZigzagRep::compute(
                     }
                 }
             }
-            if (all_boundary) // The inserted simplex covers a (p-1)-boundary (an interval in dimension p gets born) FIXME: Do we need to update the cycle to chain map here?
+            if (all_boundary) // The inserted simplex covers a (p-1)-boundary (an interval in dimension p gets born)
             {
                 /*
                 Append a new column simp + \sum_{a \in I} C^{p}[a] with birth timestamp i+1 to Z^p.
@@ -96,6 +110,11 @@ void ZigzagRep::compute(
                 }
                 Z[p].push_back(new_column);
                 birth_timestamp[p].push_back(i+1);
+                // FIXME: A new non-trivial cycle gets born that must get inserted into the bundle. Make sure that this is done correctly.
+                int cycle_idx = Z[p].size() - 1;
+                nontrivial_bundles[p].push_back(new_column);
+                nontrivial_bundle_timestamps[p].push_back(i+1);
+                (cycle_to_bundle[p]).insert(CycleToBundlePair(cycle_idx, nontrivial_bundles[p].size()-1));
             }
             else { // The inserted simplex kills a (p-1)-cycle (an interval in dimension (p-1) dies).
                 /*
@@ -149,10 +168,10 @@ void ZigzagRep::compute(
                 (bd_to_chain[p-1]).insert(BdToChainPair(l, C[p].size()-1));
                 // Set b^{p−1}[l] = −1 and record l as a boundary cycle index.
                 birth_timestamp[p-1][l] = -1;
+                // TODO: All the additions must track the indices and we must update the bundle indices accordingly.
                 /*
                 Avoiding pivot conflicts (column of bd_simp with that of another column in Z[p-1]) as follows:
                 */
-                // TODO: Intially the only pivot conflict can happen with the boundary simplex so we can just check for that.
                 tuple<int, int> pivot_conflict_tuple =  pivot_conflict(&Z[p-1]);
                 int a = get<0>(pivot_conflict_tuple);
                 int b = get<1>(pivot_conflict_tuple);
@@ -166,8 +185,6 @@ void ZigzagRep::compute(
                         int chain_a = bd_to_chain[p-1].left.at(a);
                         int chain_b = bd_to_chain[p-1].left.at(b);
                         C[p][chain_a] = C[p][chain_a] ^ C[p][chain_b];
-                        // FIXME: Check if we need to update the cycle to chain map:
-                        // bd_to_chain[p-1].erase(b);
                     }
                     else if (birth_timestamp[p-1][a] < 0 && birth_timestamp[p-1][b] >= 0) {
                         Z[p-1][b] = Z_pm1_aplusb;
@@ -204,7 +221,7 @@ void ZigzagRep::compute(
             } 
             if (!existence)// The deleted simplex does not constitute a cycle and its boundary now becomes a (p-1)-cycle (An interval in dimension (p-1) gets born).
             {   
-                // FIXME: There's obviously a bug here; make sure that the cyle to chain indices are getting retrieved correctly.
+                // TODO: All the additions must track the indices and we must update the TRIVIAL bundle indices accordingly.
                 int a, b;
                 bool boundary_pairs_bool = false;
                 for (int x = 0; x < bd_to_chain[p-1].size(); x++) 
@@ -273,6 +290,11 @@ void ZigzagRep::compute(
                 birth_timestamp[p-1][alpha] = i+1;
                 // Remove the boundary to chain record.
                 bd_to_chain[p-1].left.erase(alpha);
+                // FIXME: A new non-trivial cycle gets born that must get inserted into the bundle. Make sure this is done correctly.
+                nontrivial_bundles[p-1].push_back(Z[p-1][alpha]);
+                nontrivial_bundle_timestamps[p-1].push_back(i+1);
+                (cycle_to_bundle[p]).insert(CycleToBundlePair(alpha, nontrivial_bundles[p].size()-1));
+                // FIXME: Probably also need to update the trivial bundle here.
             }
             else // // The deleted simplex is part of some p-cycle (An interval in dimension p dies).
             {
@@ -282,9 +304,9 @@ void ZigzagRep::compute(
                     if (Z[p][a][idx]==1) {
                         for (int b = 0; b < C[p].size(); b++) 
                         {
-                            if (C[p][b][idx] == 1) // each column in C[p][chain_b] containing the simplex s.t. Z[p-1][b] is a boundary. // FIXME: Why are we only iterating over these?
+                            if (C[p][b][idx] == 1) // each column in C[p][chain_b] containing the simplex s.t. Z[p-1][b] is a boundary.
                             {  
-                                int cycle_b = bd_to_chain[p-1].right.at(b); // FIXME: Doesn't this assume that we only iterate over the chains whose boundary is the simplex? So, we can just iterate over the boundary cycle indices?
+                                int cycle_b = bd_to_chain[p-1].right.at(b); 
                                 if (birth_timestamp[p-1][cycle_b] < 0){  
                                         C[p][b] ^= Z[p][a];
                                 }
@@ -303,13 +325,14 @@ void ZigzagRep::compute(
                 // The column to be deleted is the first column in I.
                 int alpha = I[0];
                 I.erase(I.begin());
+                // TODO: All the additions must track the indices and we must update the NON-TRIVIAL bundle indices accordingly.
                 // Iterate over the rest of I and ensure that the pivots remain distinct:
                 column z = Z[p][alpha];
                 for (auto a: I)
                 {
                     if (pivot(&Z[p][a]) > pivot(&z)) 
                     {
-                        Z[p][a] = Z[p][a] ^ z; // FIXME: Don't we need to update the cycle to chain map?
+                        Z[p][a] = Z[p][a] ^ z;
                     }   
                     else 
                     {
