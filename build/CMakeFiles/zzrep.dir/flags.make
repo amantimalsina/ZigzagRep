@@ -4,9 +4,9 @@
 # compile CXX with /usr/bin/clang++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagRep/. -I/opt/homebrew/include
+CXX_INCLUDES = -I/Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig/. -I/opt/homebrew/include
 
-CXX_FLAGSarm64 =  -std=c++14 -O3 -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk
+CXX_FLAGSarm64 =  -std=c++14 -O3 -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk
 
-CXX_FLAGS =  -std=c++14 -O3 -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk
+CXX_FLAGS =  -std=c++14 -O3 -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk
 

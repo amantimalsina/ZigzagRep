@@ -1,4 +1,4 @@
-# Install script for directory: /Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagRep
+# Install script for directory: /Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagRep/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
