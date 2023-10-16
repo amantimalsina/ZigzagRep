@@ -17,15 +17,12 @@ typedef boost::dynamic_bitset<> column;
 typedef boost::bimaps::bimap<vector<int>, int> SimplexIdMap;
 typedef boost::bimaps::bimap<int, int> BdToChainMap;
 typedef std::unordered_map<int, int> CycleToBundleMap;
-typedef std::unordered_map<int, int> IntervalToBundleMap;
 typedef SimplexIdMap::value_type SimplexIdPair;
 typedef BdToChainMap::value_type BdToChainPair;
 typedef CycleToBundleMap::value_type CycleToBundlePair;
-typedef IntervalToBundleMap::value_type IntervalToBundlePair;
 
 /* DECLARATION OF HELPER FUNCTIONS: */
 int pivot (column *a);
-tuple<int,  int> pivot_conflict (std::vector<column> *matrix);
 void reduce(column *a, vector<column> *M, vector<int> *indices, vector<int> *pivots);
 
 void ZigzagRep::compute(
@@ -45,9 +42,9 @@ void ZigzagRep::compute(
     vector<BdToChainMap> bd_to_chain; // Maps between indices of Z[p-1] and C[p] such that \partial C[p+1][j] = Z[p][bd_to_chain[j]] for all j such that birth_timestamp[p-1][j] < 0.
     vector<vector<int>> pivots; // For each column Z[p][j] we have a unique pivot entry; we then store pivots[p][i] = j where j = -1 implies that no column exists in Z[p-1] with pivot i.
     // Data structures for storing the intervals and cycles in order to compute representatives: 
-    vector<vector<column> > bundle;
-    vector<vector<int> > timestamps;
-    vector<CycleToBundleMap> links;
+    vector<vector<column> > bundle; // A collection of wires: bundle[p] stores p-dimensional wires.
+    vector<vector<int> > timestamps; // Wire timestamps.
+    vector<CycleToBundleMap> links; // Map from the cycle matrix to the wires: links[p][j] is the collection of wires associated with Z[p][j].
     /*
     INITIALIZATION:
     */
@@ -108,7 +105,20 @@ void ZigzagRep::compute(
                     int idx = id[p-1].left.at(boundary_simplex);
                     bd_simp[idx] = 1;
                 }
-                reduce(&bd_simp, &Z[p-1], &I, &pivots[p-1]);
+                // Find the columns in Z[p-1] that sum to bd_simp:
+                column bd_simp_temp = bd_simp;  // Copy bd_simp to a temporary column.
+                int pivot_bd = pivot(&bd_simp_temp);
+                bool zeroed = (pivot_bd == -1);
+                while (!zeroed) {
+                    // Find the column in M that has the same pivot as a.
+                    int conflict_idx = pivots[p-1][pivot_bd]; // FIXME: Is this guaranteed to exist if pivot_bd != -1?
+                    // Add this column to indices.
+                    bd_simp_temp ^= Z[p-1][conflict_idx];
+                    I.push_back(conflict_idx);
+                    // Update the pivot of a.
+                    pivot_bd = pivot(&bd_simp_temp);
+                    zeroed = (pivot_bd == -1);
+                } 
                 // Check the birth timestamps to check whether all of them are boundaries.
                 for (auto a: I) {
                     if (birth_timestamp[p-1][a] >= 0) {
@@ -133,6 +143,10 @@ void ZigzagRep::compute(
                 Z[p].push_back(new_column);
                 birth_timestamp[p].push_back(i+1);
                 pivots[p].push_back(Z[p].size()-1);
+                // Add a wire to the bundle with timestamp 1 and update the link from the cycle to the bundle.
+                bundle[p].push_back(new_column);
+                timestamps[p].push_back(i+1);
+                links[p].insert(CycleToBundlePair(Z[p].size()-1, bundle[p].size()-1));
             }
             else { // The inserted simplex kills a (p-1)-cycle (an interval in dimension (p-1) dies).
                 /*
@@ -166,24 +180,23 @@ void ZigzagRep::compute(
                         }
                     }
                 }
-                // Output the (p − 1)-th interval [b^{p−1}[l], i] after gathering the relevant representative.
-                vector<vector<int>> representative;
-                for (int i = 0; i < Z[p-1][l].size(); i++) {
-                    if (Z[p-1][l][i] == 1) {
-                        representative.push_back(id[p-1].right.at(i));
-                    }
-                }
-                persistence->push_back(std::make_tuple(birth_timestamp[p-1][l], i, p-1, representative));
+                // TODO: Output the (p − 1)-th interval [b^{p−1}[l], i] after gathering the relevant representative.
+                // Here, we need to gather all the wires pertaining to the cycle l and reconstruct the representatives at each index.
                 /* 
                 UPDATE:
                 */
                 // Set Z[p−1][l] = bd_simp.
                 Z[p-1][l] = bd_simp;
                 birth_timestamp[p-1][l] = -1; // Set b^{p−1}[l] = −1 and record l as a boundary cycle index.
+                bundle[p-1].push_back(bd_simp);
+                timestamps[p-1].push_back(i+1);
+                links[p-1].insert(CycleToBundlePair(l, bundle[p-1].size()-1));
                 /*
-                Avoiding pivot conflicts (column of bd_simp with that of another column in Z[p-1]) as follows:
+                Avoiding pivot conflicts (column of bd_simp with that of another column in Z[p-1]).
+                We know that the pivots of Z[p-1] were unique before the insertion of bd_simp. 
+                Thus, we need to ensure that they remain unique after the insertion of bd_simp. 
                 */
-                // We know that the pivots of Z[p-1] were unique before the insertion of bd_simp. We need to ensure that they remain unique after the insertion of bd_simp.
+                // TODO: Update the links as we add columns in Z[p-1].
                 int pivot_l = pivot(&Z[p-1][l]);
                 int current_idx = pivots[p-1][pivot_l];
                 bool pivot_conflict;
@@ -304,8 +317,9 @@ void ZigzagRep::compute(
             } 
             if (!existence)// The deleted simplex does not constitute a cycle and its boundary now becomes a (p-1)-cycle (An interval in dimension (p-1) gets born).
             {   
-                // TODO: This does not change pivots; confirm! Moreover, some sort of optimization needs to be possible here.
-                int a, b;
+                // FIXME: This does not change pivots; confirm!
+                // TODO: Update the links as we add columns in Z[p-1].
+                int a, b, chain_a, chain_b;
                 bool boundary_pairs_bool = false;
                 typedef BdToChainMap::left_map::const_iterator bd_const_iterator;
                 for(bd_const_iterator bd_iter = bd_to_chain[p-1].left.begin();
@@ -321,17 +335,19 @@ void ZigzagRep::compute(
                             int chain_y = bd_iter_b->second;
                             if (C[p][chain_x][idx]==1)
                             {
+                                a = cycle_x;
+                                chain_a = chain_x;
                                 if (C[p][chain_y][idx]==1)
                                 {
-                                    a = cycle_x; b = cycle_y; boundary_pairs_bool = true;
+                                    b = cycle_y;
+                                    chain_b = chain_y;
+                                    boundary_pairs_bool = true;
                                 }
                             }
                         }
                     }                    
                 }
                 while (boundary_pairs_bool) {
-                    int chain_a = (bd_to_chain[p-1]).left.at(a);
-                    int chain_b = (bd_to_chain[p-1]).left.at(b);
                     if (pivot(&Z[p-1][a]) > pivot(&Z[p-1][b])) 
                     {
                         Z[p-1][a] = Z[p-1][a] ^ Z[p-1][b];
@@ -356,9 +372,13 @@ void ZigzagRep::compute(
                                 int chain_y = bd_iter_b->second;
                                 if (C[p][chain_x][idx]==1)
                                 {
+                                    a = cycle_x;
+                                    chain_a = chain_x;
                                     if (C[p][chain_y][idx]==1)
                                     {
-                                        a = cycle_x; b = cycle_y; boundary_pairs_bool = true;
+                                        b = cycle_y;
+                                        chain_b = chain_y;
+                                        boundary_pairs_bool = true;
                                     }
                                 }
                             }
@@ -366,20 +386,16 @@ void ZigzagRep::compute(
                     }
                 }
                 // find the only column Z[p-1][a] with negative birth timestamp such that C[p][a] contains the simplex.
-                int alpha;
-                for(bd_const_iterator bd_iter = bd_to_chain[p-1].left.begin(), iend = bd_to_chain[p-1].left.end();
-                    bd_iter != iend; ++bd_iter)
-                    {
-                    alpha = bd_iter->first;
-                    int chain_only_idx = bd_iter->second;
-                    if (C[p][chain_only_idx][idx] == 1) {
-                        C[p][chain_only_idx][idx] = 0;
-                        break;
-                    }
-                }
+                int alpha = a;
+                C[p][chain_a][idx] = 0;
                 birth_timestamp[p-1][alpha] = i+1;
                 // Remove the boundary to chain record.
                 bd_to_chain[p-1].left.erase(alpha);
+                // Add a wire to the bundle with timestamp i+1 and update the link from the cycle to the bundle.
+                bundle[p-1].push_back(Z[p-1][alpha]);
+                timestamps[p-1].push_back(i+1);
+                // Update the links from a to the bundle.
+                links[p-1][alpha] = bundle[p-1].size()-1;
             }
             else // // The deleted simplex is part of some p-cycle (An interval in dimension p dies).
             {
@@ -400,7 +416,8 @@ void ZigzagRep::compute(
                     }
                 }
                 // Remove the simplex from Z[p]
-                vector<int> I; // Gather indices of columns that contain the simplex.
+                vector<int> I; // Gather indices of columns that contain the simplex. 
+                // FIXME: These cannot contain boundaries; confirm! 
                 for (int a = 0; a < Z[p].size(); a++)
                 {
                     if (Z[p][a][idx]==1) I.push_back(a);
@@ -412,27 +429,23 @@ void ZigzagRep::compute(
                 I.erase(I.begin());
                 // Iterate over the rest of I and ensure that the pivots remain distinct:
                 column z = Z[p][alpha];
+                // TODO: Update the links as we add columns in Z[p-1].
                 for (auto a: I)
                 {
                     if (pivot(&Z[p][a]) > pivot(&z)) 
                     {
-                        Z[p][a] = Z[p][a] ^ z;
+                        Z[p][a] = Z[p][a] ^ z; // This does not change the pivot of Z[p][a].
                     }   
                     else 
                     {
                         column temp = Z[p][a];
                         Z[p][a] = Z[p][a] ^ z;
                         z = temp;
+                        // FIXME: How should we update pivots here? In particular, it is not clear to me how the pivots remain distinct after this.
                     }
                 }
                 // Output the p-th interval [birth_timestamp_p[alpha], i] after gathering the representatives.
-                vector<vector<int>> representative;
-                for (int i = 0; i < Z[p][alpha].size(); i++) {
-                    if (Z[p][alpha][i] == 1) {
-                        representative.push_back(id[p].right.at(i));
-                    }
-                }
-                persistence->push_back(std::make_tuple(birth_timestamp[p][alpha], i, p, representative));
+                // TODO: Gather the representatives at each index using the links from alpha and remove the record.
                 /*
                 UPDATE:
                 */ 
@@ -473,25 +486,5 @@ int pivot (column *a)
         }
     }
     return pivot;
-}
-// Reduction algorithm: given a column a, find the indices of the columns in M such that the columns sum to a.
-// TODO: This is not a full reduction, we just need to find the indices of the columns in M that sum to a.
-void reduce(column *a, vector<column> *M, vector<int> *indices, vector<int> *pivots)
-{
-    // Append a to M.
-    M -> push_back(*a);
-    int k = M -> size();
-    int pivot_a = pivot(a);
-    bool zeroed = (pivot_a == -1);
-    while (!zeroed) {
-        // Find the column in M that has the same pivot as a.
-        int conflict_idx = pivots -> at(pivot_a);
-        // Add this column to indices.
-        (*a) ^= (*M)[conflict_idx];
-        indices -> push_back(conflict_idx);
-        // Update the pivot of a.
-        pivot_a = pivot(a);
-        zeroed = (pivot_a == -1);
-    } 
 }
 }// namespace ZZREP
