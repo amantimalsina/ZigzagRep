@@ -54,7 +54,7 @@ int main(const int argc, const char *argv[]) {
         if (op == 'i') {
             filt_op.push_back(true);
         } else {
-            //assert(op == 'd');
+            assert(op == 'd');
             filt_op.push_back(false);
         }
     }
