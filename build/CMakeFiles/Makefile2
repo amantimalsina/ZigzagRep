@@ -54,10 +54,10 @@ RM = /opt/homebrew/Cellar/cmake/3.27.1/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig
+CMAKE_SOURCE_DIR = /Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagRep
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig/build
+CMAKE_BINARY_DIR = /Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagRep/build
 
 #=============================================================================
 # Directory level rules for the build root directory
@@ -81,14 +81,14 @@ clean: CMakeFiles/zzrep.dir/clean
 CMakeFiles/zzrep.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/zzrep.dir/build.make CMakeFiles/zzrep.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/zzrep.dir/build.make CMakeFiles/zzrep.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig/build/CMakeFiles --progress-num=1,2,3 "Built target zzrep"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagRep/build/CMakeFiles --progress-num=1,2,3 "Built target zzrep"
 .PHONY : CMakeFiles/zzrep.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/zzrep.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig/build/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagRep/build/CMakeFiles 3
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/zzrep.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagRep/build/CMakeFiles 0
 .PHONY : CMakeFiles/zzrep.dir/rule
 
 # Convenience name for target.
