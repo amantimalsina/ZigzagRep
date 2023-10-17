@@ -15,7 +15,7 @@ namespace ZZREP {
 /* HELPER DATA STRUCTURES: */
 typedef boost::dynamic_bitset<> column;
 typedef boost::bimaps::bimap<vector<int>, int> SimplexIdMap;
-typedef std::unordered_map<int, int> BdToChainMap;
+typedef std::map<int, int> BdToChainMap;
 typedef std::unordered_map<int, int> CycleToBundleMap;
 typedef SimplexIdMap::value_type SimplexIdPair;
 typedef BdToChainMap::value_type BdToChainPair;
@@ -79,6 +79,10 @@ void ZigzagRep::compute(
     for (int i = 0; i < n; ++i) {
         const vector<int> &simp = filt_simp[i];
         int p = simp.size() - 1; // p denotes the dimension of the simplex.
+        if (i == 428) {
+            cout << "i = " << i << endl;
+            cout << "p = " << p << endl;
+        }
         if (filt_op[i]) { // INSERTION
             // A p-simplex is inserted into id[p].
             int k = id[p].size();
@@ -113,6 +117,7 @@ void ZigzagRep::compute(
                 column bd_simp_temp = bd_simp;  // Copy bd_simp to a temporary column.
                 int pivot_bd = pivot(&bd_simp_temp);
                 bool zeroed = (pivot_bd == -1);
+                // FIXME: This routine does not work somehow, it gives duplicate indices at i = 428.
                 while (!zeroed) {
                     // Find the column in M that has the same pivot as a.
                     int conflict_idx = pivots[p-1][pivot_bd];
@@ -484,10 +489,13 @@ void ZigzagRep::compute(
                         pivots[p][i] -= 1;
                     }
                 }
-                // Update the bd_to_chain map:
-                for (auto it = bd_to_chain[p-1].begin(); it != bd_to_chain[p-1].end(); ++it) {
-                    if (it->second > alpha) {
-                        it->second -= 1; // Does this update the value?
+                // Update the bd_to_chain map by traversing the map and decrementing keys that are greater than alpha:
+                for (auto it = bd_to_chain[p].begin(); it != bd_to_chain[p].end(); ++it) {
+                    if (it->first > alpha) {
+                        int new_key = it->first - 1;
+                        int new_value = it->second;
+                        bd_to_chain[p].erase(it);
+                        bd_to_chain[p].insert(BdToChainPair(new_key, new_value));
                     }
                 }
             }
