@@ -195,11 +195,11 @@ void ZigzagRep::compute(
                 // Set Z[p−1][l] = bd_simp.
                 Z[p-1][l] = bd_simp;
                 birth_timestamp[p-1][l] = -1; // Set b^{p−1}[l] = −1 and record l as a boundary cycle index.
-                /*
-                bundle[p-1].push_back(bd_simp);
-                timestamps[p-1].push_back(i+1);
-                links[p-1].insert(CycleToBundlePair(l, bundle[p-1].size()-1));
-                */
+                // Set C[p][l] = simp and update the boundary-to-chain map.
+                column current_chain(id[p].size(), 0);
+                current_chain[id[p].left.at(simp)] = 1;
+                C[p].push_back(current_chain);
+                (bd_to_chain[p-1]).insert(BdToChainPair(l, C[p].size()-1));
                 /*
                 Avoiding pivot conflicts (column of bd_simp with that of another column in Z[p-1]).
                 We know that the pivots of Z[p-1] were unique before the insertion of bd_simp. 
@@ -305,12 +305,12 @@ void ZigzagRep::compute(
                             }
                         }
                     }
+                    /*
+                    bundle[p-1].push_back(bd_simp);
+                    timestamps[p-1].push_back(i+1);
+                    links[p-1].insert(CycleToBundlePair(l, bundle[p-1].size()-1));
+                    */
                 }
-                // Set C[p][l] = simp and update the boundary-to-chain map.
-                column current_chain(id[p].size(), 0);
-                current_chain[id[p].left.at(simp)] = 1;
-                C[p].push_back(current_chain);
-                (bd_to_chain[p-1]).insert(BdToChainPair(l, C[p].size()-1));
             }
         } 
         else { // DELETION:
@@ -396,10 +396,14 @@ void ZigzagRep::compute(
                         }                    
                     }
                 }
-                // find the only column Z[p-1][a] with negative birth timestamp such that C[p][a] contains the simplex.
+                // find the only column Z[p-1][a] with negative birth timestamp such that C[p][chain_a] contains the simplex.
                 int alpha = a;
-                // Remove the row from C[p] corresponding to the chain. // FIXME: I think we may need to remove the idxth entry as well.
-                C[p].erase(C[p].begin() + chain_a);
+                // We do not remove the column as that means changing the entire bd_to_chain map. Instead, we can zero out the column chain_a from C[p].
+                for (int i = 0; i < C[p][chain_a].size(); i++) {
+                    if (C[p][chain_a][i] == 1) {
+                        C[p][chain_a][i] = 0;
+                    }
+                }
                 birth_timestamp[p-1][alpha] = i+1;
                 // Remove the boundary to chain record.
                 bd_to_chain[p-1].left.erase(alpha);
@@ -436,7 +440,7 @@ void ZigzagRep::compute(
                     if (Z[p][a][idx]==1) I.push_back(a);
                 }
                 // sort I in the order of the birth timestamps where the order is the total order as above.
-                sort(I.begin(), I.end(), [&](int &a, int &b){ return ((I[a] == b) || ((I[a] < b) && (filt_op[I[b]-1])) || ((I[a] > I[b]) && (!(filt_op[I[a]-1]))));});
+                sort(I.begin(), I.end(), [&](int &a, int &b){ return (((a == b) || ((a < b) && (filt_op[b-1])) || ((a > b) && (!(filt_op[a-1])))));});
                 // The column to be deleted is the first column in I.
                 int alpha = I[0];
                 I.erase(I.begin());
