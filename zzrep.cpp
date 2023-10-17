@@ -15,7 +15,7 @@ namespace ZZREP {
 /* HELPER DATA STRUCTURES: */
 typedef boost::dynamic_bitset<> column;
 typedef boost::bimaps::bimap<vector<int>, int> SimplexIdMap;
-typedef boost::bimaps::bimap<int, int> BdToChainMap;
+typedef std::unordered_map<int, int> BdToChainMap;
 typedef std::unordered_map<int, int> CycleToBundleMap;
 typedef SimplexIdMap::value_type SimplexIdPair;
 typedef BdToChainMap::value_type BdToChainPair;
@@ -140,14 +140,14 @@ void ZigzagRep::compute(
                 new_column[id[p].left.at(simp)] = 1;
                 if (p != 0)  {
                     for (auto a: I) {
-                        int chain_a = bd_to_chain[p-1].left.at(a);
+                        int chain_a = bd_to_chain[p-1].at(a);
                         new_column ^= C[p][chain_a];
                     }
                 }
                 Z[p].push_back(new_column);
                 birth_timestamp[p].push_back(i+1);
                 int pivot_new = pivot(&new_column);
-                pivots[p][pivot_new] = Z[p].size()-1;
+                pivots[p][pivot_new] = Z[p].size() - 1;
                 // Add a wire to the bundle with timestamp 1 and update the link from the cycle to the bundle.
                 /*
                 bundle[p].push_back(new_column);
@@ -225,8 +225,8 @@ void ZigzagRep::compute(
                     if (birth_timestamp[p-1][a] < 0 && birth_timestamp[p-1][b] < 0) {
                         Z[p-1][a] =Z[p-1][a] ^ Z[p-1][b];
                         // Update chain matrices to reflect this addition (use the BdToChainMap):
-                        int chain_a = bd_to_chain[p-1].left.at(a);
-                        int chain_b = bd_to_chain[p-1].left.at(b);
+                        int chain_a = bd_to_chain[p-1].at(a);
+                        int chain_b = bd_to_chain[p-1].at(b);
                         C[p][chain_a] = C[p][chain_a] ^ C[p][chain_b];
                         // Check for pivot conflicts again (pivot of b remains the same, but the pivot of a might have changed):
                         int pivot_a = pivot(&Z[p-1][a]);
@@ -317,10 +317,12 @@ void ZigzagRep::compute(
             // Find the index of the simplex in id[p].
             bool existence = false;
             int idx = id[p].left.at(simp);
+            column simp_column = column(id[p].size(), 0);
             // Check if the simplex exists in Z[p].
-            for (auto column: Z[p]) {
-                if (column[idx]==1) {
+            for (auto p_column: Z[p]) {
+                if (p_column[idx]==1) {
                     existence = true;
+                    simp_column = p_column;
                     break;
                 }
             } 
@@ -329,15 +331,15 @@ void ZigzagRep::compute(
                 // TODO: Update the links as we add columns in Z[p-1].
                 int a , b, chain_a, chain_b;
                 // Handling the edge case where there is only one boundary pair.
-                a = bd_to_chain[p-1].left.begin()->first;
-                chain_a = bd_to_chain[p-1].left.begin()->second;
+                a = bd_to_chain[p-1].begin()->first;
+                chain_a = bd_to_chain[p-1].begin()->second;
                 bool boundary_pairs_bool = false;
-                typedef BdToChainMap::left_map::const_iterator bd_const_iterator;
-                for(bd_const_iterator bd_iter = bd_to_chain[p-1].left.begin();
-                    bd_iter != bd_to_chain[p-1].left.end(); ++bd_iter)
+                typedef BdToChainMap::const_iterator bd_const_iterator;
+                for(bd_const_iterator bd_iter = bd_to_chain[p-1].begin();
+                    bd_iter != bd_to_chain[p-1].end(); ++bd_iter)
                 {
-                    for(bd_const_iterator bd_iter_b = bd_to_chain[p-1].left.begin();
-                    bd_iter_b != bd_to_chain[p-1].left.end(); ++bd_iter_b)
+                    for(bd_const_iterator bd_iter_b = bd_to_chain[p-1].begin();
+                    bd_iter_b != bd_to_chain[p-1].end(); ++bd_iter_b)
                     {
                         if (bd_iter != bd_iter_b) {
                             int cycle_x = bd_iter->first;
@@ -353,13 +355,16 @@ void ZigzagRep::compute(
                                     b = cycle_y;
                                     chain_b = chain_y;
                                     boundary_pairs_bool = true;
+                                    break;
                                 }
                             }
                         }
                     }                    
                 }
                 while (boundary_pairs_bool) {
-                    if (pivot(&Z[p-1][a]) > pivot(&Z[p-1][b])) 
+                    int pivot_a = pivot(&Z[p-1][a]);
+                    int pivot_b = pivot(&Z[p-1][b]);
+                    if (pivot_a > pivot_b) 
                     {
                         Z[p-1][a] = Z[p-1][a] ^ Z[p-1][b];
                         C[p][chain_a] = C[p][chain_a] ^ C[p][chain_b];
@@ -370,11 +375,11 @@ void ZigzagRep::compute(
                         C[p][chain_b] = C[p][chain_a] ^ C[p][chain_b];
                     }
                     boundary_pairs_bool = false;
-                    for(bd_const_iterator bd_iter = bd_to_chain[p-1].left.begin();
-                    bd_iter != bd_to_chain[p-1].left.end(); ++bd_iter)
+                    for(bd_const_iterator bd_iter = bd_to_chain[p-1].begin();
+                    bd_iter != bd_to_chain[p-1].end(); ++bd_iter)
                     {
-                        for(bd_const_iterator bd_iter_b = bd_to_chain[p-1].left.begin();
-                        bd_iter_b != bd_to_chain[p-1].left.end(); ++bd_iter_b)
+                        for(bd_const_iterator bd_iter_b = bd_to_chain[p-1].begin();
+                        bd_iter_b != bd_to_chain[p-1].end(); ++bd_iter_b)
                         {
                             if (bd_iter != bd_iter_b) {
                                 int cycle_x = bd_iter->first;
@@ -390,6 +395,7 @@ void ZigzagRep::compute(
                                         b = cycle_y;
                                         chain_b = chain_y;
                                         boundary_pairs_bool = true;
+                                        break;
                                     }
                                 }
                             }
@@ -405,8 +411,9 @@ void ZigzagRep::compute(
                     }
                 }
                 birth_timestamp[p-1][alpha] = i+1;
-                // Remove the boundary to chain record.
-                bd_to_chain[p-1].left.erase(alpha);
+                // Remove the boundary to chain record by finding the iterator and removing it.
+                bd_const_iterator bd_iter = bd_to_chain[p-1].find(alpha);
+                bd_to_chain[p-1].erase(bd_iter);
                 // Add a wire to the bundle with timestamp i+1 and update the link from the cycle to the bundle.
                 /*
                 bundle[p-1].push_back(Z[p-1][alpha]);
@@ -418,19 +425,11 @@ void ZigzagRep::compute(
             else // // The deleted simplex is part of some p-cycle (An interval in dimension p dies).
             {
                 // Update C[p] so that no columns contain the simplex.
-                for (int a = 0; a < Z[p].size(); a++)
+                for (int b = 0; b < C[p].size(); b++) 
                 {
-                    if (Z[p][a][idx]==1) {
-                        for (int b = 0; b < C[p].size(); b++) 
-                        {
-                            if (C[p][b][idx] == 1) // each column in C[p][chain_b] containing the simplex s.t. Z[p-1][b] is a boundary.
-                            {  
-                                int cycle_b = bd_to_chain[p-1].right.at(b); 
-                                if (birth_timestamp[p-1][cycle_b] < 0){  
-                                        C[p][b] ^= Z[p][a];
-                                }
-                            }
-                        }
+                    if (C[p][b][idx] == 1) // each column in C[p][chain_b] containing the simplex s.t. Z[p-1][b] is a boundary.
+                    {  
+                        C[p][b] ^= simp_column; // Here, we do not need to check whether Z[p-1][b] is a boundary since we only store the chains whose boundaries are non-zero.
                     }
                 }
                 // Remove the simplex from Z[p]
@@ -464,6 +463,8 @@ void ZigzagRep::compute(
                         a_pivot = z_pivot;
                         z = temp;
                         z_pivot = temp_pivot;
+                        // Update the pivot of Z[p][a] in pivots[p].
+                        pivots[p][a_pivot] = a;
                     }
                 }
                 // Output the p-th interval [birth_timestamp_p[alpha], i] after gathering the representatives.
@@ -474,6 +475,21 @@ void ZigzagRep::compute(
                 Z[p].erase(Z[p].begin() + alpha); // Delete the column Z[p][alpha] from Z[p]
                 pivots[p][alpha_pivot] = -1; // Remove the pivot of Z[p][alpha] from pivots[p].
                 birth_timestamp[p].erase(birth_timestamp[p].begin() + alpha); // Delete the birth_timestamp[p][alpha] from birth_timestamp[p].
+                /*
+                 This will have a cascading effect on the index records of pivot and bd_to_chain.
+                */
+                // Update the pivot map:
+                for (int i = 0; i < pivots[p].size(); i++) {
+                    if (pivots[p][i] > alpha) {
+                        pivots[p][i] -= 1;
+                    }
+                }
+                // Update the bd_to_chain map:
+                for (auto it = bd_to_chain[p-1].begin(); it != bd_to_chain[p-1].end(); ++it) {
+                    if (it->second > alpha) {
+                        it->second -= 1; // Does this update the value?
+                    }
+                }
             }
         }
     }
