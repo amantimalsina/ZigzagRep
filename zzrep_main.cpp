@@ -64,6 +64,34 @@ int main(const int argc, const char *argv[]) {
     filt_simp.pop_back();
     filt_op.pop_back();
 
+    /*
+    // From this filtration, generate a new file mid_sample_filt from it by removing any line which contains a vertex greater than 10:
+    std::ofstream mid_sample_filt("15_sample_filt");
+    for (int i = 0; i < filt_simp.size(); i++) {
+        bool flag = true;
+        for (int j = 0; j < filt_simp[i].size(); j++) {
+            if (filt_simp[i][j] > 15) {
+                flag = false;
+                break;
+            }
+        }
+        if (flag) {
+            if (filt_op[i]) 
+            {
+                mid_sample_filt << "i ";
+            }
+            else {
+                mid_sample_filt << "d ";
+            }
+            for (int j = 0; j < filt_simp[i].size(); j++) {
+                mid_sample_filt << filt_simp[i][j] << " ";
+            }
+            mid_sample_filt << std::endl;
+        }
+    }    
+    mid_sample_filt << std::endl << "-----------------------" << std::endl;   
+    */
+    
     std::vector< std::tuple<int, int, int, std::vector<std::vector<int> >>> persistence;
     ZZREP::ZigzagRep zzr;
     zzr.compute(
