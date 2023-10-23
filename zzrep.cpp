@@ -74,7 +74,8 @@ void ZigzagRep::compute(
     /*
     DECLARATION of the data structures:
     */
-    vector<SimplexIdMap> id; //  A unique integral id for each p-simplex.
+    vector<SimplexIdMap> id; //  The current integral id for each p-simplex.
+    vector<vector<int>> unique_id; // The unique integral id for each p-simplex.
     vector<vector<column> > Z; // A cycle matrix Z[p] for each dimension p that is maintained such that each column of Z[p] represents a p-cycle in K_i.
     vector<vector<column> > C; // A chain matrix C[p] for each dimension p so that the chains in C[p] are associated with the the boundary cycles in Z[p-1].
     vector<vector<pair <int, int> > > birth_timestamp; // For each column Z[p][j], a birth timestamp is maintained, where a negative value implies that the column pertains to a boundary.
@@ -91,11 +92,13 @@ void ZigzagRep::compute(
     for (int d = 0; d <= m; ++d)
     {
         SimplexIdMap id_p; 
+        vector<int> unique_id_p;
         vector<column> Z_p; 
         vector<column> C_p; 
         vector<pair <int, int>> birth_timestamp_p;
         vector<int> pivots_p;
         id.push_back(id_p);
+        unique_id.push_back(unique_id_p);
         Z.push_back(Z_p);
         C.push_back(C_p);
         birth_timestamp.push_back(birth_timestamp_p);
@@ -116,26 +119,32 @@ void ZigzagRep::compute(
         const vector<int> &simp = filt_simp[i];
         int p = simp.size() - 1; // p denotes the dimension of the simplex.
         if (filt_op[i]) { // INSERTION
-            // Only change if key does not exist:
-            if (id[p].find(simp) == id[p].end()) 
-            {
-                id[p].insert(SimplexIdPair(simp, id[p].size()));
-                // Next, we add a row of all zeros to Z[p] and C[p] for indicating the insertion of a new p-simplex which increases the respective ranks by 1.
-                for (int j = 0; j < C[p].size(); j++) {
-                        C[p][j].push_back(0);
-                }
-                for (int j = 0; j < Z[p].size(); ++j) {
-                    Z[p][j].push_back(0);
-                }
-                pivots[p].push_back(-1);
+            // If key does exist already:
+            int unique_id_simp;
+            if (id[p].find(simp) != id[p].end()) {
+                unique_id_simp = unique_id[p][id[p].at(simp)];
             }
+            else {
+                unique_id_simp = unique_id[p].size();
+            }
+            // Change the id of the simplex to the new id.
+            id[p][simp] = unique_id[p].size();
+            unique_id[p].push_back(unique_id_simp);
+            // Next, we add a row of all zeros to Z[p] and C[p] for indicating the insertion of a new p-simplex which increases the respective ranks by 1.
+            for (int j = 0; j < C[p].size(); j++) {
+                    C[p][j].push_back(0);
+            }
+            for (int j = 0; j < Z[p].size(); ++j) {
+                Z[p][j].push_back(0);
+            }
+            pivots[p].push_back(-1);
             // Represent the boundary of simp as a sum of columns of Z_{p-1} by a reduction algorithm; I is such set of columns.
             bool all_boundary = true;
             column bd_simp;
             vector<int> I;
             if (p != 0) {
                 // Compute boundary of the simplex:
-                column temp(id[p-1].size(), 0);
+                column temp(unique_id[p-1].size(), 0);
                 bd_simp = temp;
                 for (int i = 0; i <= p; i++) {
                     // Remove the i-th vertex.
@@ -171,7 +180,7 @@ void ZigzagRep::compute(
                 /*
                 Append a new column simp + \sum_{a \in I} C^{p}[a] with birth timestamp i+1 to Z^p.
                 */
-                column new_column = column(id[p].size(), 0); // New column with of size id[p].size() with 1 appended at the end.
+                column new_column = column(unique_id[p].size(), 0); // New column with of size id[p].size() with 1 appended at the end.
                 int idx = id[p].at(simp);
                 new_column[idx] = 1;
                 if (p != 0)  {
@@ -231,7 +240,7 @@ void ZigzagRep::compute(
                 // Set Z[p−1][l] = bd_simp.
                 Z[p-1][l] = bd_simp;
                 // Set C[p][l] = simp and update the boundary-to-chain map.
-                column current_chain(id[p].size(), 0);
+                column current_chain(unique_id[p].size(), 0);
                 // Set last entry to 1.
                 int idx = id[p].at(simp);
                 current_chain[idx] = 1;
@@ -250,7 +259,9 @@ void ZigzagRep::compute(
                 if (current_idx  == l or current_idx == -1)
                 {   
                     pivot_conflict = false;
-                    pivots[p-1][pivot_l] = l;
+                    if (current_idx == -1) {
+                        pivots[p-1][pivot_l] = l;
+                    }
                 }
                 else {
                     pivot_conflict = true;
@@ -354,7 +365,7 @@ void ZigzagRep::compute(
             // Find the index of the simplex in id[p].
             bool existence = false;
             int idx = id[p].at(simp);
-            column simp_column = column(id[p].size(), 0);
+            column simp_column = column(unique_id[p].size(), 0);
             // Check if the simplex exists in Z[p].
             for (auto p_column: Z[p]) {
                 if (p_column[idx]==1) {
