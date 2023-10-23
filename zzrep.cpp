@@ -1,6 +1,7 @@
 #include "zzrep.h"
 
 #include <algorithm>
+#include <iostream>
 #include <map>
 #include <unordered_map>
 #include <tuple>
@@ -118,6 +119,11 @@ void ZigzagRep::compute(
     for (int i = 0; i < n; ++i) {
         const vector<int> &simp = filt_simp[i];
         int p = simp.size() - 1; // p denotes the dimension of the simplex.
+        if (i == 137) {
+            cout << "i = " << i << endl;
+            cout << "p = " << p << endl;
+            cout << "simp = ";
+        }
         if (filt_op[i]) { // INSERTION
             // If key does exist already:
             int unique_id_simp;
@@ -132,7 +138,7 @@ void ZigzagRep::compute(
             unique_id[p].push_back(unique_id_simp);
             // Next, we add a row of all zeros to Z[p] and C[p] for indicating the insertion of a new p-simplex which increases the respective ranks by 1.
             for (int j = 0; j < C[p].size(); j++) {
-                    C[p][j].push_back(0);
+                C[p][j].push_back(0);
             }
             for (int j = 0; j < Z[p].size(); ++j) {
                 Z[p][j].push_back(0);
@@ -226,7 +232,7 @@ void ZigzagRep::compute(
                 }
                 else {
                     for (auto i = J.size()-1; i >= 0; i--) {
-                        if (filt_op[birth_timestamp[p-1][J[i]].first-1]) {
+                        if (filt_op[birth_timestamp[p-1][J[i]].first - 1]) {
                             l = J[i];
                             break;
                         }
@@ -238,6 +244,7 @@ void ZigzagRep::compute(
                 UPDATE:
                 */
                 // Set Z[p−1][l] = bd_simp.
+                // FIXME: What happens to the current pivot of l in pivot?
                 Z[p-1][l] = bd_simp;
                 // Set C[p][l] = simp and update the boundary-to-chain map.
                 column current_chain(unique_id[p].size(), 0);
@@ -268,10 +275,11 @@ void ZigzagRep::compute(
                     a = l;
                     b = current_idx;
                 }
+                // FIXME: Are the pivots of both a and b updated?
                 while (pivot_conflict)
                 {
                     if (birth_timestamp[p-1][a].first < 0 && birth_timestamp[p-1][b].first < 0) {
-                        Z[p-1][a] =Z[p-1][a] ^ Z[p-1][b];
+                        Z[p-1][a] = Z[p-1][a] ^ Z[p-1][b];
                         // Update chain matrices to reflect this addition (use the BdToChainMap):
                         int chain_a = birth_timestamp[p-1][a].second;
                         int chain_b = birth_timestamp[p-1][b].second;
@@ -293,11 +301,13 @@ void ZigzagRep::compute(
                     else if (birth_timestamp[p-1][a].first < 0 && birth_timestamp[p-1][b].first >= 0) {
                         Z[p-1][b] = Z[p-1][a] ^ Z[p-1][b];
                         // No need to update the chain matrices as a boundary is added to a cycle. Instead, check for pivot conflicts again:
+                        int pivot_a = pivot(&Z[p-1][a]);
                         int pivot_b = pivot(&Z[p-1][b]);
                         int current_idx = pivots[p-1][pivot_b];
                         if (current_idx == b or current_idx == -1)
                         {
                             pivot_conflict = false;
+                            pivots[p-1][pivot_a] = a;
                             pivots[p-1][pivot_b] = b;
                         }
                         else {
@@ -398,10 +408,6 @@ void ZigzagRep::compute(
                                         b = y;
                                         chain_b = chain_y;
                                         boundary_pairs_bool = true;
-                                        cout << "Found boundary pairs for p = " << p << endl;
-                                        cout << "idx: " << idx << endl;
-                                        cout << "a: " << a << " b: " << b << endl;
-                                        cout << "chain_a: " << chain_a << " chain_b: " << chain_b << endl;
                                         goto boundary_pairs;
                                     }
                                 }
@@ -453,7 +459,6 @@ void ZigzagRep::compute(
                 }
                 // find the only column Z[p-1][a] with negative birth timestamp such that C[p][chain_a] contains the simplex.
                 int alpha = a;
-                // We do not remove the column as that means changing the entire bd_to_chain map. Instead, we can zero out the column chain_a from C[p].
                 // FIXME: Do we just zero out the index corresponding to the simplex or do we zero out the entire column?
                 for (int i = 0; i < C[p][chain_a].size(); i++) {
                         if (C[p][chain_a][i] == 1) {
@@ -483,20 +488,11 @@ void ZigzagRep::compute(
                 vector<int> I; // Gather indices of columns that contain the simplex. 
                 for (int a = 0; a < Z[p].size(); a++)
                 {
-                    if (Z[p][a][idx]==1) I.push_back(a);
+                    if (Z[p][a][idx] == 1) I.push_back(a);
                 }
                 // sort I in the order of the birth timestamps where the order is the total order as above.
                 sort(I.begin(), I.end(), [&](int &a, int &b){ return (((a == b) || ((a < b) && (filt_op[b-1])) || ((a > b) && (!(filt_op[a-1])))));});
                 // The column to be deleted is the first column in I.
-                if (i == 154) {
-                    cout << "stop here!" << endl;
-                    cout << "idx: " << idx << endl;
-                    cout << "I: ";
-                    for (auto a: I) {
-                        cout << a << " ";
-                    }
-                    cout << endl;
-                }
                 int alpha = I[0];
                 I.erase(I.begin());
                 column z = Z[p][alpha];
@@ -537,11 +533,32 @@ void ZigzagRep::compute(
                 /*
                  This will have a cascading effect on the index records of pivot and bd_to_chain.
                 */
+                // Check that the idx-th entry of each column in the cycle matrix is now zero and that the pivots are computed correctly.
+                for (int i = 0; i < Z[p].size(); ++i) 
+                {
+                    if (Z[p][i][idx] == 1) {
+                        throw std::runtime_error("The idx-th entry of a column in Z[p] is not zero.");
+                    }
+                }
                 // Update the pivot map:
                 for (int i = 0; i < pivots[p].size(); i++) {
                     if (pivots[p][i] > alpha) {
                         pivots[p][i] -= 1;
                     }
+                }
+            }
+        }
+        // After each iteration, check that the pivots are computed correctly, and throw an error if they are not:
+        for (int p = 0; p <= m; ++p) 
+        {
+            for (int i = 0; i < Z[p].size(); i++) 
+            {
+                int pivot_i = pivot(&Z[p][i]);
+                if (pivots[p][pivot_i] != i) {
+                    cout << "p = " << p << endl;
+                    cout << "i = " << i << endl;
+                    cout << "pivot_i = " << pivot_i << endl;
+                    throw std::runtime_error("Pivots are not computed correctly.");
                 }
             }
         }
