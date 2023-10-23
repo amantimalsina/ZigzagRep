@@ -11,7 +11,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/zzrep",
-            "args": ["${workspaceFolder}/filtrations/15_sample_filt"],
+            "args": ["${workspaceFolder}/filtrations/bun_zipper_s2000_nu2_5_mu2_63_d3"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

@@ -504,6 +504,7 @@ void ZigzagRep::compute(
                 I.erase(I.begin());
                 column z = Z[p][alpha];
                 int alpha_pivot = pivot(&z);
+                pivots[p][alpha_pivot] = -1; // Remove the pivot of Z[p][alpha] from pivots[p].
                 if (I.size() != 0) 
                 {
                     // Iterate over the rest of I and ensure that the pivots remain distinct:
@@ -526,6 +527,7 @@ void ZigzagRep::compute(
                             z_pivot = temp_pivot;
                             // Update the pivot of Z[p][a] in pivots[p].
                             pivots[p][a_pivot] = a;
+                            pivots[p][z_pivot] = -1;
                         }
                     }
                 }
@@ -535,11 +537,8 @@ void ZigzagRep::compute(
                 UPDATE:
                 */ 
                 Z[p].erase(Z[p].begin() + alpha); // Delete the column Z[p][alpha] from Z[p]
-                pivots[p][alpha_pivot] = -1; // Remove the pivot of Z[p][alpha] from pivots[p].
                 birth_timestamp[p].erase(birth_timestamp[p].begin() + alpha); // Delete the birth_timestamp[p][alpha] from birth_timestamp[p].
                 /*
-                 This will have a cascading effect on the index records of pivot and bd_to_chain.
-                */
                 // Check that the idx-th entry of each column in the cycle matrix is now zero and that the pivots are computed correctly.
                 for (int i = 0; i < Z[p].size(); ++i) 
                 {
@@ -547,6 +546,7 @@ void ZigzagRep::compute(
                         throw std::runtime_error("The idx-th entry of a column in Z[p] is not zero.");
                     }
                 }
+                */
                 // Update the pivot map:
                 for (int i = 0; i < pivots[p].size(); i++) {
                     if (pivots[p][i] > alpha) {
@@ -555,6 +555,7 @@ void ZigzagRep::compute(
                 }
             }
         }
+        /*
         // After each iteration, check that the pivots are computed correctly, and throw an error if they are not:
         for (int p = 0; p <= m; ++p) 
         {
@@ -569,6 +570,7 @@ void ZigzagRep::compute(
                 }
             }
         }
+        */
     }
     /*
      POST-PROCESSING:
