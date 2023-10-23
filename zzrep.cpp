@@ -119,10 +119,9 @@ void ZigzagRep::compute(
     for (int i = 0; i < n; ++i) {
         const vector<int> &simp = filt_simp[i];
         int p = simp.size() - 1; // p denotes the dimension of the simplex.
-        if (i == 137) {
+        if (i == 154) {
             cout << "i = " << i << endl;
             cout << "p = " << p << endl;
-            cout << "simp = ";
         }
         if (filt_op[i]) { // INSERTION
             // If key does exist already:
@@ -244,8 +243,9 @@ void ZigzagRep::compute(
                 UPDATE:
                 */
                 // Set Z[p−1][l] = bd_simp.
-                // FIXME: What happens to the current pivot of l in pivot?
+                int prev_pivot = pivot(&Z[p-1][l]);
                 Z[p-1][l] = bd_simp;
+                pivots[p-1][prev_pivot] = -1;
                 // Set C[p][l] = simp and update the boundary-to-chain map.
                 column current_chain(unique_id[p].size(), 0);
                 // Set last entry to 1.
@@ -259,23 +259,22 @@ void ZigzagRep::compute(
                 Thus, we need to ensure that they remain unique after the insertion of bd_simp. 
                 */
                 // TODO: Update the links as we add columns in Z[p-1].
-                int pivot_l = pivot(&Z[p-1][l]);
-                int current_idx = pivots[p-1][pivot_l];
+                int current_pivot = pivot(&Z[p-1][l]);
+                int current_idx = pivots[p-1][current_pivot];
                 bool pivot_conflict;
-                int a, b;
-                if (current_idx  == l or current_idx == -1)
+                int a, b, pivot_a, pivot_b;
+                if (current_idx == -1)
                 {   
                     pivot_conflict = false;
-                    if (current_idx == -1) {
-                        pivots[p-1][pivot_l] = l;
-                    }
+                    pivots[p-1][current_pivot] = l;
                 }
                 else {
                     pivot_conflict = true;
                     a = l;
                     b = current_idx;
+                    pivot_a = current_pivot;
+                    pivot_b = current_pivot;
                 }
-                // FIXME: Are the pivots of both a and b updated?
                 while (pivot_conflict)
                 {
                     if (birth_timestamp[p-1][a].first < 0 && birth_timestamp[p-1][b].first < 0) {
@@ -285,8 +284,9 @@ void ZigzagRep::compute(
                         int chain_b = birth_timestamp[p-1][b].second;
                         C[p][chain_a] = C[p][chain_a] ^ C[p][chain_b];
                         // Check for pivot conflicts again (pivot of b remains the same, but the pivot of a might have changed):
-                        int pivot_a = pivot(&Z[p-1][a]);
-                        int current_idx = pivots[p-1][pivot_a];
+                        pivots[p-1][pivot_b] = b;
+                        pivot_a = pivot(&Z[p-1][a]);
+                        current_idx = pivots[p-1][pivot_a];
                         if (current_idx == a or current_idx == -1)
                         {
                             pivot_conflict = false;
@@ -295,31 +295,33 @@ void ZigzagRep::compute(
                         else {
                             pivot_conflict = true;
                             b = current_idx;
+                            pivot_b = pivot_a;
                         }
 
                     }
                     else if (birth_timestamp[p-1][a].first < 0 && birth_timestamp[p-1][b].first >= 0) {
                         Z[p-1][b] = Z[p-1][a] ^ Z[p-1][b];
                         // No need to update the chain matrices as a boundary is added to a cycle. Instead, check for pivot conflicts again:
-                        int pivot_a = pivot(&Z[p-1][a]);
-                        int pivot_b = pivot(&Z[p-1][b]);
-                        int current_idx = pivots[p-1][pivot_b];
+                        pivots[p-1][pivot_a] = a;
+                        pivot_b = pivot(&Z[p-1][b]);
+                        current_idx = pivots[p-1][pivot_b];
                         if (current_idx == b or current_idx == -1)
                         {
                             pivot_conflict = false;
-                            pivots[p-1][pivot_a] = a;
                             pivots[p-1][pivot_b] = b;
                         }
                         else {
                             pivot_conflict = true;
                             a = current_idx;
+                            pivot_a = pivot_b;
                         }
                     }
                     else if (birth_timestamp[p-1][a].first >= 0 && birth_timestamp[p-1][b].first < 0) {
                         Z[p-1][a] = Z[p-1][a] ^ Z[p-1][b];
                         // Again, no need to update the chain matrices as a boundary is added to a cycle. Instead, check for pivot conflicts again:
-                        int pivot_a = pivot(&Z[p-1][a]);
-                        int current_idx = pivots[p-1][pivot_a];
+                        pivots[p-1][pivot_b] = b;
+                        pivot_a = pivot(&Z[p-1][a]);
+                        current_idx = pivots[p-1][pivot_a];
                         if (current_idx == a or current_idx == -1)
                         {
                             pivot_conflict = false;
@@ -328,6 +330,7 @@ void ZigzagRep::compute(
                         else {
                             pivot_conflict = true;
                             b = current_idx;
+                            pivot_b = pivot_a;
                         }
                     }
                     else {
@@ -335,8 +338,9 @@ void ZigzagRep::compute(
                         if (a_lessthan_b) {
                             Z[p-1][b] = Z[p-1][a] ^ Z[p-1][b];
                             // Since both are cycles, no need to update the chain matrices. Instead, check for pivot conflicts again:
-                            int pivot_b = pivot(&Z[p-1][b]);
-                            int current_idx = pivots[p-1][pivot_b];
+                            pivots[p-1][pivot_a] = a;
+                            pivot_b = pivot(&Z[p-1][b]);
+                            current_idx = pivots[p-1][pivot_b];
                             if (current_idx == b or current_idx == -1)
                             {
                                 pivot_conflict = false;
@@ -345,13 +349,15 @@ void ZigzagRep::compute(
                             else {
                                 pivot_conflict = true;
                                 a = current_idx;
+                                pivot_a = pivot_b;
                             }
                         }
                         else {
                             Z[p-1][a] = Z[p-1][a] ^ Z[p-1][b];
                             // Since both are cycles, no need to update the chain matrices. Instead, check for pivot conflicts again:
-                            int pivot_a = pivot(&Z[p-1][a]);
-                            int current_idx = pivots[p-1][pivot_a];
+                            pivots[p-1][pivot_b] = b;
+                            pivot_a = pivot(&Z[p-1][a]);
+                            current_idx = pivots[p-1][pivot_a];
                             if (current_idx == a or current_idx == -1)
                             {
                                 pivot_conflict = false;
@@ -360,6 +366,7 @@ void ZigzagRep::compute(
                             else {
                                 pivot_conflict = true;
                                 b = current_idx;
+                                pivot_b = pivot_a;
                             }
                         }
                     }
