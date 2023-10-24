@@ -30,7 +30,7 @@ public:
     void compute(
         const std::vector<std::vector<int> > &filt_simp, 
         const std::vector<bool> &filt_op,
-        std::vector <std::tuple <int, int, int, std::vector<std::vector<int>> > > *persistence,
+        std::vector <std::tuple <int, int, int, std::vector<int> > > *persistence,
         int m);
 };
 

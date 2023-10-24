@@ -68,7 +68,7 @@ void reduce(column *a, vector<column> *M, vector<int> *indices, vector<int> *piv
 void ZigzagRep::compute(
         const std::vector<vector<int> > &filt_simp, 
         const std::vector<bool> &filt_op,
-        std::vector <tuple <int, int, int, std::vector<std::vector<int> > > > *persistence, int m) {
+        std::vector <tuple <int, int, int, std::vector<int> > > *persistence, int m) {
     
     persistence -> clear();
     int n = filt_simp.size();
@@ -119,10 +119,6 @@ void ZigzagRep::compute(
     for (int i = 0; i < n; ++i) {
         const vector<int> &simp = filt_simp[i];
         int p = simp.size() - 1; // p denotes the dimension of the simplex.
-        if (i == 154) {
-            cout << "i = " << i << endl;
-            cout << "p = " << p << endl;
-        }
         if (filt_op[i]) { // INSERTION
             // If key does exist already:
             int unique_id_simp;
@@ -394,84 +390,36 @@ void ZigzagRep::compute(
             if (!existence)// The deleted simplex does not constitute a cycle and its boundary now becomes a (p-1)-cycle (An interval in dimension (p-1) gets born).
             {   
                 // TODO: Update the links as we add columns in Z[p-1].
-                // FIXME: I think this code can be significantly optimized; for now, keep it here.
-                int a , b, chain_a, chain_b;
-                bool boundary_pairs_bool = false;
-                for(int x = 0; x < birth_timestamp[p-1].size(); ++x)
+                // Find all the columns in C[p] that contain the simplex and get the indices of their corresponding boundaries.
+                vector<tuple<int, int>> I;
+                int alpha, chain_alpha; // alpha will be the only column with negative birth timestamp such that C[p][chain_a] contains the simplex.
+                int smallest_pivot = unique_id[p-1].size();
+                for (int c_idx = 0; c_idx < birth_timestamp[p-1].size(); ++c_idx)
                 {
-                    if (birth_timestamp[p-1][x].first < 0) 
+                    if (birth_timestamp[p-1][c_idx].first < 0) 
                     {
-                        int chain_x = birth_timestamp[p-1][x].second;
-                        if (C[p][chain_x][idx]==1)
-                        {
-                            a = x;
-                            chain_a = chain_x;
-                            for(int y = x + 1; y < birth_timestamp[p-1].size(); ++y)
-                            {
-                                if (birth_timestamp[p-1][y].first < 0) {
-                                    int chain_y = birth_timestamp[p-1][y].second;
-                                    if (C[p][chain_y][idx]==1)
-                                    {
-                                        b = y;
-                                        chain_b = chain_y;
-                                        boundary_pairs_bool = true;
-                                        goto boundary_pairs;
-                                    }
-                                }
+                        int chain_idx = birth_timestamp[p-1][c_idx].second;
+                        if (C[p][chain_idx][idx]==1) {
+                            I.push_back(make_tuple(c_idx, chain_idx));
+                            int pivot_c_idx = pivot(&Z[p-1][c_idx]);
+                            if (pivot_c_idx < smallest_pivot) {
+                                smallest_pivot = pivot_c_idx;
+                                alpha = c_idx;
+                                chain_alpha = chain_idx;
                             }
                         }
                     }
                 }
-                while (boundary_pairs_bool) 
-                {
-                    boundary_pairs:
-                    int pivot_a = pivot(&Z[p-1][a]);
-                    int pivot_b = pivot(&Z[p-1][b]);
-                    if (pivot_a > pivot_b) 
-                    {
-                        Z[p-1][a] = Z[p-1][a] ^ Z[p-1][b];
-                        C[p][chain_a] = C[p][chain_a] ^ C[p][chain_b];
+                // Add alpha to all the other columns in I.
+                for (auto c: I) {
+                    int c_idx = get<0>(c);
+                    int chain_idx = get<1>(c);
+                    if (c_idx != alpha) {
+                        Z[p-1][c_idx] ^= Z[p-1][alpha];
+                        C[p][chain_idx] ^= C[p][chain_alpha];
                     }
-                    else 
-                    {
-                        Z[p-1][b] = Z[p-1][a] ^ Z[p-1][b];
-                        C[p][chain_b] = C[p][chain_a] ^ C[p][chain_b];
-                    }
-                    boundary_pairs_bool = false;
-                    for(int x = 0; x < birth_timestamp[p-1].size(); ++x)
-                    {
-                        if (birth_timestamp[p-1][x].first < 0) 
-                        {
-                            int chain_x = birth_timestamp[p-1][x].second;
-                            if (C[p][chain_x][idx]==1)
-                            {
-                                a = x;
-                                chain_a = chain_x;
-                                for(int y = x + 1; y < birth_timestamp[p-1].size(); ++y)
-                                {
-                                    if (birth_timestamp[p-1][y].first < 0) {
-                                        int chain_y = birth_timestamp[p-1][y].second;
-                                        if (C[p][chain_y][idx]==1)
-                                        {
-                                            b = y;
-                                            chain_b = chain_y;
-                                            boundary_pairs_bool = true;
-                                            goto boundary_pairs;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }                    
                 }
-                // find the only column Z[p-1][a] with negative birth timestamp such that C[p][chain_a] contains the simplex.
-                int alpha = a;
-                // FIXME: Do we just zero out the index corresponding to the simplex or do we zero out the entire column?
-                for (int i = 0; i < C[p][chain_a].size(); i++) {
-                        if (C[p][chain_a][i] == 1) {
-                            C[p][chain_a][i] = 0;
-                        }
-                }
+                C[p][chain_alpha] = column(unique_id[p].size(), 0); // Zero out the chain C[p][chain_alpha] from C[p].
                 birth_timestamp[p-1][alpha] = make_pair(i+1, -1);
                 // Add a wire to the bundle with timestamp i+1 and update the link from the cycle to the bundle.
                 /*
@@ -576,21 +524,19 @@ void ZigzagRep::compute(
      POST-PROCESSING:
     */
     // For each p and each column Z[p][a] of Z[p] with non-negative birth timestamp, output the p-th interval [birth_timestamp[p][a], n].
-    /*
     for (int p = 0; p <= m; p++) {
         for (int a = 0; a < Z[p].size(); a++) {
-            if (birth_timestamp[p][a] >= 0) {
-                vector<vector<int>> representative;
+            if (birth_timestamp[p][a].first >= 0) {
+                vector<int> representative;
                 for (int i = 0; i < Z[p][a].size(); i++) {
                     if (Z[p][a][i] == 1) {
-                        representative.push_back(id[p].right.at(i));
+                        representative.push_back(i);
                     }
                 }
-                persistence->push_back(std::make_tuple(birth_timestamp[p][a], n, p, representative));
+                persistence->push_back(std::make_tuple(birth_timestamp[p][a].first, n, p, representative));
             }
         }
     }
-    */
 }
 
 /*

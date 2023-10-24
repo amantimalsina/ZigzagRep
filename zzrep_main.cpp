@@ -92,7 +92,9 @@ int main(const int argc, const char *argv[]) {
     mid_sample_filt << std::endl << "-----------------------" << std::endl;   
     */
     
-    std::vector< std::tuple<int, int, int, std::vector<std::vector<int> >>> persistence;
+    // Let's measure the time it takes to compute the zigzag rep:
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    std::vector< std::tuple<int, int, int, std::vector<int >>> persistence;
     ZZREP::ZigzagRep zzr;
     zzr.compute(
         filt_simp, 
@@ -102,14 +104,19 @@ int main(const int argc, const char *argv[]) {
     std::string purename;
     getFilePurename(infilename, &purename);
     std::ofstream pers_fout(purename + "_pers");
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+
+    std::cout << "Time difference = " 
+        << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count()
+        << "[ms]" << std::endl;
 
     // Change this to also display representatives.
     for (const auto& e : persistence) {
         pers_fout << std::get<2>(e) << " " << std::get<0>(e) 
             << " " << std::get<1>(e) << std::endl;   
         pers_fout << "rep: " << std::endl;
-        for (auto simp : std::get<3>(e)) {
-            for (auto i : simp) {pers_fout << i << " ";}
+        for (auto i : std::get<3>(e)) {
+            pers_fout << i << " ";
             pers_fout << std::endl;
         } 
         pers_fout << std::endl << "-----------------------" << std::endl;    
