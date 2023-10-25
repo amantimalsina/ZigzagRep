@@ -63,38 +63,10 @@ int main(const int argc, const char *argv[]) {
     filt_fin.close();
     filt_simp.pop_back();
     filt_op.pop_back();
-
-    /*
-    // From this filtration, generate a new file mid_sample_filt from it by removing any line which contains a vertex greater than 10:
-    std::ofstream mid_sample_filt("15_sample_filt");
-    for (int i = 0; i < filt_simp.size(); i++) {
-        bool flag = true;
-        for (int j = 0; j < filt_simp[i].size(); j++) {
-            if (filt_simp[i][j] > 15) {
-                flag = false;
-                break;
-            }
-        }
-        if (flag) {
-            if (filt_op[i]) 
-            {
-                mid_sample_filt << "i ";
-            }
-            else {
-                mid_sample_filt << "d ";
-            }
-            for (int j = 0; j < filt_simp[i].size(); j++) {
-                mid_sample_filt << filt_simp[i][j] << " ";
-            }
-            mid_sample_filt << std::endl;
-        }
-    }    
-    mid_sample_filt << std::endl << "-----------------------" << std::endl;   
-    */
     
     // Let's measure the time it takes to compute the zigzag rep:
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-    std::vector< std::tuple<int, int, int, std::vector<int >>> persistence;
+    std::vector <std::tuple <int, int, int, std::vector<std::tuple<int, std::vector<int>>> > > persistence;
     ZZREP::ZigzagRep zzr;
     zzr.compute(
         filt_simp, 
@@ -103,20 +75,22 @@ int main(const int argc, const char *argv[]) {
         m);
     std::string purename;
     getFilePurename(infilename, &purename);
-    std::ofstream pers_fout(purename + "_pers");
+    std::ofstream pers_fout("../outputs/" + purename + "_pers");
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
     std::cout << "Time difference = " 
         << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count()
         << "[ms]" << std::endl;
 
-    // Change this to also display representatives.
+    // Change this to add the representatives to the file.
     for (const auto& e : persistence) {
-        pers_fout << std::get<2>(e) << " " << std::get<0>(e) 
-            << " " << std::get<1>(e) << std::endl;   
-        pers_fout << "rep: " << std::endl;
+        pers_fout << std::get<2>(e) << "-th dimesional bar [" << std::get<0>(e) << ", " << std::get<1>(e) << "]" << std::endl;   
+        pers_fout << "Representatives: " << std::endl;
         for (auto i : std::get<3>(e)) {
-            pers_fout << i << " ";
+            pers_fout << "From " << std::get<0>(i) << ": ";
+            for (auto j : std::get<1>(i)) {
+                pers_fout << j << " ";
+            }
             pers_fout << std::endl;
         } 
         pers_fout << std::endl << "-----------------------" << std::endl;    

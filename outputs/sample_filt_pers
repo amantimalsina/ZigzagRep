@@ -1,0 +1,35 @@
+0-th dimesional bar [2, 4]
+Representatives: 
+From 2: 1 
+
+-----------------------
+0-th dimesional bar [3, 5]
+Representatives: 
+From 3: 2 
+
+-----------------------
+1-th dimesional bar [6, 7]
+Representatives: 
+From 6: 0 1 2 
+
+-----------------------
+1-th dimesional bar [8, 8]
+Representatives: 
+From 0: 0 1 2 
+
+-----------------------
+0-th dimesional bar [1, 11]
+Representatives: 
+From 1: 0 
+
+-----------------------
+0-th dimesional bar [10, 11]
+Representatives: 
+From 0: 0 1 
+
+-----------------------
+0-th dimesional bar [11, 11]
+Representatives: 
+From 629163248: 0 2 
+
+-----------------------
