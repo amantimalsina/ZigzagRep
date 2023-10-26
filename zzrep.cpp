@@ -81,7 +81,9 @@ void ZigzagRep::compute(
     vector<vector<pair <int, int> > > birth_timestamp; // For each column Z[p][j], a birth timestamp is maintained, where a negative value implies that the column pertains to a boundary.
     vector<PivotMap> pivots; // For each column Z[p][j] we have a unique pivot entry; we then store pivots[p][i] = j where j = -1 implies that no column exists in Z[p-1] with pivot i.
     // Data structures for storing the intervals and cycles in order to compute representatives: 
-    vector<vector<tuple<int, column>> > bundle; // A collection of wires: bundle[p] stores p-dimensional wires.
+    vector<vector<column> > bundle; // A collection of wires: bundle[p] stores p-dimensional wires.
+    vector<int> sizes; // The maximum size of the representatives in each dimension.
+    vector<vector<int> > timestamp; // Map from the cycle matrix to the wires: links[p][j] is the collection of wires associated with Z[p][j].
     vector<vector<column> > links; // Map from the cycle matrix to the wires: links[p][j] is the collection of wires associated with Z[p][j].
     /*
     INITIALIZATION:
@@ -100,10 +102,13 @@ void ZigzagRep::compute(
         C.push_back(C_p);
         birth_timestamp.push_back(birth_timestamp_p);
         pivots.push_back(pivots_p);
-        vector<tuple<int, column>> bundle_p;
+        vector<column> bundle_p;
+        vector<int> timestamp_p;
         vector<column> links_p;
         bundle.push_back(bundle_p);
+        timestamp.push_back(timestamp_p);
         links.push_back(links_p);
+        sizes.push_back(0);
     }
     /*
     COMPUTATION of zigzag persistence:
@@ -186,7 +191,12 @@ void ZigzagRep::compute(
                 int pivot_new = pivot(&new_column);
                 pivots[p][pivot_new] = Z[p].size() - 1;
                 // Add a wire to the bundle with timestamp i+1 and update the link from the cycle to the bundle.
-                bundle[p].push_back(make_tuple(i+1, new_column));
+                bundle[p].push_back(new_column);
+                // Update the maximum size:
+                if (new_column.size() > sizes[p]) {
+                    sizes[p] = new_column.size();
+                }
+                timestamp[p].push_back(i+1);
                 // All p-dimensional links need to add an entry at the end.
                 for (int l = 0; l < links[p].size(); ++l)
                 {
@@ -234,11 +244,17 @@ void ZigzagRep::compute(
                 */
                 column wire_column = links[p-1][l];
                 vector<tuple<int, column>> wire_representatives;
+                int representative_max_size = sizes[p-1];
                 for (int i = 0; i < wire_column.size(); ++i) {
                     if (wire_column[i] == 1) {
-                        column representative = get<1>(bundle[p-1][i]);
-                        int timestamp =  get<0>(bundle[p-1][i]);
-                        wire_representatives.push_back(make_tuple(timestamp, representative));
+                        column representative = bundle[p-1][i];
+                        // Append with 0s so that it's size is equal to the maximum size of the representatives.
+                        int diff = representative_max_size - representative.size();
+                        for (int j = 0; j < diff; ++j) {
+                            representative.push_back(0);
+                        }
+                        int time =  timestamp[p-1][i];
+                        wire_representatives.push_back(make_tuple(time, representative));
                     }
                 } 
                 // Sort the representatives in the order of the timestamps.
@@ -270,7 +286,12 @@ void ZigzagRep::compute(
                 int prev_pivot = pivot(&Z[p-1][l]);
                 Z[p-1][l] = bd_simp;
                 // Add a new wire to the (p-1)-th bundle:
-                bundle[p].push_back(make_tuple(i+1, bd_simp));
+                bundle[p-1].push_back(bd_simp);
+                // Update the maximum size:
+                if (bd_simp.size() > sizes[p-1]) {
+                    sizes[p-1] = bd_simp.size();
+                }
+                timestamp[p-1].push_back(i+1);
                 // All p-dimensional links need to add an entry at the end.
                 for (int l = 0; l < links[p-1].size(); ++l)
                 {
@@ -491,7 +512,12 @@ void ZigzagRep::compute(
                 C[p][chain_alpha] = column(unique_id[p].size(), 0); // Zero out the chain C[p][chain_alpha] from C[p].
                 birth_timestamp[p-1][alpha] = make_pair(i+1, -1);
                 // Add a new wire to the (p-1)-th bundle:
-                bundle[p-1].push_back(make_tuple(i+1, Z[p-1][alpha]));
+                bundle[p-1].push_back(Z[p-1][alpha]);
+                // Update the maximum size:
+                if (Z[p-1][alpha].size() > sizes[p-1]) {
+                    sizes[p-1] = Z[p-1][alpha].size();
+                }
+                timestamp[p-1].push_back(i+1);
                 // All p-dimensional links need to add an entry at the end.
                 for (int l = 0; l < links[p-1].size(); ++l)
                 {
@@ -560,11 +586,17 @@ void ZigzagRep::compute(
                 */
                 column wire_column = links[p][alpha];
                 vector<tuple<int, column>> wire_representatives;
+                int representative_max_size = sizes[p-1];
                 for (int i = 0; i < wire_column.size(); ++i) {
                     if (wire_column[i] == 1) {
-                        int timestamp = get<0>(bundle[p][i]);
-                        column representative = get<1>(bundle[p][i]);
-                        wire_representatives.push_back(make_tuple(timestamp, representative));
+                        column representative = bundle[p-1][i];
+                        // Append with 0s so that it's size is equal to the maximum size of the representatives.
+                        int diff = representative_max_size - representative.size();
+                        for (int j = 0; j < diff; ++j) {
+                            representative.push_back(0);
+                        }
+                        int time = timestamp[p-1][i];
+                        wire_representatives.push_back(make_tuple(time, representative));
                     }
                 } 
                 // Sort the representatives in the order of the timestamps.
@@ -613,11 +645,17 @@ void ZigzagRep::compute(
             if (birth_timestamp[p][a].first >= 0) {
                 column wire_column = links[p][a];
                 vector<tuple<int, column>> wire_representatives;
+                int representative_max_size = sizes[p];
                 for (int i = 0; i < wire_column.size(); ++i) {
                     if (wire_column[i] == 1) {
-                        int timestamp = get<0>(bundle[p][i]);
-                        column representative = get<1>(bundle[p][i]);
-                        wire_representatives.push_back(make_tuple(timestamp, representative));
+                        column representative = bundle[p][i];
+                        // Append with 0s so that it's size is equal to the maximum size of the representatives.
+                        int diff = representative_max_size - representative.size();
+                        for (int j = 0; j < diff; ++j) {
+                            representative.push_back(0);
+                        }
+                        int time = timestamp[p][i];
+                        wire_representatives.push_back(make_tuple(time, representative));
                     }
                 } 
                 // Sort the representatives in the order of the timestamps.
