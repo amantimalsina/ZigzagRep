@@ -75,7 +75,7 @@ int main(const int argc, const char *argv[]) {
         m);
     std::string purename;
     getFilePurename(infilename, &purename);
-    std::ofstream pers_fout("../outputs/" + purename + "_pers");
+    std::ofstream pers_fout(purename + "_pers");
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
     std::cout << "Time difference = " 
@@ -84,7 +84,7 @@ int main(const int argc, const char *argv[]) {
 
     // Change this to add the representatives to the file.
     for (const auto& e : persistence) {
-        pers_fout << std::get<2>(e) << "-th dimesional bar [" << std::get<0>(e) << ", " << std::get<1>(e) << "]" << std::endl;   
+        pers_fout << std::get<2>(e) << "-dimensional bar [" << std::get<0>(e) << ", " << std::get<1>(e) << "]" << std::endl;   
         pers_fout << "Representatives: " << std::endl;
         for (auto i : std::get<3>(e)) {
             pers_fout << "From " << std::get<0>(i) << ": ";
