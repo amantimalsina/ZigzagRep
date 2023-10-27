@@ -688,9 +688,7 @@ We assume that a has the larger size.
 void dynamic_xor(column *a, column *b)
 {
     for (int i = 0; i < b->size(); ++i) {
-        if ((*b)[i] == 1) {
-            (*a)[i] = ((*a)[i] == 1) ? 0 : 1;
-        }
+        (*a)[i] ^= (*b)[i];
     }
 }
 }// namespace ZZREP
