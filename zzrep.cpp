@@ -63,6 +63,7 @@ typedef PivotMap::value_type PivotPair;
 
 /* DECLARATION OF HELPER FUNCTION: */
 int pivot (column *a);
+void dynamic_xor(column *a, column *b);
 
 void ZigzagRep::compute(
         const std::vector<vector<int> > &filt_simp, 
@@ -244,28 +245,20 @@ void ZigzagRep::compute(
                 */
                 column wire_column = links[p-1][l];
                 vector<tuple<int, column>> wire_representatives;
-                int representative_max_size = sizes[p-1];
                 for (int i = 0; i < wire_column.size(); ++i) {
                     if (wire_column[i] == 1) {
-                        column representative = bundle[p-1][i];
-                        // Append with 0s so that it's size is equal to the maximum size of the representatives.
-                        int diff = representative_max_size - representative.size();
-                        for (int j = 0; j < diff; ++j) {
-                            representative.push_back(0);
-                        }
-                        int time =  timestamp[p-1][i];
-                        wire_representatives.push_back(make_tuple(time, representative));
+                        wire_representatives.push_back(make_tuple(timestamp[p-1][i], bundle[p-1][i]));
                     }
                 } 
                 // Sort the representatives in the order of the timestamps.
                 sort(wire_representatives.begin(), wire_representatives.end(), [&](tuple<int, column> &a, tuple<int, column> &b){ return (get<0>(a) < get<0>(b));});
-                column current_representative = get<1>(wire_representatives[0]);
+                int representative_max_size = sizes[p-1];
+                // Initialize a bitset column of size representative_max_size with all zeros.
+                column current_representative = column(representative_max_size, 0);
                 for (int i = 0; i < wire_representatives.size(); ++i) {
-                    if (i != 0) {
-                        int timestamp = get<0>(wire_representatives[i]);
-                        current_representative ^= get<1>(wire_representatives[i]);
-                        wire_representatives[i] = make_tuple(timestamp, current_representative);
-                    }
+                    int timestamp = get<0>(wire_representatives[i]);
+                    dynamic_xor(&current_representative, &get<1>(wire_representatives[i]));
+                    wire_representatives[i] = make_tuple(timestamp, current_representative);
                 }
                 vector<tuple<int, vector<int>>> wire_representatives_indices;
                 for (int i = 0; i < wire_representatives.size(); ++i) {
@@ -273,7 +266,7 @@ void ZigzagRep::compute(
                     vector<int> indices;
                     for (int j = 0; j < representative.size(); ++j) {
                         if (representative[j] == 1) {
-                            indices.push_back(j);
+                            indices.push_back(unique_id[p-1][j]);
                         }
                     }
                     wire_representatives_indices.push_back(make_tuple(get<0>(wire_representatives[i]), indices));
@@ -293,13 +286,13 @@ void ZigzagRep::compute(
                 }
                 timestamp[p-1].push_back(i+1);
                 // All p-dimensional links need to add an entry at the end.
-                for (int l = 0; l < links[p-1].size(); ++l)
+                for (int j = 0; j < links[p-1].size(); ++j)
                 {
-                    links[p-1][l].push_back(0);
+                    links[p-1][j].push_back(0);
                 }
                 column new_link = column(bundle[p-1].size(), 0);
                 new_link[bundle[p-1].size()-1] = 1;
-                links[p-1].push_back(new_link);
+                links[p-1][l] = new_link;
                 // Set C[p][l] = simp and update the boundary-to-chain map.
                 column current_chain(unique_id[p].size(), 0);
                 // Set last entry to 1.
@@ -519,9 +512,9 @@ void ZigzagRep::compute(
                 }
                 timestamp[p-1].push_back(i+1);
                 // All p-dimensional links need to add an entry at the end.
-                for (int l = 0; l < links[p-1].size(); ++l)
+                for (int j = 0; j < links[p-1].size(); ++j)
                 {
-                    links[p-1][l].push_back(0);
+                    links[p-1][j].push_back(0);
                 }
                 column new_link = column(bundle[p-1].size(), 0);
                 new_link[bundle[p-1].size()-1] = 1;
@@ -586,28 +579,22 @@ void ZigzagRep::compute(
                 */
                 column wire_column = links[p][alpha];
                 vector<tuple<int, column>> wire_representatives;
-                int representative_max_size = sizes[p-1];
                 for (int i = 0; i < wire_column.size(); ++i) {
                     if (wire_column[i] == 1) {
-                        column representative = bundle[p-1][i];
-                        // Append with 0s so that it's size is equal to the maximum size of the representatives.
-                        int diff = representative_max_size - representative.size();
-                        for (int j = 0; j < diff; ++j) {
-                            representative.push_back(0);
-                        }
-                        int time = timestamp[p-1][i];
+                        column representative = bundle[p][i];
+                        int time =  timestamp[p][i];
                         wire_representatives.push_back(make_tuple(time, representative));
                     }
                 } 
                 // Sort the representatives in the order of the timestamps.
                 sort(wire_representatives.begin(), wire_representatives.end(), [&](tuple<int, column> &a, tuple<int, column> &b){ return (get<0>(a) < get<0>(b));});
-                column current_representative = get<1>(wire_representatives[0]);
+                int representative_max_size = sizes[p];
+                // Initialize a bitset column of size representative_max_size with all zeros.
+                column current_representative = column(representative_max_size, 0);
                 for (int i = 0; i < wire_representatives.size(); ++i) {
-                    if (i != 0) {
-                        int timestamp = get<0>(wire_representatives[i]);
-                        current_representative ^= get<1>(wire_representatives[i]);
-                        wire_representatives[i] = make_tuple(timestamp, current_representative);
-                    }
+                    int timestamp = get<0>(wire_representatives[i]);
+                    dynamic_xor(&current_representative, &get<1>(wire_representatives[i]));
+                    wire_representatives[i] = make_tuple(timestamp, current_representative);
                 }
                 vector<tuple<int, vector<int>>> wire_representatives_indices;
                 for (int i = 0; i < wire_representatives.size(); ++i) {
@@ -615,7 +602,7 @@ void ZigzagRep::compute(
                     vector<int> indices;
                     for (int j = 0; j < representative.size(); ++j) {
                         if (representative[j] == 1) {
-                            indices.push_back(j);
+                            indices.push_back(unique_id[p][j]);
                         }
                     }
                     wire_representatives_indices.push_back(make_tuple(get<0>(wire_representatives[i]), indices));
@@ -645,28 +632,22 @@ void ZigzagRep::compute(
             if (birth_timestamp[p][a].first >= 0) {
                 column wire_column = links[p][a];
                 vector<tuple<int, column>> wire_representatives;
-                int representative_max_size = sizes[p];
                 for (int i = 0; i < wire_column.size(); ++i) {
                     if (wire_column[i] == 1) {
                         column representative = bundle[p][i];
-                        // Append with 0s so that it's size is equal to the maximum size of the representatives.
-                        int diff = representative_max_size - representative.size();
-                        for (int j = 0; j < diff; ++j) {
-                            representative.push_back(0);
-                        }
-                        int time = timestamp[p][i];
+                        int time =  timestamp[p][i];
                         wire_representatives.push_back(make_tuple(time, representative));
                     }
                 } 
                 // Sort the representatives in the order of the timestamps.
                 sort(wire_representatives.begin(), wire_representatives.end(), [&](tuple<int, column> &a, tuple<int, column> &b){ return (get<0>(a) < get<0>(b));});
-                column current_representative = get<1>(wire_representatives[0]);
+                int representative_max_size = sizes[p];
+                // Initialize a bitset column of size representative_max_size with all zeros.
+                column current_representative = column(representative_max_size, 0);
                 for (int i = 0; i < wire_representatives.size(); ++i) {
-                    if (i != 0) {
-                        int timestamp = get<0>(wire_representatives[i]);
-                        current_representative ^= get<1>(wire_representatives[i]);
-                        wire_representatives[i] = make_tuple(timestamp, current_representative);
-                    }
+                    int time = get<0>(wire_representatives[i]);
+                    dynamic_xor(&current_representative, &get<1>(wire_representatives[i]));
+                    wire_representatives[i] = make_tuple(time, current_representative);
                 }
                 vector<tuple<int, vector<int>>> wire_representatives_indices;
                 for (int i = 0; i < wire_representatives.size(); ++i) {
@@ -674,7 +655,7 @@ void ZigzagRep::compute(
                     vector<int> indices;
                     for (int j = 0; j < representative.size(); ++j) {
                         if (representative[j] == 1) {
-                            indices.push_back(j);
+                            indices.push_back(unique_id[p][j]);
                         }
                     }
                     wire_representatives_indices.push_back(make_tuple(get<0>(wire_representatives[i]), indices));
@@ -698,5 +679,18 @@ int pivot (column *a)
         }
     }
     return pivot;
+}
+
+// Takes the XOR of bitsets of differing lengths. Instead of appending by 0s and then XORing, we XOR the bitsets directly.
+/*
+We assume that a has the larger size.
+*/
+void dynamic_xor(column *a, column *b)
+{
+    for (int i = 0; i < b->size(); ++i) {
+        if ((*b)[i] == 1) {
+            (*a)[i] = ((*a)[i] == 1) ? 0 : 1;
+        }
+    }
 }
 }// namespace ZZREP
