@@ -581,9 +581,7 @@ void ZigzagRep::compute(
                 vector<tuple<int, column>> wire_representatives;
                 for (int i = 0; i < wire_column.size(); ++i) {
                     if (wire_column[i] == 1) {
-                        column representative = bundle[p][i];
-                        int time =  timestamp[p][i];
-                        wire_representatives.push_back(make_tuple(time, representative));
+                        wire_representatives.push_back(make_tuple(timestamp[p][i], bundle[p][i]));
                     }
                 } 
                 // Sort the representatives in the order of the timestamps.
@@ -611,13 +609,15 @@ void ZigzagRep::compute(
                 /*
                 UPDATE:
                 */ 
-                Z[p].erase(Z[p].begin() + alpha); // Delete the column Z[p][alpha] from Z[p]
+                // Remove the column Z[p][alpha] from Z[p].
+                // FIXME: There's a bug here; Somehow, the column being deleted is not the correct one.
+                Z[p].erase(Z[p].begin() + alpha);
                 birth_timestamp[p].erase(birth_timestamp[p].begin() + alpha); // Delete the birth_timestamp[p][alpha] from birth_timestamp[p].
                 links[p].erase(links[p].begin() + alpha); // Delete the link from the cycle matrix to the bundle.
-                // Update the pivot map:
-                for (int i = 0; i < pivots[p].size(); i++) {
-                    if (pivots[p][i] > alpha) {
-                        pivots[p][i] = (pivots[p][i] - 1);
+                // Update the pivot map (for all pivots (keys) greater than alpha_pivot, decrement the value by 1):
+                for (auto pivot_itr = pivots[p].begin(); pivot_itr != pivots[p].end(); ++pivot_itr) {
+                    if (pivot_itr->first > alpha_pivot) {
+                        pivot_itr->second -= 1;
                     }
                 }
             }
