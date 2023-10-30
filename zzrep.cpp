@@ -463,7 +463,9 @@ void ZigzagRep::compute(
                         }
                     }
                     else {
-                        bool a_lessthan_b = ((a == b) || ((a < b) && (filt_op[b-1])) || ((a > b) && (!(filt_op[a-1]))));   
+                        int birth_a = birth_timestamp[p-1][a].first;
+                        int birth_b = birth_timestamp[p-1][b].first;
+                        bool a_lessthan_b = ((birth_a == birth_b) || ((birth_a < birth_b) && (filt_op[birth_b-1])) || ((birth_a > birth_b) && (!(filt_op[birth_a-1]))));   
                         if (a_lessthan_b) {
                             dynamic_xor(Z[p-1][b], Z[p-1][a]);
                             // dynamic_xor(links[p-1][b], links[p-1][a]);
@@ -619,13 +621,17 @@ void ZigzagRep::compute(
                 vector<int> I; // Gather indices of columns that contain the simplex. 
                 for (auto col_idx: used_columns_Z[p]) 
                 {
-                    if (idx < Z[p][col_idx] -> size() && (*Z[p][col_idx])[idx] == 1)
+                    if (idx < (Z[p][col_idx] -> size()) && (*Z[p][col_idx])[idx] == 1)
                     {
                         I.push_back(col_idx);
                     }
                 }
-                // sort I in the order of the birth timestamps where the order is the total order as above.
-                sort(I.begin(), I.end(), [&](int &a, int &b){ return (((a == b) || ((a < b) && (filt_op[b-1])) || ((a > b) && (!(filt_op[a-1])))));});
+                // sort I in the order of the birth timestamps where the order is the total order as above without using the sort function.
+                sort(I.begin(), I.end(), [&](int &a, int &b){
+                    int birth_a = birth_timestamp[p][a].first;
+                    int birth_b = birth_timestamp[p][b].first;
+                     return ((birth_a == birth_b) || ((birth_a < birth_b) && (filt_op[birth_b-1])) || ((birth_a > birth_b) && (!(filt_op[birth_a-1]))));
+                     });
                 // The column to be deleted is the first column in I.
                 column z = Z[p][I[0]];
                 int alpha = I[0];
