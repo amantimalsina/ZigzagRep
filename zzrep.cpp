@@ -630,16 +630,20 @@ void ZigzagRep::compute(
                 }
                 // Remove the simplex from Z[p]
                 vector<int> I; // Gather indices of columns that contain the simplex. 
-                for (auto a: used_columns_Z[p]) 
+                for (auto col_idx: used_columns_Z[p]) 
                 {
-                    if ((*Z[p][a])[idx] == 1) I.push_back(a);
+                    if ((*Z[p][col_idx])[idx] == 1)
+                    {
+                        I.push_back(col_idx);
+                    }
                 }
                 // sort I in the order of the birth timestamps where the order is the total order as above.
                 sort(I.begin(), I.end(), [&](int &a, int &b){ return (((a == b) || ((a < b) && (filt_op[b-1])) || ((a > b) && (!(filt_op[a-1])))));});
                 // The column to be deleted is the first column in I.
-                int alpha, current_alpha = I[0];
+                column z = Z[p][I[0]];
+                int alpha = I[0];
+                int current_alpha = alpha;
                 I.erase(I.begin());
-                column z = Z[p][alpha];
                 int alpha_pivot = pivot(z);
                 pivots[p].erase(alpha_pivot); // Remove the pivot of Z[p][alpha] from pivots[p].
                 if (I.size() != 0) 
@@ -712,7 +716,7 @@ void ZigzagRep::compute(
                 Z[p][alpha] = make_shared<bitset>();
                 // Add this to the available columns for adding new cycles:
                 available_columns_Z[p].push_back(alpha);
-                used_columns_Z[p].erase(remove(used_columns_Z[p].begin(), used_columns_Z[p].end(), alpha), used_columns_Z[p].end()); // TODO: Check if this is being done properly.
+                used_columns_Z[p].erase(remove(used_columns_Z[p].begin(), used_columns_Z[p].end(), alpha), used_columns_Z[p].end());
                 // We need to assign this to an invalid valid:
                 birth_timestamp[p][alpha] = make_pair(-2, -1);
                 /*
