@@ -141,10 +141,16 @@ void ZigzagRep::compute(
     for (int i = 0; i < n; ++i) {
         const vector<int> &simp = filt_simp[i];
         int p = simp.size() - 1; // p denotes the dimension of the simplex.
+        if (i == 63) 
+        {
+            cout << "i = " << i << endl;
+            cout << "p = " << p << endl;
+        }
         if (filt_op[i]) { // INSERTION
-            // If key does exist already:
+            // Find the unique id of the simplex.
             int unique_id_simp;
-            if (id[p].find(simp) != id[p].end()) {
+            if (id[p].find(simp) != id[p].end()) // If key does exist already:
+            {
                 unique_id_simp = unique_id[p][id[p].at(simp)];
             }
             else {
@@ -166,6 +172,7 @@ void ZigzagRep::compute(
                     boundary_simplex.erase(boundary_simplex.begin() + i);
                     int idx = id[p-1].at(boundary_simplex);
                     bd_simp -> set(idx);
+                    // TODO: Check that this set method works as intended; it should set the idx-th entry to 1.
                 }
                 /* 
                 Find the columns in Z[p-1] that sum to bd_simp:
@@ -177,6 +184,8 @@ void ZigzagRep::compute(
                 bool zeroed = (pivot_bd == -1);
                 while (!zeroed) {
                     // Find the column in M that has the same pivot as a.
+                    // TODO: Check that pivot_bd always exists in pivots[p-1]:
+                    assert(pivots[p-1].find(pivot_bd) != pivots[p-1].end());
                     int conflict_idx = pivots[p-1].at(pivot_bd);
                     // Add this column to indices.
                     dynamic_xor(bd_simp_temp, Z[p-1][conflict_idx]);
@@ -187,6 +196,7 @@ void ZigzagRep::compute(
                 } 
                 // Check the birth timestamps to check whether all of them are boundaries.
                 for (auto a: I) {
+                    // TODO: Check that a is a valid index in Z[p-1]:
                     bool valid_idx = false;
                     for (auto b: used_columns_Z[p-1]) 
                     {
@@ -208,12 +218,14 @@ void ZigzagRep::compute(
                 Append a new column simp + \sum_{a \in I} C^{p}[a] with birth timestamp i+1 to Z^p.
                 */
                 // New column with of size unique_id[p].size() with 1 appended at the end.
+                // TODO: Check that the new_column and the pivot computation are correct.   
                 column new_column; 
-                new_column = make_shared<bitset>(unique_id[p].size(), 0);
+                new_column = make_shared<bitset>(id[p].size(), 0);
                 new_column -> set(id[p].at(simp));
                 if (p != 0)  {
                     for (auto a: I) {
                         int chain_a = birth_timestamp[p-1][a].second; // Since a is a boundary, we know that the birth timestamp is non-negative and this is safe!
+                        // TODO: Check that chain_a is a valid index in C[p]:
                         bool valid_chain_idx = false;
                         for (auto b: used_columns_C[p]) 
                         {
@@ -660,7 +672,8 @@ void ZigzagRep::compute(
                         }   
                         else 
                         {
-                            column temp = Z[p][a];
+                            // We want to deep copy Z[p][a] to a temporary column and then copy z to Z[p][a].
+                            column temp = make_shared<bitset>(*Z[p][a]);
                             int temp_pivot = a_pivot;
                             dynamic_xor(Z[p][a], z);
                             // dynamic_xor(links[p][a], links[p][current_alpha]);
@@ -729,6 +742,9 @@ void ZigzagRep::compute(
                 */
             }
         }
+        for (auto pivot_itr = pivots[p].begin(); pivot_itr != pivots[p].end(); ++pivot_itr) {
+            assert(pivot(Z[p][pivot_itr->second]) == pivot_itr->first);
+        }
     }
     /*
      POST-PROCESSING:
@@ -785,6 +801,15 @@ int pivot (column a)
     {
         pivot = a -> find_next(pivot);
     }
+
+    // TODO: Test with the naive implementation:
+    int pivot_naive = -1;
+    for (int i = 0; i < a -> size(); ++i) {
+        if ((*a)[i] == 1) {
+            pivot_naive = i;
+        }
+    }
+    assert(pivot == pivot_naive);
     return pivot;
 }
 
