@@ -213,9 +213,9 @@ void ZigzagRep::compute(
                 Append a new column simp + \sum_{a \in I} C^{p}[a] with birth timestamp i+1 to Z^p.
                 */
                 // New column with of size unique_id[p].size() with 1 appended at the end.
-                // TODO: Check that the new_column and the pivot computation are correct.   
+                // TODO: Check that the new_column and the pivot computation are correct. 
                 column new_column; 
-                new_column = make_shared<bitset>(id[p].size(), 0);
+                new_column = make_shared<bitset>(unique_id[p].size(), 0);
                 new_column -> set(id[p].at(simp));
                 if (p != 0)  {
                     for (auto a: I) {
