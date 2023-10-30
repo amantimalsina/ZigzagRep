@@ -141,11 +141,6 @@ void ZigzagRep::compute(
     for (int i = 0; i < n; ++i) {
         const vector<int> &simp = filt_simp[i];
         int p = simp.size() - 1; // p denotes the dimension of the simplex.
-        if (i == 63) 
-        {
-            cout << "i = " << i << endl;
-            cout << "p = " << p << endl;
-        }
         if (filt_op[i]) { // INSERTION
             // Find the unique id of the simplex.
             int unique_id_simp;
