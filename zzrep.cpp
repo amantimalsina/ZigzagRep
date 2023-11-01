@@ -97,7 +97,7 @@ void ZigzagRep::compute(
     vector<vector<column> > C; // A chain matrix C[p] for each dimension p so that the chains in C[p] are associated with the the boundary cycles in Z[p-1].
     vector<vector<int>> available_columns_C; // A list of available columns in Z[p] for each dimension p.
     vector<vector<int>> used_columns_C; // A list of used columns in Z[p] for each dimension p.
-    vector<vector<pair <int, int> > > birth_timestamp; // For each column Z[p][j], a birth timestamp is maintained, where a negative value implies that the column pertains to a boundary.
+    vector<vector<pair <bool, int> > > birth_timestamp; // For each column Z[p][j], a birth timestamp is maintained, where a false value implies that the column pertains to a boundary.
     vector<PivotMap> pivots; // For each column Z[p][j] we have a unique pivot entry; we then store pivots[p][i] = j where j = -1 implies that no column exists in Z[p-1] with pivot i.
     // Data structures for storing the intervals and cycles in order to compute representatives: 
     vector<vector<column> > bundle; // A collection of wires: bundle[p] stores p-dimensional wires.
@@ -114,7 +114,7 @@ void ZigzagRep::compute(
         vector<int> available_columns_Z_p;
         vector<column> C_p; 
         vector<int> used_columns_Z_p;
-        vector<pair <int, int>> birth_timestamp_p;
+        vector<pair <bool, int>> birth_timestamp_p;
         PivotMap pivots_p;
         id.push_back(id_p);
         unique_id.push_back(unique_id_p);
@@ -187,7 +187,7 @@ void ZigzagRep::compute(
                 } 
                 // Check the birth timestamps to check whether all of them are boundaries.
                 for (auto a: I) {
-                    if (birth_timestamp[p-1][a].first >= 0) {
+                    if (birth_timestamp[p-1][a].first) {
                         all_boundary = false;
                         break;
                     }
@@ -221,7 +221,7 @@ void ZigzagRep::compute(
                     uint av_idx = available_columns_Z[p].back();
                     Z[p][av_idx] = new_column;
                     links[p][av_idx] = new_link;    
-                    birth_timestamp[p][av_idx] = make_pair(i+1, -1);
+                    birth_timestamp[p][av_idx] = make_pair(true, i+1);
                     pivots[p][pivot_new] = av_idx;
                     // Update the used and available columns:
                     used_columns_Z[p].push_back(av_idx);
@@ -231,7 +231,7 @@ void ZigzagRep::compute(
                 {
                     Z[p].push_back(new_column);
                     links[p].push_back(new_link);
-                    birth_timestamp[p].push_back(make_pair(i+1, -1));
+                    birth_timestamp[p].push_back(make_pair(true, i+1));
                     pivots[p][pivot_new] = Z[p].size() - 1;
                     // Update the used and available columns:
                     used_columns_Z[p].push_back(Z[p].size() - 1);
@@ -243,7 +243,7 @@ void ZigzagRep::compute(
                 */ 
                 vector<int> J;
                 for (int a: I) {
-                    if (birth_timestamp[p-1][a].first >= 0) { // Gather all the non-boundary cycles.
+                    if (birth_timestamp[p-1][a].first) { // Gather all the non-boundary cycles.
                         J.push_back(a);
                     }
                 }
@@ -251,7 +251,7 @@ void ZigzagRep::compute(
                 // Check if arrow at b^{p−1}[c]−1 points backward for all c in J
                 bool arrow_backward = true;
                 for (auto c: J) {
-                    if (filt_op[birth_timestamp[p-1][c].first - 1]) {
+                    if (filt_op[birth_timestamp[p-1][c].second - 1]) {
                         arrow_backward = false;
                         break;
                     }
@@ -263,7 +263,7 @@ void ZigzagRep::compute(
                 }
                 else {
                     for (auto i = J.size()-1; i >= 0; i--) {
-                        if (filt_op[birth_timestamp[p-1][J[i]].first - 1]) {
+                        if (filt_op[birth_timestamp[p-1][J[i]].second - 1]) {
                             l = J[i];
                             break;
                         }
@@ -274,6 +274,10 @@ void ZigzagRep::compute(
                 */
                 column wire_column = links[p-1][l];
                 // Here, we need to gather all the wires pertaining to the cycle l and reconstruct the representatives at each index.
+                // If the wire_column has more than one non-zero value, let me know:
+                if (wire_column -> count() > 1) {
+                    cout << "Wire column has more than one non-zero value!" << endl;
+                }
                 vector<tuple<int, column>> wire_representatives;
                 vector<tuple<int, vector<int>>> wire_representatives_ids;
                 for (int col_idx = 0; col_idx < wire_column -> size(); ++col_idx) {
@@ -285,12 +289,12 @@ void ZigzagRep::compute(
                 sort(wire_representatives.begin(), wire_representatives.end(), [&](tuple<int, column> &a, tuple<int, column> &b){ return (get<0>(a) < get<0>(b));});
                 // Initialize a bitset column of size representative_max_size with all zeros.
                 column current_representative = make_shared<bitset>(1, 0);
-                uint interval_birth = birth_timestamp[p-1][l].first;
+                uint interval_birth = birth_timestamp[p-1][l].second;
                 // Add all the representatives with timestamps less than or equal to interval_birth.
-                uint rep_idx;
-                for (rep_idx = 0; rep_idx < wire_representatives.size(); ++rep_idx) {
-                    if (get<0>(wire_representatives[rep_idx]) <= interval_birth) {
-                        dynamic_xor(current_representative, get<1>(wire_representatives[rep_idx]));
+                uint wire_idx;
+                for (wire_idx = 0; wire_idx < wire_representatives.size(); ++wire_idx) {
+                    if (get<0>(wire_representatives[wire_idx]) <= interval_birth) {
+                        dynamic_xor(current_representative, get<1>(wire_representatives[wire_idx]));
                     }
                 }
                 vector<int> indices;
@@ -300,10 +304,10 @@ void ZigzagRep::compute(
                     }
                 }
                 wire_representatives_ids.push_back(make_tuple(interval_birth, indices));
-                for (; rep_idx < wire_representatives.size(); ++rep_idx) {
-                    int time = get<0>(wire_representatives[rep_idx]);
+                for (; wire_idx < wire_representatives.size(); ++wire_idx) {
+                    int time = get<0>(wire_representatives[wire_idx]);
                     vector<int> indices;
-                    dynamic_xor(current_representative, get<1>(wire_representatives[rep_idx]));
+                    dynamic_xor(current_representative, get<1>(wire_representatives[wire_idx]));
                     for (int rep_idx = 0; rep_idx < current_representative -> size(); ++rep_idx) {
                         if ((*current_representative)[rep_idx] == 1) {
                             indices.push_back(unique_id[p-1][rep_idx]);
@@ -311,7 +315,7 @@ void ZigzagRep::compute(
                     }
                     wire_representatives_ids.push_back(make_tuple(time, indices));
                 }
-                persistence -> push_back(make_tuple(interval_birth, i + 1, p - 1, wire_representatives_ids));
+                persistence -> push_back(make_tuple(interval_birth, i, p - 1, wire_representatives_ids));
                 /*
                 Bundles and Links UPDATE:
                 */
@@ -335,7 +339,7 @@ void ZigzagRep::compute(
                 {
                     uint av_idx = available_columns_C[p].back();
                     C[p][av_idx] = current_chain;
-                    birth_timestamp[p-1][l] = make_tuple(-1, av_idx);
+                    birth_timestamp[p-1][l] = make_tuple(false, av_idx);
                     // Update the used and available columns:
                     used_columns_C[p].push_back(av_idx);
                     available_columns_C[p].pop_back();
@@ -344,7 +348,7 @@ void ZigzagRep::compute(
                 {
                     C[p].push_back(current_chain);
                     uint av_idx = C[p].size() - 1;
-                    birth_timestamp[p-1][l] = make_tuple(-1, av_idx);
+                    birth_timestamp[p-1][l] = make_tuple(false, av_idx);
                     // Update the used and available columns:
                     used_columns_C[p].push_back(av_idx);
                 }
@@ -371,7 +375,7 @@ void ZigzagRep::compute(
                 while (pivot_conflict)
                 {
                     // Check that a and b are valid indices in Z[p-1]:
-                    if (birth_timestamp[p-1][a].first == -1 && birth_timestamp[p-1][b].first == -1) {
+                    if (!birth_timestamp[p-1][a].first && !birth_timestamp[p-1][b].first) {
                         dynamic_xor(Z[p-1][a], Z[p-1][b]);
                         dynamic_xor(links[p-1][a], links[p-1][b]);
                         // Update chain matrices to reflect this addition (use the BdToChainMap):
@@ -399,7 +403,7 @@ void ZigzagRep::compute(
                         }
 
                     }
-                    else if (birth_timestamp[p-1][a].first == -1 && birth_timestamp[p-1][b].first >= 0) {
+                    else if (!birth_timestamp[p-1][a].first && birth_timestamp[p-1][b].first) {
                         dynamic_xor(Z[p-1][b], Z[p-1][a]);
                         dynamic_xor(links[p-1][b], links[p-1][a]);
                         // No need to update the chain matrices as a boundary is added to a cycle. Instead, check for pivot conflicts again:
@@ -424,7 +428,7 @@ void ZigzagRep::compute(
                             }
                         }
                     }
-                    else if (birth_timestamp[p-1][a].first >= 0 && birth_timestamp[p-1][b].first == -1) {
+                    else if (birth_timestamp[p-1][a].first && !birth_timestamp[p-1][b].first) {
                         dynamic_xor(Z[p-1][a], Z[p-1][b]);
                         dynamic_xor(links[p-1][a], links[p-1][b]);
                         // Again, no need to update the chain matrices as a boundary is added to a cycle. Instead, check for pivot conflicts again:
@@ -449,8 +453,8 @@ void ZigzagRep::compute(
                         }
                     }
                     else {
-                        int birth_a = birth_timestamp[p-1][a].first;
-                        int birth_b = birth_timestamp[p-1][b].first;
+                        int birth_a = birth_timestamp[p-1][a].second;
+                        int birth_b = birth_timestamp[p-1][b].second;
                         bool a_lessthan_b = ((birth_a == birth_b) || ((birth_a < birth_b) && (filt_op[birth_b-1])) || ((birth_a > birth_b) && (!(filt_op[birth_a-1]))));   
                         if (a_lessthan_b) {
                             dynamic_xor(Z[p-1][b], Z[p-1][a]);
@@ -507,16 +511,18 @@ void ZigzagRep::compute(
         else { // DELETION:
             // Find the index of the simplex in id[p].
             int idx = id[p].at(simp);
-            int exist_col_idx = -1;
+            bool no_col_idx = true;
+            uint simp_col_idx;
             // Check if the simplex exists in Z[p].
             for (auto col_idx: used_columns_Z[p]) 
             {
                 if (idx < Z[p][col_idx] -> size() && (*Z[p][col_idx])[idx] == 1) {
-                    exist_col_idx = col_idx;
+                    no_col_idx = false;
+                    simp_col_idx = col_idx;
                     break;
                 }
             }
-            if (exist_col_idx == -1)// The deleted simplex does not constitute a cycle and its boundary now becomes a (p-1)-cycle (An interval in dimension (p-1) gets born).
+            if (no_col_idx)// The deleted simplex does not constitute a cycle and its boundary now becomes a (p-1)-cycle (An interval in dimension (p-1) gets born).
             {   
                 // Find all the columns in C[p] that contain the simplex and get the indices of their corresponding boundaries.
                 vector<int> I;
@@ -524,7 +530,7 @@ void ZigzagRep::compute(
                 int smallest_pivot = unique_id[p-1].size();
                 for (auto cyc_idx: used_columns_Z[p-1])
                 {
-                    if (birth_timestamp[p-1][cyc_idx].first == -1) 
+                    if (!birth_timestamp[p-1][cyc_idx].first) // If the birth timestamp is negative, then the column is a boundary.
                     {
                         int chain_idx = birth_timestamp[p-1][cyc_idx].second;
                         if (idx < C[p][chain_idx] -> size() && (*C[p][chain_idx])[idx]==1) {
@@ -551,7 +557,7 @@ void ZigzagRep::compute(
                 // Update the used and available indices for C[p]:
                 available_columns_C[p].push_back(chain_alpha);
                 used_columns_C[p].erase(remove(used_columns_C[p].begin(), used_columns_C[p].end(), chain_alpha), used_columns_C[p].end());
-                birth_timestamp[p-1][alpha] = make_pair(i+1, -1);
+                birth_timestamp[p-1][alpha] = make_pair(true, i+1);
                 // Add a new wire to the (p-1)-th bundle:
                 bundle[p-1].push_back(Z[p-1][alpha]);
                 timestamp[p-1].push_back(i+1);
@@ -567,7 +573,7 @@ void ZigzagRep::compute(
                     if (idx < C[p][chain_idx] -> size() && (*C[p][chain_idx])[idx] == 1) // each column in C[p][chain_b] containing the simplex s.t. Z[p-1][b] is a boundary.
                     {  
                         // Here, we do not need to check whether Z[p-1][b] is a boundary since we only store the chains whose boundaries are non-zero.
-                        dynamic_xor(C[p][chain_idx], Z[p][exist_col_idx]);
+                        dynamic_xor(C[p][chain_idx], Z[p][simp_col_idx]);
                     }
                 }
                 // Remove the simplex from Z[p]
@@ -581,8 +587,8 @@ void ZigzagRep::compute(
                 }
                 // sort I in the order of the birth timestamps where the order is the total order as above without using the sort function.
                 sort(I.begin(), I.end(), [&](int &a, int &b){
-                    int birth_a = birth_timestamp[p][a].first;
-                    int birth_b = birth_timestamp[p][b].first;
+                    int birth_a = birth_timestamp[p][a].second;
+                    int birth_b = birth_timestamp[p][b].second;
                      return ((birth_a == birth_b) || ((birth_a < birth_b) && (filt_op[birth_b-1])) || ((birth_a > birth_b) && (!(filt_op[birth_a-1]))));
                      });
                 // The column to be deleted is the first column in I.
@@ -626,6 +632,10 @@ void ZigzagRep::compute(
                 OUTPUT the p-th interval [birth_timestamp_p[alpha], i] after gathering the relevant representative.
                 */
                 column wire_column = links[p][alpha];
+                // If the wire_column has more than one non-zero value, let me know:
+                if (wire_column -> count() > 1) {
+                    cout << "Wire column has more than one non-zero value!" << endl;
+                }
                 // Here, we need to gather all the wires pertaining to the cycle l and reconstruct the representatives at each index.
                 vector<tuple<int, column>> wire_representatives;
                 vector<tuple<int, vector<int>>> wire_representatives_ids;
@@ -638,12 +648,12 @@ void ZigzagRep::compute(
                 sort(wire_representatives.begin(), wire_representatives.end(), [&](tuple<int, column> &a, tuple<int, column> &b){ return (get<0>(a) < get<0>(b));});
                 // Initialize a bitset column of size representative_max_size with all zeros.
                 column current_representative = make_shared<bitset>(1, 0);
-                uint interval_birth = birth_timestamp[p][alpha].first;
+                uint interval_birth = birth_timestamp[p][alpha].second;
                 // Add all the representatives with timestamps less than or equal to interval_birth.
-                uint rep_idx;
-                for (rep_idx = 0; rep_idx < wire_representatives.size(); ++rep_idx) {
-                    if (get<0>(wire_representatives[rep_idx]) <= interval_birth) {
-                        dynamic_xor(current_representative, get<1>(wire_representatives[rep_idx]));
+                uint wire_idx;
+                for (wire_idx = 0; wire_idx < wire_representatives.size(); ++wire_idx) {
+                    if (get<0>(wire_representatives[wire_idx]) <= interval_birth) {
+                        dynamic_xor(current_representative, get<1>(wire_representatives[wire_idx]));
                     }
                 }
                 vector<int> indices;
@@ -653,10 +663,10 @@ void ZigzagRep::compute(
                     }
                 }
                 wire_representatives_ids.push_back(make_tuple(interval_birth, indices));
-                for (; rep_idx < wire_representatives.size(); ++rep_idx) {
-                    int time = get<0>(wire_representatives[rep_idx]);
+                for (; wire_idx < wire_representatives.size(); ++wire_idx) {
+                    int time = get<0>(wire_representatives[wire_idx]);
                     vector<int> indices;
-                    dynamic_xor(current_representative, get<1>(wire_representatives[rep_idx]));
+                    dynamic_xor(current_representative, get<1>(wire_representatives[wire_idx]));
                     for (int rep_idx = 0; rep_idx < current_representative -> size(); ++rep_idx) {
                         if ((*current_representative)[rep_idx] == 1) {
                             indices.push_back(unique_id[p][rep_idx]);
@@ -664,7 +674,7 @@ void ZigzagRep::compute(
                     }
                     wire_representatives_ids.push_back(make_tuple(time, indices));
                 }
-                persistence -> push_back(make_tuple(interval_birth, i + 1, p, wire_representatives_ids));
+                persistence -> push_back(make_tuple(interval_birth, i, p, wire_representatives_ids));
                 /*
                 UPDATE:
                 */ 
@@ -675,7 +685,7 @@ void ZigzagRep::compute(
                 available_columns_Z[p].push_back(alpha);
                 used_columns_Z[p].erase(remove(used_columns_Z[p].begin(), used_columns_Z[p].end(), alpha), used_columns_Z[p].end());
                 // We need to assign this to be invalid (redundant):
-                birth_timestamp[p][alpha] = make_pair(-2, -1);
+                birth_timestamp[p][alpha] = make_pair(false, -1);
             }
         }
     }
@@ -683,28 +693,29 @@ void ZigzagRep::compute(
      POST-PROCESSING:
     */
     // For each p and each column Z[p][a] of Z[p] with non-negative birth timestamp, output the p-th interval [birth_timestamp[p][a], n].
-    for (int p = 0; p <= m; p++) {
+    for (size_t p = 0; p <= m; p++) {
         for (auto a: used_columns_Z[p]) {
-            uint interval_birth = birth_timestamp[p][a].first;
-            if (interval_birth >= 0) {
+            if (birth_timestamp[p][a].first) {
+                uint interval_birth = birth_timestamp[p][a].second;
                 column wire_column = links[p][a];
                 // Here, we need to gather all the wires pertaining to the cycle l and reconstruct the representatives at each index.
                 vector<tuple<int, column>> wire_representatives;
                 vector<tuple<int, vector<int>>> wire_representatives_ids;
-                for (int col_idx = 0; col_idx < wire_column -> size(); ++col_idx) {
-                    if ((*wire_column)[col_idx] == 1) {
-                        wire_representatives.push_back(make_tuple(timestamp[p][col_idx], bundle[p][col_idx]));
-                    }
-                } 
+                // Alternatively, just go over the non-zero values using the next operator
+                size_t col_idx = wire_column -> find_first();
+                while (col_idx != wire_column -> npos) {
+                    wire_representatives.push_back(make_tuple(timestamp[p][col_idx], bundle[p][col_idx]));
+                    col_idx = wire_column -> find_next(col_idx);
+                }
                 // Sort the representatives in the order of the timestamps.
                 sort(wire_representatives.begin(), wire_representatives.end(), [&](tuple<int, column> &a, tuple<int, column> &b){ return (get<0>(a) < get<0>(b));});
                 // Initialize a bitset column of size representative_max_size with all zeros.
                 column current_representative = make_shared<bitset>(1, 0);
                 // Add all the representatives with timestamps less than or equal to interval_birth.
-                uint rep_idx;
-                for (rep_idx = 0; rep_idx < wire_representatives.size(); ++rep_idx) {
-                    if (get<0>(wire_representatives[rep_idx]) <= interval_birth) {
-                        dynamic_xor(current_representative, get<1>(wire_representatives[rep_idx]));
+                size_t wire_idx;
+                for (wire_idx = 0; wire_idx < wire_representatives.size(); ++wire_idx) {
+                    if (get<0>(wire_representatives[wire_idx]) <= interval_birth) {
+                        dynamic_xor(current_representative, get<1>(wire_representatives[wire_idx]));
                     }
                 }
                 vector<int> indices;
@@ -714,10 +725,10 @@ void ZigzagRep::compute(
                     }
                 }
                 wire_representatives_ids.push_back(make_tuple(interval_birth, indices));
-                for (; rep_idx < wire_representatives.size(); ++rep_idx) {
-                    int time = get<0>(wire_representatives[rep_idx]);
+                for (; wire_idx < wire_representatives.size(); ++wire_idx) {
+                    int time = get<0>(wire_representatives[wire_idx]);
                     vector<int> indices;
-                    dynamic_xor(current_representative, get<1>(wire_representatives[rep_idx]));
+                    dynamic_xor(current_representative, get<1>(wire_representatives[wire_idx]));
                     for (int rep_idx = 0; rep_idx < current_representative -> size(); ++rep_idx) {
                         if ((*current_representative)[rep_idx] == 1) {
                             indices.push_back(unique_id[p][rep_idx]);

@@ -91,7 +91,6 @@ int main(const int argc, const char *argv[]) {
             for (auto j : std::get<1>(i)) {
                 pers_fout << j << " ";
             }
-            pers_fout << std::endl;
         } 
         pers_fout << std::endl << "-----------------------" << std::endl;    
     }
