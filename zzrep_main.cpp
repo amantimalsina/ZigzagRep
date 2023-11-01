@@ -1,3 +1,4 @@
+#include <map>
 #include <vector>
 #include <string>
 #include <iostream>
@@ -67,11 +68,14 @@ int main(const int argc, const char *argv[]) {
     // Let's measure the time it takes to compute the zigzag rep:
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     std::vector <std::tuple <int, int, int, std::vector<std::tuple<int, std::vector<int>>> > > persistence;
+    std::vector <std::map<int, int>> i_to_id;
+
     ZZREP::ZigzagRep zzr;
     zzr.compute(
         filt_simp, 
         filt_op,
         &persistence,
+        &i_to_id,
         m);
     std::string purename;
     getFilePurename(infilename, &purename);
@@ -88,12 +92,37 @@ int main(const int argc, const char *argv[]) {
         pers_fout << "Representatives: " << std::endl;
         for (auto i : std::get<3>(e)) {
             pers_fout << "From " << std::get<0>(i) << ": ";
-            for (auto j : std::get<1>(i)) {
-                pers_fout << j << " ";
+            for (size_t k = 0; k < std::get<1>(i).size(); ++k) {
+                pers_fout << std::get<1>(i)[k];
+                if (k != std::get<1>(i).size() - 1) {
+                    pers_fout << " + ";
+                }
             }
+            pers_fout << std::endl;
         } 
-        pers_fout << std::endl << "-----------------------" << std::endl;    
+        pers_fout << "-----------------------" << std::endl;    
     }
+
+    pers_fout.close();
+
+    // Now, produce a file with the map from the simplices to the unique_id that they are first assigned. For this, we can simply use the i_to_id map.
+    std::ofstream i_to_id_fout(purename + "_id_to_simp");
+    // Iterate over filt_simp and for i in i_to_id, add the simp -> id mapping to the file.
+    for (size_t p = 0; p <= m; ++p) 
+    {
+        i_to_id_fout << "Dimension " << p << ": " << std::endl;
+        for (auto i : i_to_id[p]) 
+        {
+            i_to_id_fout << i.second << " -> ";
+            for (auto j : filt_simp[i.first]) 
+            {
+                i_to_id_fout << j << " ";
+            }
+            i_to_id_fout << std::endl;
+        }
+        i_to_id_fout << "-----------------------" << std::endl;  
+    }
+    i_to_id_fout.close();
 
     return 0;
 }
