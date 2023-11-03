@@ -69,44 +69,44 @@ include CMakeFiles/zzrep.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/zzrep.dir/flags.make
 
-CMakeFiles/zzrep.dir/zzrep.cpp.o: CMakeFiles/zzrep.dir/flags.make
-CMakeFiles/zzrep.dir/zzrep.cpp.o: /Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig/zzrep.cpp
-CMakeFiles/zzrep.dir/zzrep.cpp.o: CMakeFiles/zzrep.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/zzrep.dir/zzrep.cpp.o"
-	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/zzrep.dir/zzrep.cpp.o -MF CMakeFiles/zzrep.dir/zzrep.cpp.o.d -o CMakeFiles/zzrep.dir/zzrep.cpp.o -c /Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig/zzrep.cpp
+CMakeFiles/zzrep.dir/src/zzrep.cpp.o: CMakeFiles/zzrep.dir/flags.make
+CMakeFiles/zzrep.dir/src/zzrep.cpp.o: /Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig/src/zzrep.cpp
+CMakeFiles/zzrep.dir/src/zzrep.cpp.o: CMakeFiles/zzrep.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/zzrep.dir/src/zzrep.cpp.o"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/zzrep.dir/src/zzrep.cpp.o -MF CMakeFiles/zzrep.dir/src/zzrep.cpp.o.d -o CMakeFiles/zzrep.dir/src/zzrep.cpp.o -c /Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig/src/zzrep.cpp
 
-CMakeFiles/zzrep.dir/zzrep.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/zzrep.dir/zzrep.cpp.i"
-	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig/zzrep.cpp > CMakeFiles/zzrep.dir/zzrep.cpp.i
+CMakeFiles/zzrep.dir/src/zzrep.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/zzrep.dir/src/zzrep.cpp.i"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig/src/zzrep.cpp > CMakeFiles/zzrep.dir/src/zzrep.cpp.i
 
-CMakeFiles/zzrep.dir/zzrep.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/zzrep.dir/zzrep.cpp.s"
-	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig/zzrep.cpp -o CMakeFiles/zzrep.dir/zzrep.cpp.s
+CMakeFiles/zzrep.dir/src/zzrep.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/zzrep.dir/src/zzrep.cpp.s"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig/src/zzrep.cpp -o CMakeFiles/zzrep.dir/src/zzrep.cpp.s
 
-CMakeFiles/zzrep.dir/zzrep_main.cpp.o: CMakeFiles/zzrep.dir/flags.make
-CMakeFiles/zzrep.dir/zzrep_main.cpp.o: /Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig/zzrep_main.cpp
-CMakeFiles/zzrep.dir/zzrep_main.cpp.o: CMakeFiles/zzrep.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/zzrep.dir/zzrep_main.cpp.o"
-	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/zzrep.dir/zzrep_main.cpp.o -MF CMakeFiles/zzrep.dir/zzrep_main.cpp.o.d -o CMakeFiles/zzrep.dir/zzrep_main.cpp.o -c /Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig/zzrep_main.cpp
+CMakeFiles/zzrep.dir/src/zzrep_main.cpp.o: CMakeFiles/zzrep.dir/flags.make
+CMakeFiles/zzrep.dir/src/zzrep_main.cpp.o: /Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig/src/zzrep_main.cpp
+CMakeFiles/zzrep.dir/src/zzrep_main.cpp.o: CMakeFiles/zzrep.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/zzrep.dir/src/zzrep_main.cpp.o"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/zzrep.dir/src/zzrep_main.cpp.o -MF CMakeFiles/zzrep.dir/src/zzrep_main.cpp.o.d -o CMakeFiles/zzrep.dir/src/zzrep_main.cpp.o -c /Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig/src/zzrep_main.cpp
 
-CMakeFiles/zzrep.dir/zzrep_main.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/zzrep.dir/zzrep_main.cpp.i"
-	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig/zzrep_main.cpp > CMakeFiles/zzrep.dir/zzrep_main.cpp.i
+CMakeFiles/zzrep.dir/src/zzrep_main.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/zzrep.dir/src/zzrep_main.cpp.i"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig/src/zzrep_main.cpp > CMakeFiles/zzrep.dir/src/zzrep_main.cpp.i
 
-CMakeFiles/zzrep.dir/zzrep_main.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/zzrep.dir/zzrep_main.cpp.s"
-	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig/zzrep_main.cpp -o CMakeFiles/zzrep.dir/zzrep_main.cpp.s
+CMakeFiles/zzrep.dir/src/zzrep_main.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/zzrep.dir/src/zzrep_main.cpp.s"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig/src/zzrep_main.cpp -o CMakeFiles/zzrep.dir/src/zzrep_main.cpp.s
 
 # Object files for target zzrep
 zzrep_OBJECTS = \
-"CMakeFiles/zzrep.dir/zzrep.cpp.o" \
-"CMakeFiles/zzrep.dir/zzrep_main.cpp.o"
+"CMakeFiles/zzrep.dir/src/zzrep.cpp.o" \
+"CMakeFiles/zzrep.dir/src/zzrep_main.cpp.o"
 
 # External object files for target zzrep
 zzrep_EXTERNAL_OBJECTS =
 
-zzrep: CMakeFiles/zzrep.dir/zzrep.cpp.o
-zzrep: CMakeFiles/zzrep.dir/zzrep_main.cpp.o
+zzrep: CMakeFiles/zzrep.dir/src/zzrep.cpp.o
+zzrep: CMakeFiles/zzrep.dir/src/zzrep_main.cpp.o
 zzrep: CMakeFiles/zzrep.dir/build.make
 zzrep: CMakeFiles/zzrep.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable zzrep"

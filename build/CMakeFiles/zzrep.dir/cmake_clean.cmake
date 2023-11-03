@@ -1,8 +1,8 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/zzrep.dir/zzrep.cpp.o"
-  "CMakeFiles/zzrep.dir/zzrep.cpp.o.d"
-  "CMakeFiles/zzrep.dir/zzrep_main.cpp.o"
-  "CMakeFiles/zzrep.dir/zzrep_main.cpp.o.d"
+  "CMakeFiles/zzrep.dir/src/zzrep.cpp.o"
+  "CMakeFiles/zzrep.dir/src/zzrep.cpp.o.d"
+  "CMakeFiles/zzrep.dir/src/zzrep_main.cpp.o"
+  "CMakeFiles/zzrep.dir/src/zzrep_main.cpp.o.d"
   "zzrep"
   "zzrep.pdb"
 )

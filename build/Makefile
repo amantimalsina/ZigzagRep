@@ -129,53 +129,53 @@ zzrep/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/zzrep.dir/build.make CMakeFiles/zzrep.dir/build
 .PHONY : zzrep/fast
 
-zzrep.o: zzrep.cpp.o
-.PHONY : zzrep.o
+src/zzrep.o: src/zzrep.cpp.o
+.PHONY : src/zzrep.o
 
 # target to build an object file
-zzrep.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/zzrep.dir/build.make CMakeFiles/zzrep.dir/zzrep.cpp.o
-.PHONY : zzrep.cpp.o
+src/zzrep.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/zzrep.dir/build.make CMakeFiles/zzrep.dir/src/zzrep.cpp.o
+.PHONY : src/zzrep.cpp.o
 
-zzrep.i: zzrep.cpp.i
-.PHONY : zzrep.i
+src/zzrep.i: src/zzrep.cpp.i
+.PHONY : src/zzrep.i
 
 # target to preprocess a source file
-zzrep.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/zzrep.dir/build.make CMakeFiles/zzrep.dir/zzrep.cpp.i
-.PHONY : zzrep.cpp.i
+src/zzrep.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/zzrep.dir/build.make CMakeFiles/zzrep.dir/src/zzrep.cpp.i
+.PHONY : src/zzrep.cpp.i
 
-zzrep.s: zzrep.cpp.s
-.PHONY : zzrep.s
+src/zzrep.s: src/zzrep.cpp.s
+.PHONY : src/zzrep.s
 
 # target to generate assembly for a file
-zzrep.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/zzrep.dir/build.make CMakeFiles/zzrep.dir/zzrep.cpp.s
-.PHONY : zzrep.cpp.s
+src/zzrep.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/zzrep.dir/build.make CMakeFiles/zzrep.dir/src/zzrep.cpp.s
+.PHONY : src/zzrep.cpp.s
 
-zzrep_main.o: zzrep_main.cpp.o
-.PHONY : zzrep_main.o
+src/zzrep_main.o: src/zzrep_main.cpp.o
+.PHONY : src/zzrep_main.o
 
 # target to build an object file
-zzrep_main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/zzrep.dir/build.make CMakeFiles/zzrep.dir/zzrep_main.cpp.o
-.PHONY : zzrep_main.cpp.o
+src/zzrep_main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/zzrep.dir/build.make CMakeFiles/zzrep.dir/src/zzrep_main.cpp.o
+.PHONY : src/zzrep_main.cpp.o
 
-zzrep_main.i: zzrep_main.cpp.i
-.PHONY : zzrep_main.i
+src/zzrep_main.i: src/zzrep_main.cpp.i
+.PHONY : src/zzrep_main.i
 
 # target to preprocess a source file
-zzrep_main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/zzrep.dir/build.make CMakeFiles/zzrep.dir/zzrep_main.cpp.i
-.PHONY : zzrep_main.cpp.i
+src/zzrep_main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/zzrep.dir/build.make CMakeFiles/zzrep.dir/src/zzrep_main.cpp.i
+.PHONY : src/zzrep_main.cpp.i
 
-zzrep_main.s: zzrep_main.cpp.s
-.PHONY : zzrep_main.s
+src/zzrep_main.s: src/zzrep_main.cpp.s
+.PHONY : src/zzrep_main.s
 
 # target to generate assembly for a file
-zzrep_main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/zzrep.dir/build.make CMakeFiles/zzrep.dir/zzrep_main.cpp.s
-.PHONY : zzrep_main.cpp.s
+src/zzrep_main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/zzrep.dir/build.make CMakeFiles/zzrep.dir/src/zzrep_main.cpp.s
+.PHONY : src/zzrep_main.cpp.s
 
 # Help Target
 help:
@@ -186,12 +186,12 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... zzrep"
-	@echo "... zzrep.o"
-	@echo "... zzrep.i"
-	@echo "... zzrep.s"
-	@echo "... zzrep_main.o"
-	@echo "... zzrep_main.i"
-	@echo "... zzrep_main.s"
+	@echo "... src/zzrep.o"
+	@echo "... src/zzrep.i"
+	@echo "... src/zzrep.s"
+	@echo "... src/zzrep_main.o"
+	@echo "... src/zzrep_main.i"
+	@echo "... src/zzrep_main.s"
 .PHONY : help
 
 

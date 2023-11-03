@@ -1,35 +1,24 @@
-0-th dimesional bar [2, 4]
+0-dimensional bar [2, 3]
 Representatives: 
-From 2: 1 
-
+From 2: 1
 -----------------------
-0-th dimesional bar [3, 5]
+0-dimensional bar [3, 4]
 Representatives: 
-From 3: 2 
-
+From 3: 2
 -----------------------
-1-th dimesional bar [6, 7]
+1-dimensional bar [6, 6]
 Representatives: 
-From 6: 0 1 2 
-
+From 6: 0 + 1 + 2
 -----------------------
-1-th dimesional bar [8, 8]
+1-dimensional bar [8, 8]
 Representatives: 
-From 0: 0 1 2 
-
+From 8: 0 + 1 + 2
 -----------------------
-0-th dimesional bar [1, 11]
+0-dimensional bar [1, 10]
 Representatives: 
-From 1: 0 
-
+From 1: 0
 -----------------------
-0-th dimesional bar [10, 11]
+0-dimensional bar [10, 10]
 Representatives: 
-From 0: 0 1 
-
------------------------
-0-th dimesional bar [11, 11]
-Representatives: 
-From 629163248: 0 2 
-
+From 10: 0 + 1
 -----------------------
