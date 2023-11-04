@@ -61,11 +61,11 @@ bool VecEqual<ElemType>
 
 class birth_timestamp {
 public:
-    // FIXME: The comment below is probably not true; verify!
-    // If bd is true if the index is a boundary and val_idx records to the index of the corresponding chain, while if bd is false, then val_idx records the birth timestamp of the cycle.
-    bool bd;
+    // If non_bd is true, then val_idx records the birth timestamp of the non-boundary cycle,
+    // otherwise, val_idx records to the index of the corresponding chain
+    bool non_bd;
     int val_idx;
-    birth_timestamp(bool bd, int val_idx) : bd(bd), val_idx(val_idx) {} 
+    birth_timestamp(bool non_bd, int val_idx) : non_bd(non_bd), val_idx(val_idx) {} 
 };
 
 typedef boost::dynamic_bitset<> bitset;
@@ -187,18 +187,13 @@ void ZigzagRep::compute(
                     // Add this column to indices.
                     dynamic_xor(bd_simp_temp, Z[p-1][conflict_idx]);
                     I.push_back(conflict_idx);
+                    if (birth_timestamp[p-1][conflict_idx].first) {
+                        all_boundary = false; // Check the birth timestamps to check whether all of them are boundaries.
+                    }
                     // Update the pivot of a.
                     pivot_bd = pivot(bd_simp_temp);
                     zeroed = (pivot_bd == -1);
                 } 
-                // TODO: We can combine the thing below with the reduction above.
-                // Check the birth timestamps to check whether all of them are boundaries.
-                for (auto a: I) {
-                    if (birth_timestamp[p-1][a].first) {
-                        all_boundary = false;
-                        break;
-                    }
-                }
             }
             if (all_boundary) // The inserted simplex covers a (p-1)-boundary (an interval in dimension p gets born)
             {
@@ -256,25 +251,16 @@ void ZigzagRep::compute(
                 }
                 sort(J.begin(), J.end());
                 // Check if arrow at b^{p−1}[c]−1 points backward for all c in J
-                bool arrow_backward = true;
-                for (auto c: J) {
-                    if (filt_op[birth_timestamp[p-1][c].second - 1]) {
-                        arrow_backward = false;
-                        break;
-                    }
-                }               
+                bool arrow_backward = true;        
                 int l;
-                if (arrow_backward) { // If the arrow at {b^{p−1}[c]−1} points backward for all c in J, let l be the smallest index in J.  
-                    l = *J.begin();
-                }
-                else { // Otherwise, let l be the largest c in J such that the arrow at {b^{p−1}[c]−1} points forward.
-                    // TODO: There's a way to combine this loop with the one above.
-                    for (auto i = J.size()-1; i >= 0; i--) {
-                        if (filt_op[birth_timestamp[p-1][J[i]].second - 1]) {
-                            l = J[i];
+                for (int j_idx = J.size()-1; j_idx >= 0; j_idx--) {
+                        if (filt_op[birth_timestamp[p-1][J[j_idx]].second - 1]) {
+                            l = J[j_idx]; // l will be the largest c in J if the arrow at {b^{p−1}[c]−1} points forward.
                             break;
                         }
-                    }
+                    }    
+                if (arrow_backward) { // If the arrow at {b^{p−1}[c]−1} points backward for all c in J, let l be the smallest index in J.  
+                    l = *J.begin();
                 }
                 /* 
                 OUTPUT the (p − 1)-th interval [b^{p−1}[l], i] after gathering the relevant representative.
@@ -283,12 +269,11 @@ void ZigzagRep::compute(
                 uint birth = birth_timestamp[p-1][l].second;
                 vector<tuple<int, column>> wire_representatives;
                 vector<tuple<int, vector<int>>> wire_representatives_ids;
-                // TODO: Optimize the loop below using next().
-                for (int col_idx = 0; col_idx < links[p-1][l] -> size(); ++col_idx) {
-                    if ((*links[p-1][l])[col_idx] == 1) {
-                        wire_representatives.push_back(make_tuple(timestamp[p-1][col_idx], bundle[p-1][col_idx]));
-                    }
-                } 
+                int col_idx = links[p-1][l] -> find_first();
+                while (col_idx != links[p-1][l] -> npos) {
+                    wire_representatives.push_back(make_tuple(timestamp[p-1][col_idx], bundle[p-1][col_idx]));
+                    col_idx = links[p-1][l] -> find_next(col_idx);
+                }
                 // Sort the representatives in the order of the timestamps.
                 sort(wire_representatives.begin(), wire_representatives.end(), [&](tuple<int, column> &a, tuple<int, column> &b){ return (get<0>(a) < get<0>(b));});
                 column current_representative = make_shared<bitset>(1, 0);
@@ -304,22 +289,20 @@ void ZigzagRep::compute(
                     }
                 }
                 vector<int> indices;
-                // TODO: Optimize this using next()
-                for (int rep_idx = 0; rep_idx < current_representative -> size(); ++rep_idx) {
-                    if ((*current_representative)[rep_idx] == 1) {
+                int rep_idx = current_representative -> find_first();
+                while (rep_idx != current_representative -> npos) {
                         indices.push_back(unique_id[p-1][rep_idx]);
-                    }
+                        rep_idx = current_representative -> find_next(rep_idx);
                 }
                 wire_representatives_ids.push_back(make_tuple(birth, indices));
                 for (; wire_idx < wire_representatives.size(); ++wire_idx) {
                     int time = get<0>(wire_representatives[wire_idx]);
-                    vector<int> indices;
                     dynamic_xor(current_representative, get<1>(wire_representatives[wire_idx]));
-                    // TODO: Same as above.
-                    for (int rep_idx = 0; rep_idx < current_representative -> size(); ++rep_idx) {
-                        if ((*current_representative)[rep_idx] == 1) {
+                    vector<int> indices;
+                    int rep_idx = current_representative -> find_first();
+                    while (rep_idx != current_representative -> npos) {
                             indices.push_back(unique_id[p-1][rep_idx]);
-                        }
+                            rep_idx = current_representative -> find_next(rep_idx);
                     }
                     wire_representatives_ids.push_back(make_tuple(time, indices));
                 }
@@ -638,11 +621,11 @@ void ZigzagRep::compute(
                 // Here, we need to gather all the wires pertaining to the cycle l and reconstruct the representatives at each index.
                 vector<tuple<int, column>> wire_representatives;
                 vector<tuple<int, vector<int>>> wire_representatives_ids;
-                for (int col_idx = 0; col_idx < links[p][alpha] -> size(); ++col_idx) {
-                    if ((*links[p][alpha])[col_idx] == 1) {
-                        wire_representatives.push_back(make_tuple(timestamp[p][col_idx], bundle[p][col_idx]));
-                    }
-                } 
+                int col_idx = links[p][alpha] -> find_first();
+                while (col_idx != links[p][alpha] -> npos) {
+                    wire_representatives.push_back(make_tuple(timestamp[p][col_idx], bundle[p][col_idx]));
+                    col_idx = links[p][alpha] -> find_next(col_idx);
+                }
                 // Sort the representatives in the order of the timestamps.
                 sort(wire_representatives.begin(), wire_representatives.end(), [&](tuple<int, column> &a, tuple<int, column> &b){ return (get<0>(a) < get<0>(b));});
                 // Initialize a bitset column of size representative_max_size with all zeros.
@@ -659,20 +642,20 @@ void ZigzagRep::compute(
                     }
                 }
                 vector<int> indices;
-                for (int rep_idx = 0; rep_idx < current_representative -> size(); ++rep_idx) {
-                    if ((*current_representative)[rep_idx] == 1) {
+                int rep_idx = current_representative -> find_first();
+                while (rep_idx != current_representative -> npos) {
                         indices.push_back(unique_id[p][rep_idx]);
-                    }
+                        rep_idx = current_representative -> find_next(rep_idx);
                 }
                 wire_representatives_ids.push_back(make_tuple(interval_birth, indices));
                 for (; wire_idx < wire_representatives.size(); ++wire_idx) {
                     int time = get<0>(wire_representatives[wire_idx]);
-                    vector<int> indices;
                     dynamic_xor(current_representative, get<1>(wire_representatives[wire_idx]));
-                    for (int rep_idx = 0; rep_idx < current_representative -> size(); ++rep_idx) {
-                        if ((*current_representative)[rep_idx] == 1) {
+                    vector<int> indices;
+                    int rep_idx = current_representative -> find_first();
+                    while (rep_idx != current_representative -> npos) {
                             indices.push_back(unique_id[p][rep_idx]);
-                        }
+                            rep_idx = current_representative -> find_next(rep_idx);
                     }
                     wire_representatives_ids.push_back(make_tuple(time, indices));
                 }
@@ -720,23 +703,20 @@ void ZigzagRep::compute(
                     }
                 }
                 vector<int> indices;
-                for (int rep_idx = 0; rep_idx < current_representative -> size(); ++rep_idx) {
-                    if ((*current_representative)[rep_idx] == 1) {
+                int rep_idx = current_representative -> find_first();
+                while (rep_idx != current_representative -> npos) {
                         indices.push_back(unique_id[p][rep_idx]);
-                    }
-                    else {
-                        break;
-                    }
+                        rep_idx = current_representative -> find_next(rep_idx);
                 }
                 wire_representatives_ids.push_back(make_tuple(interval_birth, indices));
                 for (; wire_idx < wire_representatives.size(); ++wire_idx) {
                     int time = get<0>(wire_representatives[wire_idx]);
-                    vector<int> indices;
                     dynamic_xor(current_representative, get<1>(wire_representatives[wire_idx]));
-                    for (int rep_idx = 0; rep_idx < current_representative -> size(); ++rep_idx) {
-                        if ((*current_representative)[rep_idx] == 1) {
+                    vector<int> indices;
+                    int rep_idx = current_representative -> find_first();
+                    while (rep_idx != current_representative -> npos) {
                             indices.push_back(unique_id[p][rep_idx]);
-                        }
+                            rep_idx = current_representative -> find_next(rep_idx);
                     }
                     wire_representatives_ids.push_back(make_tuple(time, indices));
                 }
