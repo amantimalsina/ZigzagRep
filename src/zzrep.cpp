@@ -61,6 +61,7 @@ bool VecEqual<ElemType>
 
 class birth_timestamp {
 public:
+    // FIXME: The comment below is probably not true; verify!
     // If bd is true if the index is a boundary and val_idx records to the index of the corresponding chain, while if bd is false, then val_idx records the birth timestamp of the cycle.
     bool bd;
     int val_idx;
