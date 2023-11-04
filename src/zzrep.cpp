@@ -280,9 +280,10 @@ void ZigzagRep::compute(
                 OUTPUT the (p − 1)-th interval [b^{p−1}[l], i] after gathering the relevant representative.
                 */
                 // Here, we need to gather all the wires pertaining to the cycle l and reconstruct the representatives at each index.
-                // If the wire_column has more than one non-zero value, let me know:
+                uint birth = birth_timestamp[p-1][l].second;
                 vector<tuple<int, column>> wire_representatives;
                 vector<tuple<int, vector<int>>> wire_representatives_ids;
+                // TODO: Optimize the loop below using next().
                 for (int col_idx = 0; col_idx < links[p-1][l] -> size(); ++col_idx) {
                     if ((*links[p-1][l])[col_idx] == 1) {
                         wire_representatives.push_back(make_tuple(timestamp[p-1][col_idx], bundle[p-1][col_idx]));
@@ -290,9 +291,7 @@ void ZigzagRep::compute(
                 } 
                 // Sort the representatives in the order of the timestamps.
                 sort(wire_representatives.begin(), wire_representatives.end(), [&](tuple<int, column> &a, tuple<int, column> &b){ return (get<0>(a) < get<0>(b));});
-                // Initialize a bitset column of size representative_max_size with all zeros.
                 column current_representative = make_shared<bitset>(1, 0);
-                uint birth = birth_timestamp[p-1][l].second;
                 // Add all the representatives with timestamps less than or equal to interval_birth.
                 uint wire_idx;
                 for (wire_idx = 0; wire_idx < wire_representatives.size(); ++wire_idx) {
@@ -305,6 +304,7 @@ void ZigzagRep::compute(
                     }
                 }
                 vector<int> indices;
+                // TODO: Optimize this using next()
                 for (int rep_idx = 0; rep_idx < current_representative -> size(); ++rep_idx) {
                     if ((*current_representative)[rep_idx] == 1) {
                         indices.push_back(unique_id[p-1][rep_idx]);
@@ -315,6 +315,7 @@ void ZigzagRep::compute(
                     int time = get<0>(wire_representatives[wire_idx]);
                     vector<int> indices;
                     dynamic_xor(current_representative, get<1>(wire_representatives[wire_idx]));
+                    // TODO: Same as above.
                     for (int rep_idx = 0; rep_idx < current_representative -> size(); ++rep_idx) {
                         if ((*current_representative)[rep_idx] == 1) {
                             indices.push_back(unique_id[p-1][rep_idx]);
@@ -335,7 +336,6 @@ void ZigzagRep::compute(
                 /* 
                 UPDATE:
                 */
-                // Set Z[p−1][l] = bd_simp.
                 uint prev_pivot = pivot(Z[p-1][l]);
                 Z[p-1][l] = bd_simp;
                 // Set C[p][l] = simp and update the boundary-to-chain map.
@@ -360,7 +360,9 @@ void ZigzagRep::compute(
                     used_columns_C[p].push_back(av_idx);
                 }
                 /*
-                Avoiding PIVOT CONFLICTS: (column of bd_simp with that of another column in Z[p-1]). We know that the pivots of Z[p-1] were unique before the insertion of bd_simp. Thus, we need to ensure that they remain unique after the insertion of bd_simp. 
+                Avoiding PIVOT CONFLICTS: (column of bd_simp with that of another column in Z[p-1]).
+                We know that the pivots of Z[p-1] were unique before the insertion of bd_simp. 
+                Thus, we need to ensure that they remain unique after the insertion of bd_simp. 
                 */
                 bool pivot_conflict;
                 int a, b, pivot_a, pivot_b, current_idx, current_pivot;
@@ -372,17 +374,17 @@ void ZigzagRep::compute(
                     pivots[p-1][current_pivot] = l;
                 }
                 else {
-                    current_idx = pivots[p-1][current_pivot];
                     pivot_conflict = true;
+                    // FIXME: Which one is a and which one is b?
                     a = l;
-                    b = current_idx;
+                    b = pivots[p-1][current_pivot];;
                     pivot_a = current_pivot;
                     pivot_b = current_pivot;
                 }
                 while (pivot_conflict)
                 {
                     // Check that a and b are valid indices in Z[p-1]:
-                    if (!birth_timestamp[p-1][a].first && !birth_timestamp[p-1][b].first) {
+                    if (!birth_timestamp[p-1][a].first && !birth_timestamp[p-1][b].first) { // Both a and b are boundaries.
                         dynamic_xor(Z[p-1][a], Z[p-1][b]);
                         dynamic_xor(links[p-1][a], links[p-1][b]);
                         // Update chain matrices to reflect this addition (use the BdToChainMap):
@@ -402,9 +404,8 @@ void ZigzagRep::compute(
                             }
                             else 
                             {
-                                current_idx = pivots[p-1][pivot_a];
                                 pivot_conflict = true;
-                                b = current_idx;
+                                b = pivots[p-1][pivot_a];
                                 pivot_b = pivot_a;
                             }
                         }
@@ -428,9 +429,8 @@ void ZigzagRep::compute(
                             }
                             else 
                             {
-                                current_idx = pivots[p-1][pivot_b];
                                 pivot_conflict = true;
-                                a = current_idx;
+                                a = pivots[p-1][pivot_b];
                                 pivot_a = pivot_b;
                             }
                         }
@@ -452,9 +452,8 @@ void ZigzagRep::compute(
                             }
                             else 
                             {
-                                current_idx = pivots[p-1][pivot_a];
                                 pivot_conflict = true;
-                                b = current_idx;
+                                b = pivots[p-1][pivot_a];
                                 pivot_b = pivot_a;
                             }
                         }
@@ -480,9 +479,8 @@ void ZigzagRep::compute(
                                     pivot_conflict = false;
                                 }
                                 else {
-                                    current_idx = pivots[p-1][pivot_b];
                                     pivot_conflict = true;
-                                    a = current_idx;
+                                    a = pivots[p-1][pivot_b];;
                                     pivot_a = pivot_b;
                                 }
                             }
@@ -504,9 +502,8 @@ void ZigzagRep::compute(
                                     pivot_conflict = false;
                                 }
                                 else {
-                                    current_idx = pivots[p-1][pivot_a];
                                     pivot_conflict = true;
-                                    b = current_idx;
+                                    b = pivots[p-1][pivot_a];
                                     pivot_b = pivot_a;
                                 }
                             }
