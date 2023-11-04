@@ -154,7 +154,7 @@ void ZigzagRep::compute(
                 unique_id_simp = unique_id[p].size();
             }
             // Change the id of the simplex to the new id.
-            id[p][simp] = unique_id_simp;
+            id[p][simp] = unique_id[p].size();
             unique_id[p].push_back(unique_id_simp);
             (*i_to_id)[p][i] = unique_id_simp;
             // Represent the boundary of simp as a sum of columns of Z_{p-1} by a reduction algorithm; I is such set of columns.
