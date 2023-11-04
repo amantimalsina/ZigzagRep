@@ -190,6 +190,7 @@ void ZigzagRep::compute(
                     pivot_bd = pivot(bd_simp_temp);
                     zeroed = (pivot_bd == -1);
                 } 
+                // TODO: We can combine the thing below with the reduction above.
                 // Check the birth timestamps to check whether all of them are boundaries.
                 for (auto a: I) {
                     if (birth_timestamp[p-1][a].first) {
