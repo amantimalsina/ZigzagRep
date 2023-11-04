@@ -268,6 +268,7 @@ void ZigzagRep::compute(
                     l = *J.begin();
                 }
                 else { // Otherwise, let l be the largest c in J such that the arrow at {b^{p−1}[c]−1} points forward.
+                    // TODO: There's a way to combine this loop with the one above.
                     for (auto i = J.size()-1; i >= 0; i--) {
                         if (filt_op[birth_timestamp[p-1][J[i]].second - 1]) {
                             l = J[i];
