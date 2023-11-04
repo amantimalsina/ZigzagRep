@@ -515,7 +515,7 @@ void ZigzagRep::compute(
         else { // DELETION:
             // Find the index of the simplex in id[p].
             int idx = id[p].at(simp);
-            bool no_col_idx = true;
+            bool no_col_idx = true; // Indicator for whether a column exists with 1 at idx. true => no such column exists.
             uint simp_col_idx;
             // Check if the simplex exists in Z[p].
             for (auto col_idx: used_columns_Z[p]) 
@@ -534,7 +534,7 @@ void ZigzagRep::compute(
                 int smallest_pivot = unique_id[p-1].size();
                 for (auto cyc_idx: used_columns_Z[p-1])
                 {
-                    if (!birth_timestamp[p-1][cyc_idx].first) // If the birth timestamp is negative, then the column is a boundary.
+                    if (!birth_timestamp[p-1][cyc_idx].first) // If the birth timestamp is false, then the column is a boundary.
                     {
                         int chain_idx = birth_timestamp[p-1][cyc_idx].second;
                         if (idx < C[p][chain_idx] -> size() && (*C[p][chain_idx])[idx]==1) {
@@ -560,7 +560,7 @@ void ZigzagRep::compute(
                 C[p][chain_alpha] = nullptr; // Zero out the chain C[p][chain_alpha] from C[p].
                 // Update the used and available indices for C[p]:
                 available_columns_C[p].push_back(chain_alpha);
-                used_columns_C[p].erase(remove(used_columns_C[p].begin(), used_columns_C[p].end(), chain_alpha), used_columns_C[p].end());
+                used_columns_C[p].erase(remove(used_columns_C[p].begin(), used_columns_C[p].end(), chain_alpha), used_columns_C[p].end()); // TODO: Check that this is done correctly.
                 birth_timestamp[p-1][alpha] = make_pair(true, i+1);
                 // Add a new wire to the (p-1)-th bundle:
                 bundle[p-1].push_back(Z[p-1][alpha]);
@@ -576,7 +576,6 @@ void ZigzagRep::compute(
                 {
                     if (idx < C[p][chain_idx] -> size() && (*C[p][chain_idx])[idx] == 1) // each column in C[p][chain_b] containing the simplex s.t. Z[p-1][b] is a boundary.
                     {  
-                        // Here, we do not need to check whether Z[p-1][b] is a boundary since we only store the chains whose boundaries are non-zero.
                         dynamic_xor(C[p][chain_idx], Z[p][simp_col_idx]);
                     }
                 }
@@ -596,28 +595,27 @@ void ZigzagRep::compute(
                      return ((birth_a == birth_b) || ((birth_a < birth_b) && (filt_op[birth_b-1])) || ((birth_a > birth_b) && (!(filt_op[birth_a-1]))));
                      });
                 // The column to be deleted is the first column in I.
-                column z = Z[p][I[0]];
                 int alpha = I[0];
-                // DELETE: column alpha from Z[p] and links[p].
-                int current_alpha = I[0]; // Keeps track of the column index being added in order to update links.
+                column z = Z[p][alpha];
+                int z_pivot = pivot(z);
+                pivots[p].erase(z_pivot); // Remove the pivot of Z[p][alpha] from pivots[p].
                 I.erase(I.begin());
-                int alpha_pivot = pivot(z);
-                pivots[p].erase(alpha_pivot); // Remove the pivot of Z[p][alpha] from pivots[p].
+                // DELETE: column alpha from Z[p] and links[p].
+                int current_alpha = alpha; // Keeps track of the column index being added in order to update links.
                 if (I.size() != 0) 
                 {
                     // Iterate over the rest of I and ensure that the pivots remain distinct:
-                    int z_pivot = alpha_pivot;
                     for (auto a: I)
                     {
                         int a_pivot = pivot(Z[p][a]);
-                        if (a_pivot > z_pivot) 
+                        if (a_pivot > z_pivot) // z does not change.
                         {
                             dynamic_xor(Z[p][a], z);
                             dynamic_xor(links[p][a], links[p][current_alpha]);
                         }   
                         else 
                         {
-                            // We want to deep copy Z[p][a] to a temporary column and then copy z to Z[p][a].
+                            // We want to deep copy Z[p][a] to a temporary column and then copyZ[p][a] to z.
                             column temp = make_shared<bitset>(*Z[p][a]);
                             int temp_pivot = a_pivot;
                             dynamic_xor(Z[p][a], z);
@@ -689,7 +687,7 @@ void ZigzagRep::compute(
                 available_columns_Z[p].push_back(alpha);
                 used_columns_Z[p].erase(remove(used_columns_Z[p].begin(), used_columns_Z[p].end(), alpha), used_columns_Z[p].end());
                 // We need to assign this to be invalid (redundant):
-                birth_timestamp[p][alpha] = make_pair(false, -1);
+                birth_timestamp[p][alpha] = make_pair(false, -1); // TODO: Probably use assertions to test that boudaries are not using invalid columns.
             }
         }
     }
