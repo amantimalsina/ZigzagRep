@@ -724,4 +724,8 @@ void dynamic_xor(column a, column b)
         (*a)[i] ^= (*b)[i];
     }
 }
+
+// TODO: Separate bundle and interval processing here.
+
+// TODO: Extract the boundary and sum computatiion into a separate function.
 }// namespace ZZREP
