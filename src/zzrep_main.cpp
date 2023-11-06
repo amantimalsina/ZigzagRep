@@ -69,7 +69,7 @@ int main(const int argc, const char *argv[]) {
     // Let's measure the time it takes to compute the zigzag rep:
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     std::vector <std::tuple <int, int, int, std::vector<std::tuple<int, std::vector<int>>> > > persistence;
-    std::vector <std::map<int, int>> i_to_id;
+    std::vector <std::map<int, int>> i_to_id(m+1, std::map<int, int>());
 
     ZZREP::ZigzagRep zzr;
     zzr.compute(
@@ -96,6 +96,7 @@ int main(const int argc, const char *argv[]) {
     4. For i < n, if filtop[i] = 1 (surjective), the representative's class is the non-zero element in the kernel of this map.
     5. Each representative at index b <= j <= i should be present in the complex K_j.
     6. The map \psi_j: H(K_{j-1}) \lefrightarrow H(K_{j}) takes the representative at index j-1 to the representative at index j.
+
     size_t n = filt_op.size();
     for (auto pers: persistence) {
         int birth = std::get<0>(pers);
@@ -134,8 +135,7 @@ int main(const int argc, const char *argv[]) {
             }
         }
     }
-        */
-
+    */
 
     // Change this to add the representatives to the file.
     for (const auto& e : persistence) {

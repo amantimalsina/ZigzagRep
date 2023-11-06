@@ -6,9 +6,6 @@ message( "Option: ${CMAKE_CXX_FLAGS}" )
 
 include_directories( "." )
 
-# Put phat directory here
-# include_directories( "../phat-master/include/" )
-
 # Boost
 find_package( Boost 1.5 REQUIRED )
 include_directories( ${Boost_INCLUDE_DIRS} )

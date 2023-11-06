@@ -90,54 +90,22 @@ void ZigzagRep::compute(
     persistence -> clear();
     int n = filt_simp.size();
     /*
-    DECLARATION:
+    DECLARATION & INITIALIZATION of Data Structures:
     */
-    vector<SimplexIdMap> id; //  The current integral id for each p-simplex.
-    vector<vector<int>> unique_id; // The unique integral id for each p-simplex.
-    vector<vector<column> > Z; // A cycle matrix Z[p] for each dimension p that is maintained such that each column of Z[p] represents a p-cycle in K_i.
-    vector<vector<int>> available_columns_Z; // A list of available columns in Z[p] for each dimension p.
-    vector<vector<int>> used_columns_Z; // A list of used columns in Z[p] for each dimension p.
-    vector<vector<column> > C; // A chain matrix C[p] for each dimension p so that the chains in C[p] are associated with the the boundary cycles in Z[p-1].
-    vector<vector<int>> available_columns_C; // A list of available columns in Z[p] for each dimension p.
-    vector<vector<int>> used_columns_C; // A list of used columns in Z[p] for each dimension p.
-    vector<vector<pair <bool, int> > > birth_timestamp; // For each column Z[p][j], a birth timestamp is maintained, where a false value implies that the column pertains to a boundary.
-    vector<PivotMap> pivots; // For each column Z[p][j] we have a unique pivot entry; we then store pivots[p][i] = j where j = -1 implies that no column exists in Z[p-1] with pivot i.
+    vector<SimplexIdMap> id(m+1, SimplexIdMap()); //  The current integral id for each p-simplex.
+    vector<vector<int>> unique_id(m+1, vector<int>()); // The unique integral id for each p-simplex.
+    vector<vector<column> > Z(m+1, vector<column>()); // A cycle matrix Z[p] for each dimension p that is maintained such that each column of Z[p] represents a p-cycle in K_i.
+    vector<vector<int>> available_columns_Z(m+1, vector<int>()); // A list of available columns in Z[p] for each dimension p.
+    vector<vector<int>> used_columns_Z(m+1, vector<int>()); // A list of used columns in Z[p] for each dimension p.
+    vector<vector<column> > C(m+1, vector<column>()); // A chain matrix C[p] for each dimension p so that the chains in C[p] are associated with the the boundary cycles in Z[p-1].
+    vector<vector<int>> available_columns_C(m+1, vector<int>()); // A list of available columns in Z[p] for each dimension p.
+    vector<vector<int>> used_columns_C(m+1, vector<int>()); // A list of used columns in Z[p] for each dimension p.
+    vector<vector<pair <bool, int> > > birth_timestamp(m+1, vector<pair <bool, int> >()); // For each column Z[p][j], a birth timestamp is maintained, where a false value implies that the column pertains to a boundary.
+    vector<PivotMap> pivots(m+1, PivotMap()); // For each column Z[p][j] we have a unique pivot entry; we then store pivots[p][i] = j where j = -1 implies that no column exists in Z[p-1] with pivot i.
     // Data structures for storing the intervals and cycles in order to compute representatives: 
-    vector<vector<column> > bundle; // A collection of wires: bundle[p] stores p-dimensional wires.
-    vector<vector<int> > timestamp; // Map from the cycle matrix to the wires: links[p][j] is the collection of wires associated with Z[p][j].
-    vector<vector<column> > links; // Represents a map from the cycle matrix to the wires: links[p][j] is the collection of wires associated with Z[p][j]; we use the same used/available columns as in Z.
-    /*
-    INITIALIZATION:
-    */
-    for (int d = 0; d <= m; ++d)
-    {
-        SimplexIdMap id_p; 
-        map<int, int> i_to_id_p;
-        vector<int> unique_id_p;
-        vector<column> Z_p;
-        vector<int> available_columns_Z_p;
-        vector<column> C_p; 
-        vector<int> used_columns_Z_p;
-        vector<pair <bool, int>> birth_timestamp_p;
-        PivotMap pivots_p;
-        id.push_back(id_p);
-        i_to_id -> push_back(i_to_id_p);
-        unique_id.push_back(unique_id_p);
-        Z.push_back(Z_p);
-        available_columns_Z.push_back(available_columns_Z_p);
-        used_columns_Z.push_back(used_columns_Z_p);
-        C.push_back(C_p);
-        available_columns_C.push_back(available_columns_Z_p);
-        used_columns_C.push_back(used_columns_Z_p);
-        birth_timestamp.push_back(birth_timestamp_p);
-        pivots.push_back(pivots_p);
-        vector<column> bundle_p;
-        vector<int> timestamp_p;
-        vector<column> links_p;
-        bundle.push_back(bundle_p);
-        timestamp.push_back(timestamp_p);
-        links.push_back(links_p);
-    }
+    vector<vector<column> > bundle(m+1, vector<column>()); // A collection of wires: bundle[p] stores p-dimensional wires.
+    vector<vector<int> > timestamp(m+1, vector<int>()); // Map from the cycle matrix to the wires: links[p][j] is the collection of wires associated with Z[p][j].
+    vector<vector<column> > links(m+1, vector<column>()); // Represents a map from the cycle matrix to the wires: links[p][j] is the collection of wires associated with Z[p][j]; we use the same used/available columns as in Z.
     /*
     COMPUTATION of zigzag persistence and the associated representatives:
     */
