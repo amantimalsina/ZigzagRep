@@ -17,6 +17,37 @@ using namespace std;
 
 namespace ZZREP { 
 
+// Template for hashing vectors.
+template <class ElemType>
+class VecHash { 
+public:
+    size_t operator()(const std::vector<ElemType>& v) const; 
+};
+template <class ElemType>
+size_t VecHash<ElemType>
+    ::operator()(const std::vector<ElemType>& v) const {
+    std::size_t seed = 0;
+    for (auto e : v) {boost::hash_combine(seed, e); }
+    return seed;
+}
+template <class ElemType>
+class VecEqual { 
+public:
+    bool operator()(const std::vector<ElemType>& v1, 
+        const std::vector<ElemType>& v2) const; 
+};
+template <class ElemType>
+bool VecEqual<ElemType>
+    ::operator()(const std::vector<ElemType>& v1, 
+        const std::vector<ElemType>& v2) const {
+    if (v1.size() != v2.size()) { return false; }
+    for (auto i = 0; i < v1.size(); i ++) {
+        if (v1[i] != v2[i]) {
+            return false;
+        }
+    }
+    return true;
+}
 // Bitsets:
 typedef boost::dynamic_bitset<> bitset;
 typedef shared_ptr<bitset> pbits;
@@ -83,27 +114,23 @@ void dynamic_xor(pbits a, pbits b);
 /* HELPER FUNCTIONS: */
 void update_id(
     const int i,
-    SimplexIdMap *id,
-    vector<int> *unique_id,
+    SimplexIdMap *id_p,
+    vector<int> *unique_id_p,
     vector<int> *simp,
-    std::map<int, int> *i_to_id
-    );
-void boundary_as_cycles(
+    std::map<int, int> *i_to_id_p
+);
+bool boundary_as_cycles(
     const int p,
     vector<int> *simp,
-    pbits bd_simp,
-    SimplexIdMap *id,
-    PivotMap *pivots,
-    vector<pbits> *Z,
+    pbits *bd_simp,
     vector<int> *I,
-    vector<pair <bool, int> > *b_timestamp,
-    bool *all_boundary
+    zigzag_matrices *zz_mat
     );
 void create_new_cycle(
     const int p,
     vector<int> *I,
-    SimplexIdMap *id,
-    vector<int> *unique_id,
+    vector<int> *unique_id_p,
+    SimplexIdMap *id_p,
     vector<int> *simp,
     vector<pair<bool, int>> *birth_timestamp_pm1,
     vector<pbits> *C_p,
@@ -112,7 +139,7 @@ void create_new_cycle(
 void add_new_cycle(
     const int p,
     const int i,
-    pbits new_pbits,
+    pbits *new_pbits,
     vector<pair<bool, int>> *birth_timestamp_p,
     vector<pbits> *Z,
     vector<int> *available_pbits_Z,
@@ -222,16 +249,21 @@ void ZigzagRep::compute(
             bool all_boundary = true;
             pbits bd_simp;
             vector<int> I;
-            if (p != 0) boundary_as_cycles(p, &simp, bd_simp, &zz_mat.id[p-1], &zz_mat.pivots[p-1], &zz_mat.Z[p-1], &I, &zz_mat.birth_timestamp[p-1], &all_boundary);
+            if (p != 0) all_boundary = boundary_as_cycles(p, &simp, &bd_simp, &I, &zz_mat);
 
             // FORWARD BIRTH.
             if (all_boundary) {
                 // create NEW CYCLE
-                pbits new_pbits;
-                create_new_cycle(p, &I, &zz_mat.id[p], &zz_mat.unique_id[p], &simp, &zz_mat.birth_timestamp[p-1], &zz_mat.C[p], &new_pbits);
-
+                pbits new_pbits = make_shared<bitset>(zz_mat.unique_id[p].size(), 0); // New pbits with of size unique_id[p].size() with 1 appended at the end.
+                (*new_pbits).set(zz_mat.unique_id[p].size() - 1);
+                if (p != 0)  {
+                    for (auto a: I) {
+                        int chain_a = (zz_mat.birth_timestamp[p-1])[a].second; // Since a is a boundary, we know that the birth timestamp is non-negative and this is safe!
+                        dynamic_xor(new_pbits, zz_mat.C[p][chain_a]); // Append a new pbits simp + \sum_{a \in I} C^{p}[a] with birth timestamp i+1 to Z^p.
+                    }
+                }
                 // ADD/UPDATE matrices.
-                add_new_cycle(p, i, new_pbits, &zz_mat.birth_timestamp[p], &zz_mat.Z[p], &zz_mat.available_pbits_Z[p], &zz_mat.used_pbits_Z[p], &zz_mat.pivots[p], &rp_mat.bundle[p], &rp_mat.links[p], &rp_mat.timestamp[p]);
+                add_new_cycle(p, i, &new_pbits, &zz_mat.birth_timestamp[p], &zz_mat.Z[p], &zz_mat.available_pbits_Z[p], &zz_mat.used_pbits_Z[p], &zz_mat.pivots[p], &rp_mat.bundle[p], &rp_mat.links[p], &rp_mat.timestamp[p]);
             }   
 
             // FORWARD DEATH.
@@ -318,108 +350,80 @@ void dynamic_xor(pbits a, pbits b)
 /* IMPLEMENTATION OF HELPER FUNCTIONS. */
 void update_id(
     const int i,
-    SimplexIdMap *id,
-    vector<int> *unique_id,
+    SimplexIdMap *id_p,
+    vector<int> *unique_id_p,
     vector<int> *simp,
-    std::map<int, int> *i_to_id
+    std::map<int, int> *i_to_id_p
 )
 {
     int unique_id_simp; 
-    (*id).find(*simp) != (*id).end() ? unique_id_simp = (*unique_id)[(*id).at(*simp)] : unique_id_simp = unique_id -> size();
-    (*id)[*simp] = unique_id -> size(); // Change the id of the simplex to the new id.
-    unique_id -> push_back(unique_id_simp);
-    (*i_to_id)[i] = unique_id_simp;
+    (*id_p).find(*simp) != (*id_p).end() ? unique_id_simp = (*unique_id_p)[(*id_p).at(*simp)] : unique_id_simp = unique_id_p -> size();
+    (*id_p)[*simp] = unique_id_p -> size(); // Change the id of the simplex to the new id.
+    unique_id_p -> push_back(unique_id_simp);
+    (*i_to_id_p)[i] = unique_id_simp;
 }
-void boundary_as_cycles(
+bool boundary_as_cycles(
     const int p,
     vector<int> *simp,
-    pbits bd_simp,
-    SimplexIdMap *id,
-    PivotMap *pivots,
-    vector<pbits> *Z,
+    pbits *bd_simp,
     vector<int> *I,
-    vector<pair <bool, int> > *b_timestamp,
-    bool *all_boundary
-)
-{
+    zigzag_matrices *zz_mat
+){
+    bool all_boundary = true;
     for (int i = 0; i <= p; i++) {
         // Remove the i-th vertex.
         vector<int> boundary_simplex = *simp;
         boundary_simplex.erase(boundary_simplex.begin() + i);
-        int idx = id -> at(boundary_simplex);
-        bd_simp -> set(idx);
+        int idx = (*zz_mat).id[p].at(boundary_simplex);
+        (*bd_simp) -> set(idx);
     }
-    // Find the pbitss in Z[p-1] that sum to bd_simp:
+    // Find the pbits in Z[p-1] that sum to bd_simp:
     pbits bd_simp_temp;
-    bd_simp_temp = pbits(new bitset ( *bd_simp)); // Copy bd_simp to a temporary pbits.
+    bd_simp_temp = pbits(new bitset (**bd_simp)); // Copy bd_simp to a temporary pbits.
     int pivot_bd = pivot(bd_simp_temp);
     bool zeroed = (pivot_bd == -1);
     while (!zeroed) {
-        int conflict_idx = pivots -> at(pivot_bd);
-        dynamic_xor(bd_simp_temp, (*Z)[conflict_idx]); // Add the conflicting pbits to bd_simp.
+        int conflict_idx = (*zz_mat).pivots[p-1].at(pivot_bd);
+        dynamic_xor(bd_simp_temp, (*zz_mat).Z[p-1][conflict_idx]); // Add the conflicting pbits to bd_simp.
         (*I).push_back(conflict_idx);
-        if ((*b_timestamp)[conflict_idx].first) *all_boundary = false; // Check the birth timestamps to check whether all of them are boundaries.
-
+        if ((*zz_mat).birth_timestamp[p-1][conflict_idx].first) all_boundary = false; // Check the birth timestamps to check whether all of them are boundaries.
         // Update the pivot of a.
         pivot_bd = pivot(bd_simp_temp);
         zeroed = (pivot_bd == -1);
     } 
-    }          
-void create_new_cyle(
-    const int p,
-    vector<int> *I,
-    SimplexIdMap *id,
-    vector<int> *unique_id,
-    vector<int> *simp,
-    vector<pair<bool, int>> *birth_timestamp_pm1,
-    vector<pbits> *C_p,
-    pbits *new_pbits
-){
-    *new_pbits = make_shared<bitset>(unique_id -> size(), 0); // New pbits with of size unique_id[p].size() with 1 appended at the end.
-    (*new_pbits) -> set(id -> at(*simp));
-    if (p != 0)  {
-        for (auto a: *I) {
-            int chain_a = (*birth_timestamp_pm1)[a].second; // Since a is a boundary, we know that the birth timestamp is non-negative and this is safe!
-            dynamic_xor((*new_pbits), (*C_p)[chain_a]); // Append a new pbits simp + \sum_{a \in I} C^{p}[a] with birth timestamp i+1 to Z^p.
-        }
-    }
+    return all_boundary;
 }
+
 void add_new_cycle(
     const int p,
     const int i,
     pbits *new_pbits,
-    vector<pair<bool, int>> *birth_timestamp_p,
-    vector<pbits> *Z,
-    vector<int> *available_pbits_Z,
-    vector<int> *used_pbits_Z,
-    PivotMap *pivots,
-    vector<pbits> *bundle,
-    vector<pbits> *links,
-    vector<int> *timestamp
+    zigzag_matrices *zz_mat,
+    rep_matrices *rp_mat
 ){
     // Add a wire to the bundle with timestamp i+1 and update the link from the cycle to the bundle.
-    bundle -> push_back(*new_pbits);
-    timestamp -> push_back(i+1);
-    pbits new_link = make_shared<bitset>(bundle -> size(), 0);
-    new_link -> set(bundle[p].size()-1);
+    (*rp_mat).bundle[p].push_back(*new_pbits);
+    (*rp_mat).timestamp[p].push_back(i+1);
+    pbits new_link = make_shared<bitset>((*rp_mat).bundle[p].size(), 0);
+    new_link -> set((*rp_mat).bundle[p].size()-1);
     // Now, we add the new pbits to the cycle matrix and the new link to the link matrix.
     uint pivot_new = pivot(*new_pbits);
     uint av_idx;
-    if (available_pbits_Z -> size() != 0) {
-        av_idx = available_pbits_Z -> back();
-        available_pbits_Z -> pop_back();
+    if ((*zz_mat).available_pbits_Z[p].size() != 0) {
+        av_idx = (*zz_mat).available_pbits_Z[p].back();
+        (*zz_mat).available_pbits_Z[p].pop_back();
     }
     else {
-        Z -> push_back(nullptr);
-        links -> push_back(nullptr);
-        birth_timestamp_p -> push_back(make_pair(true, -1));
-        av_idx = Z -> size() - 1;
+        (*zz_mat).Z[p].push_back(nullptr);
+        (*rp_mat).links[p].push_back(nullptr);
+        (*zz_mat).birth_timestamp[p].push_back(make_pair(true, -1));
+        av_idx = (*zz_mat).Z[p].size() - 1;
     }
-    (*Z)[av_idx] = *new_pbits;
-    (*links)[av_idx] = new_link;    
-    (*birth_timestamp_p)[av_idx] = make_pair(true, i+1);
-    (*pivots)[pivot_new] = av_idx;
-    (*used_pbits_Z).push_back(av_idx);
+    (*zz_mat).Z[p][av_idx] = *new_pbits;
+    (*rp_mat).links[p][av_idx] = new_link;    
+    (*zz_mat).birth_timestamp[p][av_idx] = make_pair(true, i+1);
+    (*zz_mat).pivots[p][pivot_new] = av_idx;
+    (*zz_mat).used_pbits_Z[p].push_back(av_idx);
 }
 uint find_dying_cycle(
     const vector<bool> &filt_op,
@@ -433,6 +437,7 @@ uint find_dying_cycle(
     int k;
     for (k = J.size()-1; k >= 0; k--) if (filt_op[(*birth_timestamp_pm1)[J[k]].second - 1]) break; // conditional checks if arrow points forward.
     const int l = J[l];
+    return l;
 }
 void make_pivots_distinct(
     const std::vector<bool> *filt_op, 

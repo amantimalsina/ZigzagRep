@@ -62,6 +62,8 @@ int main(const int argc, const char *argv[]) {
     }
 
 
+    std::cout << "I get here!";
+
     filt_fin.close();
     filt_simp.pop_back();
     filt_op.pop_back();
