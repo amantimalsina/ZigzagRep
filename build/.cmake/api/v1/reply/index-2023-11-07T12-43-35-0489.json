@@ -8,25 +8,25 @@
 		},
 		"paths" : 
 		{
-			"cmake" : "/opt/homebrew/Cellar/cmake/3.27.1/bin/cmake",
-			"cpack" : "/opt/homebrew/Cellar/cmake/3.27.1/bin/cpack",
-			"ctest" : "/opt/homebrew/Cellar/cmake/3.27.1/bin/ctest",
-			"root" : "/opt/homebrew/Cellar/cmake/3.27.1/share/cmake"
+			"cmake" : "/opt/homebrew/Cellar/cmake/3.27.7/bin/cmake",
+			"cpack" : "/opt/homebrew/Cellar/cmake/3.27.7/bin/cpack",
+			"ctest" : "/opt/homebrew/Cellar/cmake/3.27.7/bin/ctest",
+			"root" : "/opt/homebrew/Cellar/cmake/3.27.7/share/cmake"
 		},
 		"version" : 
 		{
 			"isDirty" : false,
 			"major" : 3,
 			"minor" : 27,
-			"patch" : 1,
-			"string" : "3.27.1",
+			"patch" : 7,
+			"string" : "3.27.7",
 			"suffix" : ""
 		}
 	},
 	"objects" : 
 	[
 		{
-			"jsonFile" : "codemodel-v2-7277143cb13f70e80090.json",
+			"jsonFile" : "codemodel-v2-265d22b835893013b390.json",
 			"kind" : "codemodel",
 			"version" : 
 			{
@@ -35,7 +35,7 @@
 			}
 		},
 		{
-			"jsonFile" : "cache-v2-05e097db24719030a1a0.json",
+			"jsonFile" : "cache-v2-8d101ef86a20be460c86.json",
 			"kind" : "cache",
 			"version" : 
 			{
@@ -44,7 +44,7 @@
 			}
 		},
 		{
-			"jsonFile" : "cmakeFiles-v1-858c8e281df261713e45.json",
+			"jsonFile" : "cmakeFiles-v1-22ebf0c23710ab00d450.json",
 			"kind" : "cmakeFiles",
 			"version" : 
 			{
@@ -53,7 +53,7 @@
 			}
 		},
 		{
-			"jsonFile" : "toolchains-v1-6f00f4e197aa3e3d08cc.json",
+			"jsonFile" : "toolchains-v1-563175f40f59f33a3b22.json",
 			"kind" : "toolchains",
 			"version" : 
 			{
@@ -90,7 +90,7 @@
 				"responses" : 
 				[
 					{
-						"jsonFile" : "cache-v2-05e097db24719030a1a0.json",
+						"jsonFile" : "cache-v2-8d101ef86a20be460c86.json",
 						"kind" : "cache",
 						"version" : 
 						{
@@ -99,7 +99,7 @@
 						}
 					},
 					{
-						"jsonFile" : "codemodel-v2-7277143cb13f70e80090.json",
+						"jsonFile" : "codemodel-v2-265d22b835893013b390.json",
 						"kind" : "codemodel",
 						"version" : 
 						{
@@ -108,7 +108,7 @@
 						}
 					},
 					{
-						"jsonFile" : "toolchains-v1-6f00f4e197aa3e3d08cc.json",
+						"jsonFile" : "toolchains-v1-563175f40f59f33a3b22.json",
 						"kind" : "toolchains",
 						"version" : 
 						{
@@ -117,7 +117,7 @@
 						}
 					},
 					{
-						"jsonFile" : "cmakeFiles-v1-858c8e281df261713e45.json",
+						"jsonFile" : "cmakeFiles-v1-22ebf0c23710ab00d450.json",
 						"kind" : "cmakeFiles",
 						"version" : 
 						{
