@@ -18,7 +18,7 @@
 					"linkFrameworkDirectories" : [],
 					"linkLibraries" : []
 				},
-				"path" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc",
+				"path" : "/usr/bin/clang",
 				"version" : "15.0.0.15000040"
 			},
 			"language" : "C",
@@ -48,7 +48,7 @@
 						"c++"
 					]
 				},
-				"path" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++",
+				"path" : "/usr/bin/clang++",
 				"version" : "15.0.0.15000040"
 			},
 			"language" : "CXX",

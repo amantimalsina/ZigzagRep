@@ -9,7 +9,6 @@
 #include <memory>
 #include <unordered_map>
 #include <tuple>
-#include <boost/bimap.hpp>
 #include <boost/dynamic_bitset.hpp>
 #include <utility>
 #include <vector>
@@ -18,46 +17,16 @@ using namespace std;
 
 namespace ZZREP { 
 
-/* HELPER DATA STRUCTURES: */
-template <class ElemType>
-class VecHash { 
-public:
-    size_t operator()(const std::vector<ElemType>& v) const; 
-};
-template <class ElemType>
-size_t VecHash<ElemType>
-    ::operator()(const std::vector<ElemType>& v) const {
+// Bitsets:
+typedef boost::dynamic_bitset<> bitset;
+typedef shared_ptr<bitset> pbits;
+// Maps and Pairs:
+typedef std::map< vector<int>, int> SimplexIdMap;
+typedef std::map<int, int> PivotMap;
+typedef SimplexIdMap::value_type SimplexIdPair;
+typedef PivotMap::value_type PivotPair;
 
-    std::size_t seed = 0;
-
-    for (auto e : v) { boost::hash_combine(seed, e); }
-
-    return seed;
-}
-
-template <class ElemType>
-class VecEqual { 
-public:
-    bool operator()(const std::vector<ElemType>& v1, 
-        const std::vector<ElemType>& v2) const; 
-};
-
-template <class ElemType>
-bool VecEqual<ElemType>
-    ::operator()(const std::vector<ElemType>& v1, 
-        const std::vector<ElemType>& v2) const {
-
-    if (v1.size() != v2.size()) { return false; }
-
-    for (auto i = 0; i < v1.size(); i ++) {
-        if (v1[i] != v2[i]) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
+// Data Structures:
 class birth_timestamp {
 public:
     // If non_bd is true, then val_idx records the birth timestamp of the non-boundary cycle,
@@ -66,51 +35,161 @@ public:
     int val_idx;
     birth_timestamp(bool non_bd, int val_idx) : non_bd(non_bd), val_idx(val_idx) {} 
 };
+class zigzag_matrices {
+    public:
+    vector<SimplexIdMap> id; // A collection of maps: id[p] stores the simplex ids of the p-dimensional cycles.
+    vector<vector<int>> unique_id; // A collection of vectors: unique_id[p] stores the unique ids of the p-dimensional cycles.
+    vector<vector<pbits> > Z; // A collection of matrices: Z[p][j] is the j-th cycle matrix of dimension p.
+    vector<vector<int>> available_pbits_Z; // A collection of vectors: available_pbits_Z[p] stores the indices of the available pbitss for Z[p].
+    vector<vector<int>> used_pbits_Z; // A collection of vectors: used_pbits_Z[p] stores the indices of the used pbitss for Z[p].
+    vector<vector<pbits> > C;  // A collection of matrices: C[p][j] is the j-th coboundary matrix of dimension p.
+    vector<vector<int>> available_pbits_C; // A collection of vectors: available_pbits_C[p] stores the indices of the available pbitss for C[p].
+    vector<vector<int>> used_pbits_C; // A collection of vectors: used_pbits_C[p] stores the indices of the used pbitss for C[p].
+    vector<vector<pair <bool, int> > > birth_timestamp; // A collection of vectors: birth_timestamp[p][j] is the birth timestamp of the j-th cycle of dimension p.
+    vector<PivotMap> pivots;
+    // Constructor:
+    zigzag_matrices(const int m) 
+    {
+        id = vector<SimplexIdMap>(m+1, SimplexIdMap()); 
+        unique_id = vector<vector<int>>(m+1, vector<int>()); 
+        Z = vector<vector<pbits>>(m+1, vector<pbits>()); 
+        available_pbits_Z = vector<vector<int>>(m+1, vector<int>()); 
+        used_pbits_Z = vector<vector<int>>(m+1, vector<int>()); 
+        C = vector<vector<pbits>>(m+1, vector<pbits>()); 
+        available_pbits_C = vector<vector<int>>(m+1, vector<int>()); 
+        used_pbits_C = vector<vector<int>>(m+1, vector<int>()); 
+        birth_timestamp = vector<vector<pair<bool, int>>>(m+1, vector<pair<bool, int>>()); 
+        pivots = vector<PivotMap>(m+1, PivotMap());
+    };
+};
+class rep_matrices {
+    public:
+    vector<vector<pbits>> bundle; // A collection of wires: bundle[p] stores p-dimensional wires.
+    vector<vector<int>> timestamp; // Map from the cycle matrix to the wires: links[p][j] is the collection of wires associated with Z[p][j].
+    vector<vector<pbits> > links; // Represents a map from the cycle matrix to the wires: links[p][j] is the collection of wires associated with Z[p][j]; we use the same used/available pbitss as in Z.
+    // Constructor:
+    rep_matrices(const int m) 
+    {
+        bundle = vector<vector<pbits>>(m+1, vector<pbits>());
+        timestamp = vector<vector<int>>(m+1, vector<int>());
+        links = vector<vector<pbits>>(m+1, vector<pbits>());
+    };
+};
 
-// Bitsets:
-typedef boost::dynamic_bitset<> bitset;
-typedef shared_ptr<bitset> pbitset;
+/* PRIMITIVE OPERATIONS */
+int pivot(pbits a);
+void dynamic_xor(pbits a, pbits b);
 
-// Maps and Pairs:
-typedef std::map< vector<int>, int> SimplexIdMap;
-typedef std::map<int, int> PivotMap;
-typedef SimplexIdMap::value_type SimplexIdPair;
-typedef PivotMap::value_type PivotPair;
-
-
-/* DECLARATION OF HELPER FUNCTIONS: */
-int pivot(pbitset a);
-
-void dynamic_xor(pbitset a, pbitset b);
-
-void boundary_as_cycles();
-
-void add_new_cycle();
-
-void add_new_chain();
-
+/* HELPER FUNCTIONS: */
+void update_id(
+    const int i,
+    SimplexIdMap *id,
+    vector<int> *unique_id,
+    vector<int> *simp,
+    std::map<int, int> *i_to_id
+    );
+void boundary_as_cycles(
+    const int p,
+    vector<int> *simp,
+    pbits bd_simp,
+    SimplexIdMap *id,
+    PivotMap *pivots,
+    vector<pbits> *Z,
+    vector<int> *I,
+    vector<pair <bool, int> > *b_timestamp,
+    bool *all_boundary
+    );
+void create_new_cycle(
+    const int p,
+    vector<int> *I,
+    SimplexIdMap *id,
+    vector<int> *unique_id,
+    vector<int> *simp,
+    vector<pair<bool, int>> *birth_timestamp_pm1,
+    vector<pbits> *C_p,
+    pbits *new_pbits
+    );
+void add_new_cycle(
+    const int p,
+    const int i,
+    pbits new_pbits,
+    vector<pair<bool, int>> *birth_timestamp_p,
+    vector<pbits> *Z,
+    vector<int> *available_pbits_Z,
+    vector<int> *used_pbits_Z,
+    PivotMap *pivots,
+    vector<pbits> *bundle,
+    vector<pbits> *links,
+    vector<int> *timestamp
+    );
+uint find_dying_cycle(
+    const vector<bool> &filt_op,
+    vector<pair<bool, int>> *birth_timestamp_pm1,
+    vector<int> *I
+);
+uint add_chain_bd(
+    const int i,
+    const int l,
+    pbits *bd_simp,
+    vector<int> *unique_id,
+    vector<pbits> *bundle,
+    vector<int> *timestamp,
+    vector<pbits> *links,
+    vector<pbits> *Z_pm1,
+    vector<pair<bool, int>> *birth_timestamp,
+    vector<int> *available_pbits_C,
+    vector<int> *used_pbits_C,
+    vector<pbits> *C_p
+    );
 void make_pivots_distinct(
     const std::vector<bool> *filt_op, 
-    vector<pbitset> *Z_p,
-    vector<pbitset> *links_p,
-    vector<pbitset> *C_p,
+    vector<pbits> *Z_p,
+    vector<pbits> *links_p,
+    vector<pbits> *C_p,
     vector<pair <bool, int> > *birth_timestamp_p,
     PivotMap *pivots_p,
-    const int prev_pivot,
-    const int l
+    const int l,
+    const int prev_pivot
     );
-
-void reduce_boundaries(); // TODO: Implement this as well.
-
-void delete_cycle(); // TODO: Implement this as well.
-
+void reduce_bd_update_mat(
+    const int idx,
+    const int i,
+    vector<int> *unique_id_pm1,
+    vector<pbits> *Z_pm1,
+    vector<int> *used_pbits_Z_pm1,
+    vector<pair<bool, int>> *birth_timestamp_pm1,
+    vector<pbits> *C_p,
+    vector<int> *available_pbits_C_p,
+    vector<int> *used_pbits_C_p,
+    vector<pbits> *bundle_pm1,
+    vector<int> *timestamp_pm1,
+    vector<pbits> *links_pm1
+    );
+uint delete_cycle(
+    const int idx,
+    const vector<bool> &filt_op,
+    vector<pbits> *Z_p,
+    vector<int> *used_pbits_Z_p,
+    vector<int> *available_pbits_Z_p,
+    vector<pair<bool, int>> *birth_timestamp_p,
+    PivotMap *pivots_p,
+    vector<pbits> *links_p
+    );
+void update_Z(
+    const int alpha,
+    vector<pbits> *Z_p,
+    vector<pbits> *links_p,
+    vector<int> *avaialable_pbits_Z_p,
+    vector<int> *used_pbits_Z_p,
+    vector<pair<bool, int>> *birth_timestamp_p
+);
 void output_representatives(
     const int p, 
     const int birth, 
     const int death,
-    pbitset link_interval,
+    pbits link_interval,
     vector<int> *unique_id_p,
-    vector<pbitset> *bundle,
+    vector<pbits> *bundle,
     vector<int> *timestamp,
     std::vector <std::tuple <int, int, int, std::vector<std::tuple<int, std::vector<int>>> > > *persistence
     );
@@ -120,117 +199,99 @@ void ZigzagRep::compute(
         const std::vector<bool> &filt_op,
         std::vector <std::tuple <int, int, int, std::vector<std::tuple<int, std::vector<int>>> > > *persistence, 
         std::vector <std::map<int, int>> *i_to_id,
-        const int m) {
+        const int m) 
+{
+
     persistence -> clear();
     const int n = filt_simp.size();
-    // DECLARATION & INITIALIZATION of Data Structures:
-    vector<SimplexIdMap> id(m+1, SimplexIdMap()); //  The current integral id for each p-simplex.
-    vector<vector<int>> unique_id(m+1, vector<int>()); // The unique integral id for each p-simplex.
-    vector<vector<pbitset> > Z(m+1, vector<pbitset>()); // A cycle matrix Z[p] for each dimension p that is maintained such that each pbitset of Z[p] represents a p-cycle in K_i.
-    vector<vector<int>> available_pbitsets_Z(m+1, vector<int>()); // A list of available pbitsets in Z[p] for each dimension p.
-    vector<vector<int>> used_pbitsets_Z(m+1, vector<int>()); // A list of used pbitsets in Z[p] for each dimension p.
-    vector<vector<pbitset> > C(m+1, vector<pbitset>()); // A chain matrix C[p] for each dimension p so that the chains in C[p] are associated with the the boundary cycles in Z[p-1].
-    vector<vector<int>> available_pbitsets_C(m+1, vector<int>()); // A list of available pbitsets in Z[p] for each dimension p.
-    vector<vector<int>> used_pbitsets_C(m+1, vector<int>()); // A list of used pbitsets in Z[p] for each dimension p.
-    vector<vector<pair <bool, int> > > birth_timestamp(m+1, vector<pair <bool, int> >()); // For each pbitset Z[p][j], a birth timestamp is maintained, where a false value implies that the pbitset pertains to a boundary.
-    vector<PivotMap> pivots(m+1, PivotMap()); // For each pbitset Z[p][j] we have a unique pivot entry; we then store pivots[p][i] = j where j = -1 implies that no pbitset exists in Z[p-1] with pivot i.
-    // Data structures for storing the intervals and cycles in order to compute representatives: 
-    vector<vector<pbitset> > bundle(m+1, vector<pbitset>()); // A collection of wires: bundle[p] stores p-dimensional wires.
-    vector<vector<int> > timestamp(m+1, vector<int>()); // Map from the cycle matrix to the wires: links[p][j] is the collection of wires associated with Z[p][j].
-    vector<vector<pbitset> > links(m+1, vector<pbitset>()); // Represents a map from the cycle matrix to the wires: links[p][j] is the collection of wires associated with Z[p][j]; we use the same used/available pbitsets as in Z.
+
+    // INITIALIZE DATA STRUCTURES:
+    zigzag_matrices zz_mat(m);
+    rep_matrices rp_mat(m);
+
     // COMPUTATION of zigzag persistence and the associated representatives:
     for (int i = 0; i < n; ++i) {
-        const vector<int> &simp = filt_simp[i];
+        vector<int> simp = filt_simp[i];
         const int p = simp.size() - 1; // p denotes the dimension of the simplex.
+
         if (filt_op[i]) { // INSERTION
-            int unique_id_simp; // Find the unique id of the simplex.
-            id[p].find(simp) != id[p].end() ? unique_id_simp = unique_id[p][id[p].at(simp)] : unique_id_simp = unique_id[p].size();
-            id[p][simp] = unique_id[p].size(); // Change the id of the simplex to the new id.
-            unique_id[p].push_back(unique_id_simp);
-            (*i_to_id)[p][i] = unique_id_simp;
-            // Represent the boundary of simp as a sum of pbitsets of Z_{p-1} by a reduction algorithm; I is such set of pbitsets.
+            // Find and update the ID of the simplex.
+            update_id(i, &zz_mat.id[p], &zz_mat.unique_id[p], &simp, &(*i_to_id)[p]);
+
+            // Represent BOUNDARY AS A SUM of cycles.
             bool all_boundary = true;
-            pbitset bd_simp;
+            pbits bd_simp;
             vector<int> I;
-            if (p != 0) boundary_as_cycles();
-            if (all_boundary) { // FORWARD BIRTH.
-                add_new_cycle(); 
-            }
-            else { // The inserted simplex kills a (p-1)-cycle (an interval in dimension (p-1) dies).
-                vector<int> J; // Let J consist of indices in I whose corresponding pbitsets in Z[p−1] have non-negative birth timestamps. 
-                for (int a: I) if (birth_timestamp[p-1][a].first) J.push_back(a);
-                sort(J.begin(), J.end());
-                // Check if arrow at b^{p−1}[c]−1 points backward for all c in J
-                int k;
-                for (k = J.size()-1; k >= 0; k--) if (filt_op[birth_timestamp[p-1][J[k]].second - 1]) break;
-                const int l = J[l]; // If the arrow at {b^{p−1}[c]−1} points backward for all c in J, let l be the smallest index in J. 
-                /* OUTPUT the (p − 1)-th interval [b^{p−1}[l], i] after gathering the relevant representative. */
-                output_representatives(p-1, birth_timestamp[p-1][l].second, i, links[p-1][l], &(unique_id[p-1]), &(bundle[p-1]), &(timestamp[p-1]), persistence);
-                // Add new chain
-                add_new_chain();
-                /* Avoiding PIVOT CONFLICTS: (pbitset of bd_simp with that of another pbitset in Z[p-1]). We know that the pivots of Z[p-1] were unique before the insertion of bd_simp. Thus, we need to ensure that they remain unique after the insertion of bd_simp. */
-                make_pivots_distinct(&filt_op, &Z[p-1], &links[p-1], &C[p-1], &birth_timestamp[p-1], &pivots[p-1], prev_pivot, l);
+            if (p != 0) boundary_as_cycles(p, &simp, bd_simp, &zz_mat.id[p-1], &zz_mat.pivots[p-1], &zz_mat.Z[p-1], &I, &zz_mat.birth_timestamp[p-1], &all_boundary);
+
+            // FORWARD BIRTH.
+            if (all_boundary) {
+                // create NEW CYCLE
+                pbits new_pbits;
+                create_new_cycle(p, &I, &zz_mat.id[p], &zz_mat.unique_id[p], &simp, &zz_mat.birth_timestamp[p-1], &zz_mat.C[p], &new_pbits);
+
+                // ADD/UPDATE matrices.
+                add_new_cycle(p, i, new_pbits, &zz_mat.birth_timestamp[p], &zz_mat.Z[p], &zz_mat.available_pbits_Z[p], &zz_mat.used_pbits_Z[p], &zz_mat.pivots[p], &rp_mat.bundle[p], &rp_mat.links[p], &rp_mat.timestamp[p]);
+            }   
+
+            // FORWARD DEATH.
+            else {
+                // Find the DYING CYCLE:
+                const uint l = find_dying_cycle(filt_op, &zz_mat.birth_timestamp[p-1], &I);
+
+                // OUTPUT the (p − 1)-th interval [b^{p−1}[l], i] after gathering the relevant representative. */
+                output_representatives(p-1, zz_mat.birth_timestamp[p-1][l].second, i, rp_mat.links[p-1][l], &(zz_mat.unique_id[p-1]), &(rp_mat.bundle[p-1]), &(rp_mat.timestamp[p-1]), persistence);
+                
+                // Add NEW CHAIN:
+                uint prev_pivot = add_chain_bd(i, l, &bd_simp, &zz_mat.unique_id[p-1], &rp_mat.bundle[p-1], &rp_mat.timestamp[p-1], &rp_mat.links[p-1], &zz_mat.Z[p-1], &zz_mat.birth_timestamp[p-1], &zz_mat.available_pbits_C[p], &zz_mat.used_pbits_C[p], &zz_mat.C[p]);
+                
+                // Check for PIVOT CONFLICTS:
+                make_pivots_distinct(&filt_op, &zz_mat.Z[p-1], &rp_mat.links[p-1], &zz_mat.C[p-1], &zz_mat.birth_timestamp[p-1], &zz_mat.pivots[p-1], l, prev_pivot);
             }
         } 
         else { // DELETION:
-            // Find the index of the simplex in id[p].
-            int idx = id[p].at(simp);
+            // Find index of simplex.
+            int idx = zz_mat.id[p].at(simp);
             int used_idx;
-            for (used_idx = 0; used_idx < used_pbitsets_Z[p].size(); --used_idx) if (idx < Z[p][used_idx] -> size() && (*Z[p][used_idx])[idx] == 1) break;
-            if (used_idx == used_pbitsets_Z[p].size()) { // BACKWARD BIRTH.  
-                int alpha, chain_alpha;
-                reduce_boundaries();
-                C[p][chain_alpha] = nullptr;
-                available_pbitsets_C[p].push_back(chain_alpha); 
-                used_pbitsets_C[p].erase(remove(used_pbitsets_C[p].begin(), used_pbitsets_C[p].end(), chain_alpha), used_pbitsets_C[p].end()); // TODO: Check that this is done correctly.
-                birth_timestamp[p-1][alpha] = make_pair(true, i+1);
-                // Update Bundles and Links:
-                bundle[p-1].push_back(Z[p-1][alpha]);
-                timestamp[p-1].push_back(i+1);
-                pbitset new_link = make_shared<bitset>(bundle[p-1].size(), 0);
-                new_link -> set(bundle[p-1].size()-1);
-                links[p-1][alpha] = new_link;
+            for (used_idx = 0; used_idx < zz_mat.used_pbits_Z[p].size(); --used_idx) if (idx < zz_mat.Z[p][used_idx] -> size() && (*zz_mat.Z[p][used_idx])[idx] == 1) break;
+
+            // BACKWARD BIRTH.  
+            if (used_idx == zz_mat.used_pbits_Z[p].size()) { 
+                // REDUCE Boundaries and update zz_mat and rp_mat:
+                reduce_bd_update_mat(idx, i, &zz_mat.unique_id[p-1], &zz_mat.Z[p-1], &zz_mat.used_pbits_Z[p-1], &zz_mat.birth_timestamp[p-1], &zz_mat.C[p], &zz_mat.available_pbits_C[p], &zz_mat.used_pbits_C[p], &rp_mat.bundle[p-1], &rp_mat.timestamp[p-1], &rp_mat.links[p-1]);
             }
-            else { // BACKWARD DEATH,
-                int simp_col_idx = used_pbitsets_Z[p][used_idx];
-                for (auto chain_idx : used_pbitsets_C[p]) if (idx < C[p][chain_idx] -> size() && (*C[p][chain_idx])[idx] == 1) dynamic_xor(C[p][chain_idx], Z[p][simp_col_idx]);  // Update C[p] so that no pbitsets contain the simplex.
-                vector<int> I; // Remove the simplex from Z[p]
-                for (auto col_idx: used_pbitsets_Z[p])  if (idx < (Z[p][col_idx] -> size()) && (*Z[p][col_idx])[idx] == 1) I.push_back(col_idx); // Gather indices of pbitsets that contain the simplex. 
-                // sort I in the order of the birth timestamps where the order is the total order as above without using the sort function.
-                sort(I.begin(), I.end(), [&](int &a, int &b){ int birth_a = birth_timestamp[p][a].second; int birth_b = birth_timestamp[p][b].second; return ((birth_a == birth_b) || ((birth_a < birth_b) && (filt_op[birth_b-1])) || ((birth_a > birth_b) && (!(filt_op[birth_a-1]))));});
-                const int alpha = I[0]; // The pbitset to be deleted is the first pbitset in I.
-                delete_cycle();
-                /* OUTPUT the p-th interval [birth_timestamp_p[alpha], i] after gathering the relevant representative. */
-                uint birth = birth_timestamp[p][alpha].second;
-                output_representatives(p, birth, i, links[p][alpha], &(unique_id[p]), &(bundle[p]), &(timestamp[p]), persistence);
-                /* UPDATE: Remove the pbitsets Z[p][alpha] from Z[p] and link[p][alpha] from links: assign these to null pbitsets. */ 
-                Z[p][alpha] = nullptr;
-                links[p][alpha] = nullptr;
-                available_pbitsets_Z[p].push_back(alpha);       // Add this to the available pbitsets for adding new cycles:
-                used_pbitsets_Z[p].erase(remove(used_pbitsets_Z[p].begin(), used_pbitsets_Z[p].end(), alpha), used_pbitsets_Z[p].end());
-                birth_timestamp[p][alpha] = make_pair(false, -1); // We need to assign this to be invalid (redundant). TODO: Probably use assertions to test that boudaries are not using invalid pbitsets.
+            // BACKWARD DEATH.
+            else { 
+                // REMOVE the simplex from C[p]:
+                int simp_col_idx = zz_mat.used_pbits_Z[p][used_idx];
+                for (auto chain_idx : zz_mat.used_pbits_C[p]) if (idx < zz_mat.C[p][chain_idx] -> size() && (*zz_mat.C[p][chain_idx])[idx] == 1) dynamic_xor(zz_mat.C[p][chain_idx], zz_mat.Z[p][simp_col_idx]);  // Update C[p] so that no pbitss contain the simplex.
+                
+                // REMOVE the simplex from Z[p]:
+                uint alpha = delete_cycle(idx, filt_op, &zz_mat.Z[p], &zz_mat.used_pbits_Z[p], &zz_mat.available_pbits_Z[p], &zz_mat.birth_timestamp[p], &zz_mat.pivots[p], &rp_mat.links[p]);
+
+                // OUTPUT the p-th interval [birth_timestamp_p[alpha], i] after gathering the relevant representative.
+                uint birth = zz_mat.birth_timestamp[p][alpha].second;
+                output_representatives(p, birth, i, rp_mat.links[p][alpha], &(zz_mat.unique_id[p]), &(rp_mat.bundle[p]), &(rp_mat.timestamp[p]), persistence);
+
+                // UPDATE Z[p] and links[p]. 
+                update_Z(alpha, &zz_mat.Z[p], &rp_mat.links[p], &zz_mat.available_pbits_Z[p], &zz_mat.used_pbits_Z[p], &zz_mat.birth_timestamp[p]);
             }
         }
     }
-    /*
-     POST-PROCESSING:
-    */
-    // For each p and each pbitset Z[p][a] of Z[p] with non-negative birth timestamp, output the p-th interval [birth_timestamp[p][a], n].
+    // POST-PROCESSING:
     for (size_t p = 0; p <= m; p++) {
-        for (auto a: used_pbitsets_Z[p]) {
-            if (birth_timestamp[p][a].first) {
-                uint birth = birth_timestamp[p][a].second;
-                output_representatives(p, birth, n, links[p][a], &(unique_id[p]), &(bundle[p]), &(timestamp[p]), persistence);
+        for (auto a: zz_mat.used_pbits_Z[p]) {
+            if (zz_mat.birth_timestamp[p][a].first) {
+                uint birth = zz_mat.birth_timestamp[p][a].second;
+                output_representatives(p, birth, n, rp_mat.links[p][a], &(zz_mat.unique_id[p]), &(rp_mat.bundle[p]), &(rp_mat.timestamp[p]), persistence);
             }
         }
     }
 }
 
-/*
-IMPLEMENTATION OF HELPER FUNCTIONS:
-*/
+/* IMPLEMENTATION OF PRIMITIVES: */
 // Goes over a vector of ints and finds the position of the last non-zero element.
-int pivot (pbitset a)
+int pivot (pbits a)
 {
     int pivot = (a -> find_first() != a -> npos) ? (a -> find_first()) : -1;
     // Find the next non-zero element.
@@ -242,10 +303,7 @@ int pivot (pbitset a)
 }
 
 // Takes the XOR of bitsets of differing lengths. Instead of appending by 0s and then XORing, we XOR the bitsets directly.
-/*
-We assume that we compute a ^= b.
-*/
-void dynamic_xor(pbitset a, pbitset b)
+void dynamic_xor(pbits a, pbits b)
 {
     size_t a_size = a -> size();
     size_t b_size = b -> size();
@@ -257,169 +315,134 @@ void dynamic_xor(pbitset a, pbitset b)
     }
 }
 
-void boundary_as_cycles(){
+/* IMPLEMENTATION OF HELPER FUNCTIONS. */
+void update_id(
+    const int i,
+    SimplexIdMap *id,
+    vector<int> *unique_id,
+    vector<int> *simp,
+    std::map<int, int> *i_to_id
+)
+{
+    int unique_id_simp; 
+    (*id).find(*simp) != (*id).end() ? unique_id_simp = (*unique_id)[(*id).at(*simp)] : unique_id_simp = unique_id -> size();
+    (*id)[*simp] = unique_id -> size(); // Change the id of the simplex to the new id.
+    unique_id -> push_back(unique_id_simp);
+    (*i_to_id)[i] = unique_id_simp;
+}
+void boundary_as_cycles(
+    const int p,
+    vector<int> *simp,
+    pbits bd_simp,
+    SimplexIdMap *id,
+    PivotMap *pivots,
+    vector<pbits> *Z,
+    vector<int> *I,
+    vector<pair <bool, int> > *b_timestamp,
+    bool *all_boundary
+)
+{
     for (int i = 0; i <= p; i++) {
         // Remove the i-th vertex.
-        vector<int> boundary_simplex = simp;
+        vector<int> boundary_simplex = *simp;
         boundary_simplex.erase(boundary_simplex.begin() + i);
-        int idx = id[p-1].at(boundary_simplex);
+        int idx = id -> at(boundary_simplex);
         bd_simp -> set(idx);
     }
-    /* 
-    Find the pbitsets in Z[p-1] that sum to bd_simp:
-    */
-    // Copy bd_simp to a temporary pbitset.
-    pbitset bd_simp_temp;
-    bd_simp_temp = pbitset(new bitset ( *bd_simp)); 
+    // Find the pbitss in Z[p-1] that sum to bd_simp:
+    pbits bd_simp_temp;
+    bd_simp_temp = pbits(new bitset ( *bd_simp)); // Copy bd_simp to a temporary pbits.
     int pivot_bd = pivot(bd_simp_temp);
     bool zeroed = (pivot_bd == -1);
     while (!zeroed) {
-        // Find the pbitset in M that has the same pivot as a.
-        // assert(pivots[p-1].find(pivot_bd) != pivots[p-1].end());
-        int conflict_idx = pivots[p-1].at(pivot_bd);
-        // Add this pbitset to indices.
-        dynamic_xor(bd_simp_temp, Z[p-1][conflict_idx]);
-        I.push_back(conflict_idx);
-        if (birth_timestamp[p-1][conflict_idx].first) {
-            all_boundary = false; // Check the birth timestamps to check whether all of them are boundaries.
-        }
+        int conflict_idx = pivots -> at(pivot_bd);
+        dynamic_xor(bd_simp_temp, (*Z)[conflict_idx]); // Add the conflicting pbits to bd_simp.
+        (*I).push_back(conflict_idx);
+        if ((*b_timestamp)[conflict_idx].first) *all_boundary = false; // Check the birth timestamps to check whether all of them are boundaries.
+
         // Update the pivot of a.
         pivot_bd = pivot(bd_simp_temp);
         zeroed = (pivot_bd == -1);
     } 
-            
-}
-
-void add_new_cycle(){
-    pbitset new_pbitset = make_shared<bitset>(unique_id[p].size(), 0); // New pbitset with of size unique_id[p].size() with 1 appended at the end.
-    new_pbitset -> set(id[p].at(simp));
+    }          
+void create_new_cyle(
+    const int p,
+    vector<int> *I,
+    SimplexIdMap *id,
+    vector<int> *unique_id,
+    vector<int> *simp,
+    vector<pair<bool, int>> *birth_timestamp_pm1,
+    vector<pbits> *C_p,
+    pbits *new_pbits
+){
+    *new_pbits = make_shared<bitset>(unique_id -> size(), 0); // New pbits with of size unique_id[p].size() with 1 appended at the end.
+    (*new_pbits) -> set(id -> at(*simp));
     if (p != 0)  {
-        for (auto a: I) {
-            int chain_a = birth_timestamp[p-1][a].second; // Since a is a boundary, we know that the birth timestamp is non-negative and this is safe!
-            dynamic_xor(new_pbitset, C[p][chain_a]); // Append a new pbitset simp + \sum_{a \in I} C^{p}[a] with birth timestamp i+1 to Z^p.
+        for (auto a: *I) {
+            int chain_a = (*birth_timestamp_pm1)[a].second; // Since a is a boundary, we know that the birth timestamp is non-negative and this is safe!
+            dynamic_xor((*new_pbits), (*C_p)[chain_a]); // Append a new pbits simp + \sum_{a \in I} C^{p}[a] with birth timestamp i+1 to Z^p.
         }
     }
+}
+void add_new_cycle(
+    const int p,
+    const int i,
+    pbits *new_pbits,
+    vector<pair<bool, int>> *birth_timestamp_p,
+    vector<pbits> *Z,
+    vector<int> *available_pbits_Z,
+    vector<int> *used_pbits_Z,
+    PivotMap *pivots,
+    vector<pbits> *bundle,
+    vector<pbits> *links,
+    vector<int> *timestamp
+){
     // Add a wire to the bundle with timestamp i+1 and update the link from the cycle to the bundle.
-    bundle[p].push_back(new_pbitset);
-    timestamp[p].push_back(i+1);
-    pbitset new_link = make_shared<bitset>(bundle[p].size(), 0);
+    bundle -> push_back(*new_pbits);
+    timestamp -> push_back(i+1);
+    pbits new_link = make_shared<bitset>(bundle -> size(), 0);
     new_link -> set(bundle[p].size()-1);
-    // Now, we add the new pbitset to the cycle matrix and the new link to the link matrix.
-    uint pivot_new = pivot(new_pbitset);
+    // Now, we add the new pbits to the cycle matrix and the new link to the link matrix.
+    uint pivot_new = pivot(*new_pbits);
     uint av_idx;
-    if (available_pbitsets_Z[p].size() != 0) {
-        av_idx = available_pbitsets_Z[p].back();
-        available_pbitsets_Z[p].pop_back();
+    if (available_pbits_Z -> size() != 0) {
+        av_idx = available_pbits_Z -> back();
+        available_pbits_Z -> pop_back();
     }
     else {
-        Z[p].push_back(nullptr);
-        links[p].push_back(nullptr);
-        birth_timestamp[p].push_back(make_pair(true, -1));
-        av_idx = Z[p].size() - 1;
+        Z -> push_back(nullptr);
+        links -> push_back(nullptr);
+        birth_timestamp_p -> push_back(make_pair(true, -1));
+        av_idx = Z -> size() - 1;
     }
-    Z[p][av_idx] = new_pbitset;
-    links[p][av_idx] = new_link;    
-    birth_timestamp[p][av_idx] = make_pair(true, i+1);
-    pivots[p][pivot_new] = av_idx;
-    used_pbitsets_Z[p].push_back(av_idx);
+    (*Z)[av_idx] = *new_pbits;
+    (*links)[av_idx] = new_link;    
+    (*birth_timestamp_p)[av_idx] = make_pair(true, i+1);
+    (*pivots)[pivot_new] = av_idx;
+    (*used_pbits_Z).push_back(av_idx);
 }
-
-void add_new_chain()
+uint find_dying_cycle(
+    const vector<bool> &filt_op,
+    vector<pair<bool, int>> *birth_timestamp_pm1,
+    vector<int> *I
+)
 {
-    /* Bundles and Links UPDATE: */
-    bundle[p-1].push_back(bd_simp);
-    timestamp[p-1].push_back(i+1);
-    pbitset new_link = make_shared<bitset>(bundle[p-1].size(), 0);
-    new_link -> set(bundle[p-1].size()-1);
-    links[p-1][l] = new_link;
-    // Populate the chain matrix and point to the boundary.
-    pbitset new_pbitset = make_shared<bitset>(unique_id[p].size(), 0);
-    uint av_idx;
-    if (available_pbitsets_C[p].size() != 0) {
-        av_idx = available_pbitsets_C[p].back();
-        available_pbitsets_C[p].pop_back();
-    }
-    else {
-        C[p].push_back(nullptr);
-        av_idx = C[p].size() - 1;
-    }
-    C[p][av_idx] = new_pbitset;
-    birth_timestamp[p-1][l] = make_pair(false, av_idx);
-    used_pbitsets_C[p].push_back(av_idx);
-    /* UPDATE: */
-    const uint prev_pivot = pivot(Z[p-1][l]);
-    Z[p-1][l] = bd_simp;
+    vector<int> J;
+    for (int a: *I) if ((*birth_timestamp_pm1)[a].first) J.push_back(a);  // Gather all non-boundary cycles.
+    sort(J.begin(), J.end());
+    int k;
+    for (k = J.size()-1; k >= 0; k--) if (filt_op[(*birth_timestamp_pm1)[J[k]].second - 1]) break; // conditional checks if arrow points forward.
+    const int l = J[l];
 }
-
-void reduce_boundaries(){
-    vector<int> I; // Find all the pbitsets in C[p] that contain the simplex and get the indices of their corresponding boundaries.
-    // alpha will be the only pbitset with negative birth timestamp such that C[p][chain_a] contains the simplex,  chain_alpha is needed to keep track of the column being added for link addition.
-    int alpha, chain_alpha; 
-    int smallest_pivot = unique_id[p-1].size();
-    for (auto cyc_idx: used_pbitsets_Z[p-1]) {
-        if (!birth_timestamp[p-1][cyc_idx].first) {// If the birth timestamp is false, then the pbitset is a boundary.
-            int chain_idx = birth_timestamp[p-1][cyc_idx].second;
-            if (idx < C[p][chain_idx] -> size() && (*C[p][chain_idx])[idx]==1) {
-                I.push_back(cyc_idx);
-                int pivot_cyc_idx = pivot(Z[p-1][cyc_idx]);
-                if (pivot_cyc_idx < smallest_pivot) {
-                    smallest_pivot = pivot_cyc_idx;
-                    alpha = cyc_idx;
-                    chain_alpha = chain_idx;
-                }
-            }
-        }
-    }
-    for (auto cyc_idx: I) { // Add alpha to all the other pbitsets in I.
-        int chain_idx = birth_timestamp[p-1][cyc_idx].second;
-        if (cyc_idx != alpha) {
-            dynamic_xor(Z[p-1][cyc_idx], Z[p-1][alpha]);
-            dynamic_xor(links[p-1][cyc_idx], links[p-1][alpha]);
-            dynamic_xor(C[p][chain_idx], C[p][chain_alpha]);
-        }
-    }
-}
-
-void delete_cycle(){
-    pbitset z = Z[p][alpha];
-    int z_pivot = pivot(z);
-    pivots[p].erase(z_pivot); // Remove the pivot of Z[p][alpha] from pivots[p].
-    I.erase(I.begin());
-    int current_alpha = alpha; // Keeps track of the pbitset index being added in order to update links.
-    if (I.size() != 0) {
-        for (auto a: I) { // Iterate over the rest of I and ensure that the pivots remain distinct:
-            int a_pivot = pivot(Z[p][a]);
-            if (a_pivot > z_pivot) { // z does not change.
-                dynamic_xor(Z[p][a], z);
-                dynamic_xor(links[p][a], links[p][current_alpha]);
-            }   
-            else  { // We want to deep copy Z[p][a] to a temporary pbitset and then copy Z[p][a] to z.
-                pbitset temp = make_shared<bitset>(*Z[p][a]);
-                int temp_pivot = a_pivot;
-                dynamic_xor(Z[p][a], z);
-                dynamic_xor(links[p][a], links[p][current_alpha]);
-                a_pivot = z_pivot;
-                // Update the information for z's.
-                z = temp;
-                current_alpha = a;
-                z_pivot = temp_pivot;
-                // Update the pivot of Z[p][a] in pivots[p].
-                pivots[p][a_pivot] = a;
-                pivots[p].erase(z_pivot);
-            }
-        }
-    }
-}
-
 void make_pivots_distinct(
     const std::vector<bool> *filt_op, 
-    vector<pbitset> *Z_p,
-    vector<pbitset> *links_p,
-    vector<pbitset> *C_p,
+    vector<pbits> *Z_p,
+    vector<pbits> *links_p,
+    vector<pbits> *C_p,
     vector<pair <bool, int> > *birth_timestamp_p,
     PivotMap *pivots_p,
-    const int prev_pivot,
-    const int l
+    const int l,
+    const int prev_pivot
     )
 {
     bool pivot_conflict;
@@ -569,21 +592,168 @@ void make_pivots_distinct(
         }
     }
 }
+uint add_chain_bd(
+    const int i,
+    const int l,
+    pbits *bd_simp,
+    vector<int> *unique_id,
+    vector<pbits> *bundle,
+    vector<int> *timestamp,
+    vector<pbits> *links,
+    vector<pbits> *Z_pm1,
+    vector<pair<bool, int>> *birth_timestamp,
+    vector<int> *available_pbits_C,
+    vector<int> *used_pbits_C,
+    vector<pbits> *C_p
+)
+{
+    /* Bundles and Links UPDATE: */
+    bundle -> push_back(*bd_simp);
+    timestamp -> push_back(i+1);
+    pbits new_link = make_shared<bitset>(bundle -> size(), 0);
+    new_link -> set(bundle ->size()-1);
+    (*links)[l] = new_link;
+    // Populate the chain matrix and point to the boundary.
+    pbits new_chain = make_shared<bitset>(unique_id -> size(), 0);
+    uint av_idx;
+    if ((*available_pbits_C).size() != 0) {
+        av_idx = (*available_pbits_C).back();
+        (*available_pbits_C).pop_back();
+    }
+    else {
+        C_p -> push_back(nullptr);
+        av_idx = C_p -> size() - 1;
+    }
+    (*C_p)[av_idx] = new_chain;
+    (*birth_timestamp)[l] = make_pair(false, av_idx);
+    used_pbits_C -> push_back(av_idx);
+    /* UPDATE: */
+    const uint prev_pivot = pivot((*Z_pm1)[l]);
+    (*Z_pm1)[l] = *bd_simp;
+    return prev_pivot;
+}
+void reduce_bd_update_mat(
+    const int idx,
+    const int i,
+    vector<int> *unique_id_pm1,
+    vector<pbits> *Z_pm1,
+    vector<int> *used_pbits_Z_pm1,
+    vector<pair<bool, int>> *birth_timestamp_pm1,
+    vector<pbits> *C_p,
+    vector<int> *available_pbits_C_p,
+    vector<int> *used_pbits_C_p,
+    vector<pbits> *bundle_pm1,
+    vector<int> *timestamp_pm1,
+    vector<pbits> *links_pm1
+){
+    vector<int> I; // Find all the pbitss in C[p] that contain the simplex and get the indices of their corresponding boundaries.
+    // alpha will be the only pbits with negative birth timestamp such that C[p][chain_a] contains the simplex,  chain_alpha is needed to keep track of the column being added for link addition.
+    int alpha, chain_alpha; 
+    int smallest_pivot = unique_id_pm1 -> size();
+    for (auto cyc_idx: *used_pbits_Z_pm1) {
+        if (!(*birth_timestamp_pm1)[cyc_idx].first) {// If the birth timestamp is false, then the pbits is a boundary.
+            int chain_idx = (*birth_timestamp_pm1)[cyc_idx].second;
+            if (idx < (*C_p)[chain_idx] -> size() && (*(*C_p)[chain_idx])[idx]==1) {
+                I.push_back(cyc_idx);
+                int pivot_cyc_idx = pivot((*Z_pm1)[cyc_idx]);
+                if (pivot_cyc_idx < smallest_pivot) {
+                    smallest_pivot = pivot_cyc_idx;
+                    alpha = cyc_idx;
+                    chain_alpha = chain_idx;
+                }
+            }
+        }
+    }
+    for (auto cyc_idx: I) { // Add alpha to all the other pbitss in I.
+        int chain_idx = (*birth_timestamp_pm1)[cyc_idx].second;
+        if (cyc_idx != alpha) {
+            dynamic_xor((*Z_pm1)[cyc_idx], (*Z_pm1)[alpha]);
+            dynamic_xor((*links_pm1)[cyc_idx], (*links_pm1)[alpha]);
+            dynamic_xor((*C_p)[chain_idx], (*C_p)[chain_alpha]);
+        }
+    }
 
-// TODO: Separate bundle and interval processing here.
+    // UPDATE Chain matrices
+    (*C_p)[chain_alpha] = nullptr;
+    (*available_pbits_C_p).push_back(chain_alpha); 
+    (*used_pbits_C_p).erase(remove((*used_pbits_C_p).begin(), (*used_pbits_C_p).end(), chain_alpha), (*used_pbits_C_p).end());
+    (*birth_timestamp_pm1)[alpha] = make_pair(true, i+1);
+    
+    // UPDATE Bundles and Links:
+    (*bundle_pm1).push_back((*Z_pm1)[alpha]);
+    (*timestamp_pm1).push_back(i+1);
+    pbits new_link = make_shared<bitset>(bundle_pm1 -> size(), 0);
+    new_link -> set(bundle_pm1 -> size()-1);
+    (*links_pm1)[alpha] = new_link;
+}
+uint delete_cycle(
+    const int idx,
+    const vector<bool> &filt_op,
+    vector<pbits> *Z_p,
+    vector<int> *used_pbits_Z_p,
+    vector<int> *available_pbits_Z_p,
+    vector<pair<bool, int>> *birth_timestamp_p,
+    PivotMap *pivots_p,
+    vector<pbits> *links_p
+){
+
+    vector<int> I; 
+    for (auto col_idx: (*used_pbits_Z_p))
+    {
+        pbits column = (*Z_p)[col_idx];
+        if (idx < (column -> size()) && (*column)[idx] == 1)
+        {
+            I.push_back(col_idx); // Gather indices of pbitss that contain the simplex. 
+        }
+    }  
+    // sort I in the order of the birth timestamps where the order is the total order as above without using the sort function.
+    sort(I.begin(), I.end(), [&](int &a, int &b){
+        int birth_a = (*birth_timestamp_p)[a].second; int birth_b = (*birth_timestamp_p)[b].second;
+        return ((birth_a == birth_b) || ((birth_a < birth_b) && (filt_op[birth_b-1])) || ((birth_a > birth_b) && (!(filt_op[birth_a-1]))));});
+    const int alpha = I[0]; // The pbits to be deleted is the first pbits in I.
+    pbits z = (*Z_p)[alpha];
+    int z_pivot = pivot(z);
+    pivots_p -> erase(z_pivot); // Remove the pivot of Z[p][alpha] from pivots[p].
+    I.erase(I.begin());
+    int current_alpha = alpha; // Keeps track of the pbits index being added in order to update links.
+    if (I.size() != 0) {
+        for (auto a: I) { // Iterate over the rest of I and ensure that the pivots remain distinct:
+            int a_pivot = pivot((*Z_p)[a]);
+            if (a_pivot > z_pivot) { // z does not change.
+                dynamic_xor((*Z_p)[a], z);
+                dynamic_xor((*links_p)[a], (*links_p)[current_alpha]);
+            }   
+            else  { // We want to deep copy Z[p][a] to a temporary pbits and then copy Z[p][a] to z.
+                pbits temp = make_shared<bitset>(*(*Z_p)[a]);
+                int temp_pivot = a_pivot;
+                dynamic_xor((*Z_p)[a], z);
+                dynamic_xor((*links_p)[a], (*links_p)[current_alpha]);
+                a_pivot = z_pivot;
+                // Update the information for z's.
+                z = temp;
+                current_alpha = a;
+                z_pivot = temp_pivot;
+                // Update the pivot of Z[p][a] in pivots[p].
+                (*pivots_p)[a_pivot] = a;
+                pivots_p -> erase(z_pivot);
+            }
+        }
+    }
+    return alpha;
+}
 void output_representatives(
     const int p, 
     const int birth, 
     const int death,
-    pbitset link_interval,
+    pbits link_interval,
     vector<int> *unique_id_p,
-    vector<pbitset> *bundle,
+    vector<pbits> *bundle,
     vector<int> *timestamp,
     std::vector <std::tuple <int, int, int, std::vector<std::tuple<int, std::vector<int>>> > > *persistence
     )
 {
     // Here, we need to gather all the wires pertaining to the cycle l and reconstruct the representatives at each index.
-    vector<tuple<int, pbitset>> wire_representatives;
+    vector<tuple<int, pbits>> wire_representatives;
     vector<tuple<int, vector<int>>> wire_representatives_ids;
     // Alternatively, just go over the non-zero values using the next operator
     size_t col_idx = link_interval -> find_first();
@@ -592,9 +762,9 @@ void output_representatives(
         col_idx = link_interval -> find_next(col_idx);
     }
     // Sort the representatives in the order of the timestamps.
-    sort(wire_representatives.begin(), wire_representatives.end(), [&](tuple<int, pbitset> &a, tuple<int, pbitset> &b){ return (get<0>(a) < get<0>(b));});
-    // Initialize a bitset pbitset of size representative_max_size with all zeros.
-    pbitset current_representative = make_shared<bitset>(1, 0);
+    sort(wire_representatives.begin(), wire_representatives.end(), [&](tuple<int, pbits> &a, tuple<int, pbits> &b){ return (get<0>(a) < get<0>(b));});
+    // Initialize a bitset pbits of size representative_max_size with all zeros.
+    pbits current_representative = make_shared<bitset>(1, 0);
     // Add all the representatives with timestamps less than or equal to interval_birth.
     size_t wire_idx;
     for (wire_idx = 0; wire_idx < wire_representatives.size(); ++wire_idx) {
@@ -622,7 +792,19 @@ void output_representatives(
     }
     persistence -> push_back(make_tuple(birth, death, p, wire_representatives_ids));
 }
+void update_Z(
+    const int alpha,
+    vector<pbits> *Z_p,
+    vector<pbits> *links_p,
+    vector<int> *avaialable_pbits_Z_p,
+    vector<int> *used_pbits_Z_p,
+    vector<pair<bool, int>> *birth_timestamp_p
+){
+    (*Z_p)[alpha] = nullptr;
+    (*links_p)[alpha] = nullptr;
+    avaialable_pbits_Z_p -> push_back(alpha);       // Add this to the available pbitss for adding new cycles:
+    used_pbits_Z_p -> erase(remove(used_pbits_Z_p -> begin(), used_pbits_Z_p -> end(), alpha), used_pbits_Z_p -> end());
+    (*birth_timestamp_p)[alpha] = make_pair(false, -1); // We need to assign this to be invalid (redundant).
+}
 
-
-// TODO: Extract the boundary and sum computatiion into a separate function.
 }// namespace ZZREP

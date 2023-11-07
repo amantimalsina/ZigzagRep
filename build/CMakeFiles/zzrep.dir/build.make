@@ -73,29 +73,29 @@ CMakeFiles/zzrep.dir/src/zzrep.cpp.o: CMakeFiles/zzrep.dir/flags.make
 CMakeFiles/zzrep.dir/src/zzrep.cpp.o: /Users/amantimalsina/Documents/Working\ Directory/TDA/ZigzagRep/src/zzrep.cpp
 CMakeFiles/zzrep.dir/src/zzrep.cpp.o: CMakeFiles/zzrep.dir/compiler_depend.ts
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/Users/amantimalsina/Documents/Working Directory/TDA/ZigzagRep/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/zzrep.dir/src/zzrep.cpp.o"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/zzrep.dir/src/zzrep.cpp.o -MF CMakeFiles/zzrep.dir/src/zzrep.cpp.o.d -o CMakeFiles/zzrep.dir/src/zzrep.cpp.o -c "/Users/amantimalsina/Documents/Working Directory/TDA/ZigzagRep/src/zzrep.cpp"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/zzrep.dir/src/zzrep.cpp.o -MF CMakeFiles/zzrep.dir/src/zzrep.cpp.o.d -o CMakeFiles/zzrep.dir/src/zzrep.cpp.o -c "/Users/amantimalsina/Documents/Working Directory/TDA/ZigzagRep/src/zzrep.cpp"
 
 CMakeFiles/zzrep.dir/src/zzrep.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/zzrep.dir/src/zzrep.cpp.i"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/amantimalsina/Documents/Working Directory/TDA/ZigzagRep/src/zzrep.cpp" > CMakeFiles/zzrep.dir/src/zzrep.cpp.i
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/amantimalsina/Documents/Working Directory/TDA/ZigzagRep/src/zzrep.cpp" > CMakeFiles/zzrep.dir/src/zzrep.cpp.i
 
 CMakeFiles/zzrep.dir/src/zzrep.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/zzrep.dir/src/zzrep.cpp.s"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/amantimalsina/Documents/Working Directory/TDA/ZigzagRep/src/zzrep.cpp" -o CMakeFiles/zzrep.dir/src/zzrep.cpp.s
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/amantimalsina/Documents/Working Directory/TDA/ZigzagRep/src/zzrep.cpp" -o CMakeFiles/zzrep.dir/src/zzrep.cpp.s
 
 CMakeFiles/zzrep.dir/src/zzrep_main.cpp.o: CMakeFiles/zzrep.dir/flags.make
 CMakeFiles/zzrep.dir/src/zzrep_main.cpp.o: /Users/amantimalsina/Documents/Working\ Directory/TDA/ZigzagRep/src/zzrep_main.cpp
 CMakeFiles/zzrep.dir/src/zzrep_main.cpp.o: CMakeFiles/zzrep.dir/compiler_depend.ts
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/Users/amantimalsina/Documents/Working Directory/TDA/ZigzagRep/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/zzrep.dir/src/zzrep_main.cpp.o"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/zzrep.dir/src/zzrep_main.cpp.o -MF CMakeFiles/zzrep.dir/src/zzrep_main.cpp.o.d -o CMakeFiles/zzrep.dir/src/zzrep_main.cpp.o -c "/Users/amantimalsina/Documents/Working Directory/TDA/ZigzagRep/src/zzrep_main.cpp"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/zzrep.dir/src/zzrep_main.cpp.o -MF CMakeFiles/zzrep.dir/src/zzrep_main.cpp.o.d -o CMakeFiles/zzrep.dir/src/zzrep_main.cpp.o -c "/Users/amantimalsina/Documents/Working Directory/TDA/ZigzagRep/src/zzrep_main.cpp"
 
 CMakeFiles/zzrep.dir/src/zzrep_main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/zzrep.dir/src/zzrep_main.cpp.i"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/amantimalsina/Documents/Working Directory/TDA/ZigzagRep/src/zzrep_main.cpp" > CMakeFiles/zzrep.dir/src/zzrep_main.cpp.i
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/amantimalsina/Documents/Working Directory/TDA/ZigzagRep/src/zzrep_main.cpp" > CMakeFiles/zzrep.dir/src/zzrep_main.cpp.i
 
 CMakeFiles/zzrep.dir/src/zzrep_main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/zzrep.dir/src/zzrep_main.cpp.s"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/amantimalsina/Documents/Working Directory/TDA/ZigzagRep/src/zzrep_main.cpp" -o CMakeFiles/zzrep.dir/src/zzrep_main.cpp.s
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/amantimalsina/Documents/Working Directory/TDA/ZigzagRep/src/zzrep_main.cpp" -o CMakeFiles/zzrep.dir/src/zzrep_main.cpp.s
 
 # Object files for target zzrep
 zzrep_OBJECTS = \
