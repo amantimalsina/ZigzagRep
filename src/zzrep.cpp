@@ -25,30 +25,39 @@ typedef std::map< vector<int>, int> SimplexIdMap;
 typedef std::map<int, int> PivotMap;
 typedef SimplexIdMap::value_type SimplexIdPair;
 typedef PivotMap::value_type PivotPair;
+
+// Cycle Record:
+struct cycle_record {
+    bool non_bd;
+    int chain_idx; // The index of the chain in C[p] whose boundary is this cycle.
+    int timestamp;
+    cycle_record(bool non_bd, int chain_idx, int timestamp) : non_bd(non_bd), chain_idx(chain_idx), timestamp(timestamp) {}
+};
+
 // Collection of Matrices:
 class zigzag_matrices {
     public:
     vector<SimplexIdMap> id; //  The current integral id for each p-simplex.
-    vector<vector<int>> unique_id; // The unique integral id for each p-simplex.
+    vector<vector<int> > unique_id; // The unique integral id for each p-simplex.
     vector<vector<pbits> > Z; // A cycle matrix Z[p] for each dimension p that is maintained such that each pbits of Z[p] represents a p-cycle in K_i.
-    vector<vector<int>> available_pbits_Z; // A list of available pbitss in Z[p] for each dimension p.
-    vector<vector<int>> used_pbits_Z; // A list of used pbitss in Z[p] for each dimension p.
+    vector<vector<int> > available_pbits_Z; // A list of available pbitss in Z[p] for each dimension p.
+    vector<vector<int> > used_pbits_Z; // A list of used pbitss in Z[p] for each dimension p.
     vector<vector<pbits> > C; // A chain matrix C[p] for each dimension p so that the chains in C[p] are associated with the the boundary cycles in Z[p-1].
-    vector<vector<int>> available_pbits_C; // A list of available pbitss in Z[p] for each dimension p.
-    vector<vector<int>> used_pbits_C; // A list of used pbitss in Z[p] for each dimension p.
-    vector<vector<pair <bool, int> > > birth_timestamp; // For each pbits Z[p][j], a birth timestamp is maintained, where a false value implies that the pbits pertains to a boundary.
+    vector<vector<int> > available_pbits_C; // A list of available pbitss in Z[p] for each dimension p.
+    vector<vector<int> > used_pbits_C; // A list of used pbitss in Z[p] for each dimension p.
+    vector<vector<cycle_record > > Cycle_Record; // For each pbits Z[p][j], a birth timestamp is maintained, where a false value implies that the pbits pertains to a boundary.
     vector<PivotMap> pivots; // For each pbits Z[p][j] we have a unique pivot entry; we then store pivots[p][i] = j where j = -1 implies that no pbits exists in Z[p-1] with pivot i.
     /* Constructor */
     zigzag_matrices(const int m) {
         id = vector<SimplexIdMap>(m+1, SimplexIdMap());
-        unique_id = vector<vector<int>>(m+1, vector<int>());
+        unique_id = vector<vector<int> >(m+1, vector<int>());
         Z = vector<vector<pbits> >(m+1, vector<pbits>());
         available_pbits_Z = vector<vector<int> >(m+1, vector<int>());
         used_pbits_Z = vector<vector<int> >(m+1, vector<int>());
         C = vector<vector<pbits> >(m+1, vector<pbits>());
         available_pbits_C = vector<vector<int> >(m+1, vector<int>());
         used_pbits_C = vector<vector<int> >(m+1, vector<int>());
-        birth_timestamp = vector<vector<pair <bool, int> > >(m+1, vector<pair <bool, int> >());
+        Cycle_Record = vector<vector<cycle_record > >(m+1, vector<cycle_record> ());
         pivots = vector<PivotMap>(m+1, PivotMap());
     }
 };
@@ -206,7 +215,7 @@ void ZigzagRep::compute(
                 int l = find_dying_cycle(filt_op, zz_mat, I, p);
 
                 // OUTPUT the (p − 1)-th interval [b^{p−1}[l], i] after gathering the relevant representative:
-                uint birth = zz_mat.birth_timestamp[p-1][l].second;
+                uint birth = zz_mat.Cycle_Record[p-1][l].timestamp;
                 output_representatives(zz_mat, rep_mat, persistence, p-1, i, l, birth, i);
 
                 // Add NEW CHAIN:
@@ -244,8 +253,8 @@ void ZigzagRep::compute(
                 // REMOVE simplex from Z[p]
                 uint alpha = delete_cycle(zz_mat, rep_mat, filt_op, p, idx);
 
-                // OUTPUT the p-th interval [birth_timestamp_p[alpha], i] after gathering the relevant representative.
-                uint birth = zz_mat.birth_timestamp[p][alpha].second;
+                // OUTPUT the p-th interval [Cycle_Record_p[alpha], i] after gathering the relevant representative.
+                uint birth = zz_mat.Cycle_Record[p][alpha].timestamp;
                 output_representatives(zz_mat, rep_mat, persistence, p, i, alpha, birth, i);
 
                 // UPDATE zz_mat and rep_mat.
@@ -256,8 +265,8 @@ void ZigzagRep::compute(
     // POST-PROCESSING: 
     for (size_t p = 0; p <= m; p++) {
         for (auto a: zz_mat.used_pbits_Z[p]) {
-            if (zz_mat.birth_timestamp[p][a].first) {
-                uint birth = zz_mat.birth_timestamp[p][a].second;
+            if (zz_mat.Cycle_Record[p][a].non_bd) {
+                uint birth = zz_mat.Cycle_Record[p][a].timestamp;
                 output_representatives(zz_mat, rep_mat, persistence, p, n, a, birth, n);            
             }
         }
@@ -312,7 +321,7 @@ bool compute_boundary(
         // Add this pbits to indices.
         dynamic_xor(bd_simp_temp, zz_mat.Z[p-1][conflict_idx]);
         I.push_back(conflict_idx);
-        if (zz_mat.birth_timestamp[p-1][conflict_idx].first) {
+        if (zz_mat.Cycle_Record[p-1][conflict_idx].non_bd) {
             all_boundary = false; // Check the birth timestamps to check whether all of them are boundaries.
         }
         // Update the pivot of a.
@@ -334,7 +343,7 @@ void create_new_cycle(
     new_pbits -> set(zz_mat.id[p].at(simp));
     if (p != 0)  {
         for (auto a: I) {
-            int chain_a = zz_mat.birth_timestamp[p-1][a].second; // Since a is a boundary, we know that the birth timestamp is non-negative and this is safe!
+            int chain_a = zz_mat.Cycle_Record[p-1][a].chain_idx; // Since a is a boundary, we know that the birth timestamp is non-negative and this is safe!
             dynamic_xor(new_pbits, zz_mat.C[p][chain_a]);
         }
     }
@@ -361,7 +370,7 @@ void add_new_cycle(
         uint av_idx = zz_mat.available_pbits_Z[p].back();
         zz_mat.Z[p][av_idx] = new_pbits;
         rep_mat.links[p][av_idx] = new_link;    
-        zz_mat.birth_timestamp[p][av_idx] = make_pair(true, i+1);
+        zz_mat.Cycle_Record[p][av_idx] = cycle_record(true, -1, i + 1);
         zz_mat.pivots[p][pivot_new] = av_idx;
         // Update the used and available pbitss:
         zz_mat.used_pbits_Z[p].push_back(av_idx);
@@ -371,7 +380,7 @@ void add_new_cycle(
     {
         zz_mat.Z[p].push_back(new_pbits);
         rep_mat.links[p].push_back(new_link);
-        zz_mat.birth_timestamp[p].push_back(make_pair(true, i+1));
+        zz_mat.Cycle_Record[p].push_back(cycle_record(true, -1, i+1));
         zz_mat.pivots[p][pivot_new] = zz_mat.Z[p].size() - 1;
         // Update the used and available pbitss:
         zz_mat.used_pbits_Z[p].push_back(zz_mat.Z[p].size() - 1);
@@ -389,7 +398,7 @@ int find_dying_cycle(
     */ 
     vector<int> J;
     for (int a: I) {
-        if (zz_mat.birth_timestamp[p-1][a].first) { // Gather all the non-boundary cycles.
+        if (zz_mat.Cycle_Record[p-1][a].non_bd) { // Gather all the non-boundary cycles.
             J.push_back(a);
         }
     }
@@ -398,7 +407,7 @@ int find_dying_cycle(
     bool arrow_backward = true;        
     int l;
     for (int j_idx = J.size()-1; j_idx >= 0; j_idx--) {
-            if (filt_op[zz_mat.birth_timestamp[p-1][J[j_idx]].second - 1]) {
+            if (filt_op[zz_mat.Cycle_Record[p-1][J[j_idx]].timestamp - 1]) {
                 l = J[j_idx]; // l will be the largest c in J if the arrow at {b^{p−1}[c]−1} points forward.
                 break;
             }
@@ -438,7 +447,7 @@ uint add_chain_bd(
     {
         uint av_idx = zz_mat.available_pbits_C[p].back();
         zz_mat.C[p][av_idx] = current_chain;
-        zz_mat.birth_timestamp[p-1][l] = make_tuple(false, av_idx);
+        zz_mat.Cycle_Record[p-1][l] = cycle_record(false, av_idx, i+1);
         // Update the used and available pbitss:
         zz_mat.used_pbits_C[p].push_back(av_idx);
         zz_mat.available_pbits_C[p].pop_back();
@@ -447,7 +456,7 @@ uint add_chain_bd(
     {
         zz_mat.C[p].push_back(current_chain);
         uint av_idx = zz_mat.C[p].size() - 1;
-        zz_mat.birth_timestamp[p-1][l] = make_tuple(false, av_idx);
+        zz_mat.Cycle_Record[p-1][l] = cycle_record(false, av_idx, i+1);
         // Update the used and available pbitss:
         zz_mat.used_pbits_C[p].push_back(av_idx);
     }
@@ -482,11 +491,11 @@ void make_pivots_distinct(
     while (pivot_conflict)
     {
         // Check that a and b are valid indices in Z[p-1]:
-        if (!zz_mat.birth_timestamp[p-1][a].first && !zz_mat.birth_timestamp[p-1][b].first) { // Both a and b are boundaries.
+        if (!zz_mat.Cycle_Record[p-1][a].non_bd && !zz_mat.Cycle_Record[p-1][b].non_bd) { // Both a and b are boundaries.
             dynamic_xor(zz_mat.Z[p-1][a], zz_mat.Z[p-1][b]);
             dynamic_xor(rep_mat.links[p-1][a], rep_mat.links[p-1][b]);
             // Update chain matrices to reflect this addition (use the BdToChainMap):
-            dynamic_xor(zz_mat.C[p][zz_mat.birth_timestamp[p-1][a].second], zz_mat.C[p][zz_mat.birth_timestamp[p-1][b].second]);
+            dynamic_xor(zz_mat.C[p][zz_mat.Cycle_Record[p-1][a].chain_idx], zz_mat.C[p][zz_mat.Cycle_Record[p-1][b].chain_idx]);
             // Check for pivot conflicts again (pivot of b remains the same, but the pivot of a might have changed):
             zz_mat.pivots[p-1][pivot_b] = b;
             pivot_a = pivot(zz_mat.Z[p-1][a]);
@@ -509,7 +518,7 @@ void make_pivots_distinct(
             }
 
         }
-        else if (!zz_mat.birth_timestamp[p-1][a].first && zz_mat.birth_timestamp[p-1][b].first) {
+        else if (!zz_mat.Cycle_Record[p-1][a].non_bd && zz_mat.Cycle_Record[p-1][b].non_bd) {
             dynamic_xor(zz_mat.Z[p-1][b], zz_mat.Z[p-1][a]);
             dynamic_xor(rep_mat.links[p-1][b], rep_mat.links[p-1][a]);
             // No need to update the chain matrices as a boundary is added to a cycle. Instead, check for pivot conflicts again:
@@ -533,7 +542,7 @@ void make_pivots_distinct(
                 }
             }
         }
-        else if (zz_mat.birth_timestamp[p-1][a].first && !zz_mat.birth_timestamp[p-1][b].first) {
+        else if (zz_mat.Cycle_Record[p-1][a].non_bd && !zz_mat.Cycle_Record[p-1][b].non_bd) {
             dynamic_xor(zz_mat.Z[p-1][a], zz_mat.Z[p-1][b]);
             dynamic_xor(rep_mat.links[p-1][a], rep_mat.links[p-1][b]);
             // Again, no need to update the chain matrices as a boundary is added to a cycle. Instead, check for pivot conflicts again:
@@ -557,8 +566,8 @@ void make_pivots_distinct(
             }
         }
         else {
-            int birth_a = zz_mat.birth_timestamp[p-1][a].second;
-            int birth_b = zz_mat.birth_timestamp[p-1][b].second;
+            int birth_a = zz_mat.Cycle_Record[p-1][a].timestamp;
+            int birth_b = zz_mat.Cycle_Record[p-1][b].timestamp;
             bool a_lessthan_b = ((birth_a == birth_b) || ((birth_a < birth_b) && (filt_op[birth_b-1])) || ((birth_a > birth_b) && (!(filt_op[birth_a-1]))));   
             if (a_lessthan_b) {
                 dynamic_xor(zz_mat.Z[p-1][b], zz_mat.Z[p-1][a]);
@@ -623,9 +632,9 @@ void reduce_bd_update(
     int smallest_pivot = zz_mat.unique_id[p-1].size();
     for (auto cyc_idx: zz_mat.used_pbits_Z[p-1])
     {
-        if (!zz_mat.birth_timestamp[p-1][cyc_idx].first) // If the birth timestamp is false, then the pbits is a boundary.
+        if (!zz_mat.Cycle_Record[p-1][cyc_idx].non_bd) // If the birth timestamp is false, then the pbits is a boundary.
         {
-            int chain_idx = zz_mat.birth_timestamp[p-1][cyc_idx].second;
+            int chain_idx = zz_mat.Cycle_Record[p-1][cyc_idx].chain_idx;
             if (idx < zz_mat.C[p][chain_idx] -> size() && (*zz_mat.C[p][chain_idx])[idx]==1) {
                 I.push_back(cyc_idx);
                 int pivot_cyc_idx = pivot(zz_mat.Z[p-1][cyc_idx]);
@@ -639,7 +648,7 @@ void reduce_bd_update(
     }
     // Add alpha to all the other pbitss in I.
     for (auto cyc_idx: I) {
-        int chain_idx = zz_mat.birth_timestamp[p-1][cyc_idx].second;
+        int chain_idx = zz_mat.Cycle_Record[p-1][cyc_idx].chain_idx;
         if (cyc_idx != alpha) {
             dynamic_xor(zz_mat.Z[p-1][cyc_idx], zz_mat.Z[p-1][alpha]);
             dynamic_xor(rep_mat.links[p-1][cyc_idx], rep_mat.links[p-1][alpha]);
@@ -650,7 +659,7 @@ void reduce_bd_update(
     // Update the used and available indices for C[p]:
     zz_mat.available_pbits_C[p].push_back(chain_alpha);
     zz_mat.used_pbits_C[p].erase(remove(zz_mat.used_pbits_C[p].begin(), zz_mat.used_pbits_C[p].end(), chain_alpha), zz_mat.used_pbits_C[p].end()); // TODO: Check that this is done correctly.
-    zz_mat.birth_timestamp[p-1][alpha] = make_pair(true, i+1);
+    zz_mat.Cycle_Record[p-1][alpha] = cycle_record(true, -1, i+1);
     // Add a new wire to the (p-1)-th bundle:
     rep_mat.bundle[p-1].push_back(zz_mat.Z[p-1][alpha]);
     rep_mat.timestamp[p-1].push_back(i+1);
@@ -676,8 +685,8 @@ uint delete_cycle(
     }
     // sort I in the order of the birth timestamps where the order is the total order as above without using the sort function.
     sort(I.begin(), I.end(), [&](int &a, int &b){
-        int birth_a = zz_mat.birth_timestamp[p][a].second;
-        int birth_b = zz_mat.birth_timestamp[p][b].second;
+        int birth_a = zz_mat.Cycle_Record[p][a].timestamp;
+        int birth_b = zz_mat.Cycle_Record[p][b].timestamp;
             return ((birth_a == birth_b) || ((birth_a < birth_b) && (filt_op[birth_b-1])) || ((birth_a > birth_b) && (!(filt_op[birth_a-1]))));
             });
     // The pbits to be deleted is the first pbits in I.
@@ -734,7 +743,7 @@ void delete_update(
     zz_mat.available_pbits_Z[p].push_back(alpha);
     zz_mat.used_pbits_Z[p].erase(remove(zz_mat.used_pbits_Z[p].begin(), zz_mat.used_pbits_Z[p].end(), alpha), zz_mat.used_pbits_Z[p].end());
     // We need to assign this to be invalid (redundant):
-    zz_mat.birth_timestamp[p][alpha] = make_pair(false, -1); // TODO: Probably use assertions to test that boudaries are not using invalid pbitss.
+    zz_mat.Cycle_Record[p][alpha] = cycle_record(false, -1, -1); // TODO: Probably use assertions to test that boudaries are not using invalid pbitss.
 }
 void output_representatives(
     zigzag_matrices &zz_mat,
