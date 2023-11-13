@@ -16,6 +16,37 @@
 using namespace std;
 
 namespace ZZREP { 
+/* Template for hashing vectors: */
+template <class ElemType>
+class VecHash { 
+public:
+    size_t operator()(const std::vector<ElemType>& v) const; 
+};
+template <class ElemType>
+size_t VecHash<ElemType>
+    ::operator()(const std::vector<ElemType>& v) const {
+    std::size_t seed = 0;
+    for (auto e : v) { boost::hash_combine(seed, e); }
+    return seed;
+}
+template <class ElemType>
+class VecEqual { 
+public:
+    bool operator()(const std::vector<ElemType>& v1, 
+        const std::vector<ElemType>& v2) const; 
+};
+template <class ElemType>
+bool VecEqual<ElemType>
+    ::operator()(const std::vector<ElemType>& v1, 
+        const std::vector<ElemType>& v2) const {
+    if (v1.size() != v2.size()) { return false; }
+    for (auto i = 0; i < v1.size(); i ++) {
+        if (v1[i] != v2[i]) {
+            return false;
+        }
+    }
+    return true;
+}
 /* DATA STRUCTURES */
 // Bitsets:
 typedef boost::dynamic_bitset<> bitset;
@@ -824,38 +855,5 @@ void dynamic_xor(pbits a, pbits b)
     for (int i = b -> find_first(); i != b -> npos; i = b -> find_next(i)) {
         (*a)[i] ^= (*b)[i];
     }
-}
-
-
-/* Template for hashing vectors: */
-template <class ElemType>
-class VecHash { 
-public:
-    size_t operator()(const std::vector<ElemType>& v) const; 
-};
-template <class ElemType>
-size_t VecHash<ElemType>
-    ::operator()(const std::vector<ElemType>& v) const {
-    std::size_t seed = 0;
-    for (auto e : v) { boost::hash_combine(seed, e); }
-    return seed;
-}
-template <class ElemType>
-class VecEqual { 
-public:
-    bool operator()(const std::vector<ElemType>& v1, 
-        const std::vector<ElemType>& v2) const; 
-};
-template <class ElemType>
-bool VecEqual<ElemType>
-    ::operator()(const std::vector<ElemType>& v1, 
-        const std::vector<ElemType>& v2) const {
-    if (v1.size() != v2.size()) { return false; }
-    for (auto i = 0; i < v1.size(); i ++) {
-        if (v1[i] != v2[i]) {
-            return false;
-        }
-    }
-    return true;
 }
 }// namespace ZZREP
