@@ -440,6 +440,7 @@ int find_dying_cycle(
     for (int j_idx = J.size()-1; j_idx >= 0; j_idx--) {
             if (filt_op[zz_mat.Cycle_Record[p-1][J[j_idx]].timestamp - 1]) {
                 l = J[j_idx]; // l will be the largest c in J if the arrow at {b^{p−1}[c]−1} points forward.
+                arrow_backward = false;
                 break;
             }
         }    
