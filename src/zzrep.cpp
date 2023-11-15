@@ -362,6 +362,7 @@ bool compute_boundary(
     }
     return all_boundary; 
 }
+
 void create_new_cycle(
     zigzag_matrices &zz_mat,
     chain &new_chain,
@@ -380,6 +381,7 @@ void create_new_cycle(
         }
     }
 }
+
 void add_new_cycle(
     zigzag_matrices &zz_mat,
     representative_matrices &rep_mat,
