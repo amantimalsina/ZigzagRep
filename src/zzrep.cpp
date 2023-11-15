@@ -313,12 +313,18 @@ void update_id(
     std::map<int, int> *i_to_id_p
 )
 {
-    int unique_id_simp; 
-    (*id_p).find(*simp) != (*id_p).end() ? unique_id_simp = (*unique_id_p)[(*id_p).at(*simp)] : unique_id_simp = unique_id_p -> size();
+    int unique_id_simp;
+    if ((*id_p).find(*simp) != (*id_p).end()) { // If the simplex is being re-inserted.
+        unique_id_simp = (*unique_id_p)[(*id_p).at(*simp)]; 
+    }
+    else {
+        unique_id_simp = unique_id_p -> size();
+    }
     (*id_p)[*simp] = unique_id_p -> size(); // Change the id of the simplex to the new id.
     unique_id_p -> push_back(unique_id_simp);
     (*i_to_id_p)[i] = unique_id_simp;   
 }
+
 bool compute_boundary(
     const int p,
     pbits &bd_simp,

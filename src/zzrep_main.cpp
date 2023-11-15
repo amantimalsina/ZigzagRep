@@ -88,53 +88,6 @@ int main(const int argc, const char *argv[]) {
         << "[ms]" << std::endl;
 
 
-    /*
-    Test for checking the correctness of representatives. Here are the criterias:
-    1. If filtop[b - 1] = 1 (the map is injective), the simplex being inserted at b - 1 should be in the representative at b.
-    2. If filtop[b - 1] = 0 (the map is surjective), the representative's class is the non-zero element in the kernel of this map.
-    3. For i < n, if filtop[i] = 0 (injective), the simplex being inserted at i should be in the representative at i.
-    4. For i < n, if filtop[i] = 1 (surjective), the representative's class is the non-zero element in the kernel of this map.
-    5. Each representative at index b <= j <= i should be present in the complex K_j.
-    6. The map \psi_j: H(K_{j-1}) \lefrightarrow H(K_{j}) takes the representative at index j-1 to the representative at index j.
-    */
-    size_t n = filt_op.size();
-    for (auto pers: persistence) {
-        int birth = std::get<0>(pers);
-        int death = std::get<1>(pers);
-        int dim = std::get<2>(pers);
-        std::vector<std::tuple<int, std::vector<int>>> reps = std::get<3>(pers);
-        if (filt_op[birth - 1]) {
-            std::vector<int> simp = filt_simp[birth - 1];
-            int id = i_to_id[dim][birth - 1];
-            bool found = false;
-            std::vector<int> reps_at_birth = std::get<1>(reps[0]);
-            for (auto simp_id: reps_at_birth) {
-                if (simp_id == id) {
-                    found = true;
-                    break;
-                }
-            }
-            assert(found);
-        }
-        if (death < n) 
-        {
-            if (!filt_op[death])
-            {
-                std::vector<int> simp = filt_simp[death];
-                int id = i_to_id[dim][death];
-                bool found = false;
-                // reps_at_death is the last element of reps.
-                std::vector<int> reps_at_death = std::get<1>(reps[reps.size() - 1]);
-                for (auto simp_id: reps_at_death) {
-                    if (simp_id == id) {
-                        found = true;
-                        break;
-                    }
-                }
-                assert(found);
-            }
-        }
-    }
 
     // Change this to add the representatives to the file.
     for (const auto& e : persistence) {
@@ -173,6 +126,55 @@ int main(const int argc, const char *argv[]) {
         i_to_id_fout << "-----------------------" << std::endl;  
     }
     i_to_id_fout.close();
+
+    /*
+    Test for checking the correctness of representatives. Here are the criterias:
+    1. If filtop[b - 1] = 1 (the map is injective), the simplex being inserted at b - 1 should be in the representative at b.
+    2. If filtop[b - 1] = 0 (the map is surjective), the representative's class is the non-zero element in the kernel of this map.
+    3. For i < n, if filtop[i] = 0 (injective), the simplex being inserted at i should be in the representative at i.
+    4. For i < n, if filtop[i] = 1 (surjective), the representative's class is the non-zero element in the kernel of this map.
+    5. Each representative at index b <= j <= i should be present in the complex K_j.
+    6. The map \psi_j: H(K_{j-1}) \lefrightarrow H(K_{j}) takes the representative at index j-1 to the representative at index j.
+
+    size_t n = filt_op.size();
+    for (auto pers: persistence) {
+        int birth = std::get<0>(pers);
+        int death = std::get<1>(pers);
+        int dim = std::get<2>(pers);
+        std::vector<std::tuple<int, std::vector<int>>> reps = std::get<3>(pers);
+        if (filt_op[birth - 1]) {
+            std::vector<int> simp = filt_simp[birth - 1];
+            int id = i_to_id[dim][birth - 1];
+            bool found = false;
+            std::vector<int> reps_at_birth = std::get<1>(reps[0]);
+            for (auto simp_id: reps_at_birth) {
+                if (simp_id == id) {
+                    found = true;
+                    break;
+                }
+            }
+            assert(found);
+        }
+        if (death < n) 
+        {
+            if (!filt_op[death])
+            {
+                std::vector<int> simp = filt_simp[death];
+                int id = i_to_id[dim][death];
+                bool found = false;
+                // reps_at_death is the last element of reps.
+                std::vector<int> reps_at_death = std::get<1>(reps[reps.size() - 1]);
+                for (auto simp_id: reps_at_death) {
+                    if (simp_id == id) {
+                        found = true;
+                        break;
+                    }
+                }
+                assert(found);
+            }
+        }
+    }
+    */
 
     return 0;
 }
