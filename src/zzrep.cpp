@@ -427,9 +427,7 @@ int find_dying_cycle(
     const int p
 )
 {
-    /*
-    Let J consist of indices in I whose corresponding chains in Z[p−1] have non-negative birth timestamps. 
-    */ 
+    /* Let J consist of indices in I whose corresponding chains in Z[p−1] have non-negative birth timestamps. */ 
     vector<int> J;
     for (int a: I) {
         if (zz_mat.Cycle_Record[p-1][a].non_bd) { // Gather all the non-boundary cycles.
@@ -441,14 +439,30 @@ int find_dying_cycle(
     bool arrow_backward = true;        
     int l;
     for (int j_idx = J.size()-1; j_idx >= 0; j_idx--) {
-            if (filt_op[zz_mat.Cycle_Record[p-1][J[j_idx]].timestamp - 1]) {
+        int birth_j = zz_mat.Cycle_Record[p-1][J[j_idx]].timestamp;
+        if (filt_op[birth_j-1]) {
                 l = J[j_idx]; // l will be the largest c in J if the arrow at {b^{p−1}[c]−1} points forward.
                 arrow_backward = false;
+                /*
+                // Assert that l is the largest index in J such that the arrow at {b^{p−1}[c]−1} points forward.
+                for (int k_idx =  J.size()-1; k_idx >= 0; k_idx--) {
+                    int birth_k = zz_mat.Cycle_Record[p-1][J[k_idx]].timestamp;
+                    if (filt_op[birth_k-1]) {
+                        assert(k_idx <= l);
+                    }
+                }*/
                 break;
-            }
-        }    
+        }
+    }    
     if (arrow_backward) { // If the arrow at {b^{p−1}[c]−1} points backward for all c in J, let l be the smallest index in J.  
         l = *J.begin();
+        /*
+        // assert that the arrows in J all point backward.
+        for (auto j: J) {
+            int birth_j = zz_mat.Cycle_Record[p-1][j].timestamp;
+            assert(!filt_op[birth_j-1]);
+        }
+        */
     }
     return l;
 }
