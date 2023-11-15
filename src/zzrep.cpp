@@ -477,15 +477,12 @@ uint add_chain_bd(
 )
 {
     /* Bundles and Links UPDATE: */
-    // Add a new wire to the (p-1)-th bundle:
     rep_mat.bundle[p-1].push_back(bd_simp);
     rep_mat.timestamp[p-1].push_back(i+1);
     chain new_link = make_shared<bitset>(rep_mat.bundle[p-1].size(), 0);
     new_link -> set(rep_mat.bundle[p-1].size()-1);
     rep_mat.links[p-1][l] = new_link;
-    /* 
-    UPDATE:
-    */
+    /* UPDATE: */
     uint prev_pivot = pivot(zz_mat.Z[p-1][l]);
     zz_mat.Z[p-1][l] = bd_simp;
     // Set C[p][l] = simp and update the boundary-to-chain map.
