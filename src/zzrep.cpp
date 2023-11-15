@@ -50,7 +50,7 @@ bool VecEqual<ElemType>
 /* DATA STRUCTURES */
 // Bitsets:
 typedef boost::dynamic_bitset<> bitset;
-typedef shared_ptr<bitset> pbits;
+typedef shared_ptr<bitset> chain;
 // Maps and Pairs:
 typedef std::map< vector<int>, int> SimplexIdMap;
 typedef std::map<int, int> PivotMap;
@@ -70,44 +70,44 @@ class zigzag_matrices {
     public:
     vector<SimplexIdMap> id; //  The current integral id for each p-simplex.
     vector<vector<int> > unique_id; // The unique integral id for each p-simplex.
-    vector<vector<pbits> > Z; // A cycle matrix Z[p] for each dimension p that is maintained such that each pbits of Z[p] represents a p-cycle in K_i.
-    vector<vector<int> > available_pbits_Z; // A list of available pbitss in Z[p] for each dimension p.
-    vector<vector<int> > used_pbits_Z; // A list of used pbitss in Z[p] for each dimension p.
-    vector<vector<pbits> > C; // A chain matrix C[p] for each dimension p so that the chains in C[p] are associated with the the boundary cycles in Z[p-1].
-    vector<vector<int> > available_pbits_C; // A list of available pbitss in Z[p] for each dimension p.
-    vector<vector<int> > used_pbits_C; // A list of used pbitss in Z[p] for each dimension p.
-    vector<vector<cycle_record > > Cycle_Record; // For each pbits Z[p][j], a birth timestamp is maintained, where a false value implies that the pbits pertains to a boundary.
-    vector<PivotMap> pivots; // For each pbits Z[p][j] we have a unique pivot entry; we then store pivots[p][i] = j where j = -1 implies that no pbits exists in Z[p-1] with pivot i.
+    vector<vector<chain> > Z; // A cycle matrix Z[p] for each dimension p that is maintained such that each chain of Z[p] represents a p-cycle in K_i.
+    vector<vector<int> > available_chain_Z; // A list of available chains in Z[p] for each dimension p.
+    vector<vector<int> > used_chain_Z; // A list of used chains in Z[p] for each dimension p.
+    vector<vector<chain> > C; // A chain matrix C[p] for each dimension p so that the chains in C[p] are associated with the the boundary cycles in Z[p-1].
+    vector<vector<int> > available_chain_C; // A list of available chains in Z[p] for each dimension p.
+    vector<vector<int> > used_chain_C; // A list of used chains in Z[p] for each dimension p.
+    vector<vector<cycle_record > > Cycle_Record; // For each chain Z[p][j], a birth timestamp is maintained, where a false value implies that the chain pertains to a boundary.
+    vector<PivotMap> pivots; // For each chain Z[p][j] we have a unique pivot entry; we then store pivots[p][i] = j where j = -1 implies that no chain exists in Z[p-1] with pivot i.
     /* Constructor */
     zigzag_matrices(const int m) {
         id = vector<SimplexIdMap>(m+1, SimplexIdMap());
         unique_id = vector<vector<int> >(m+1, vector<int>());
-        Z = vector<vector<pbits> >(m+1, vector<pbits>());
-        available_pbits_Z = vector<vector<int> >(m+1, vector<int>());
-        used_pbits_Z = vector<vector<int> >(m+1, vector<int>());
-        C = vector<vector<pbits> >(m+1, vector<pbits>());
-        available_pbits_C = vector<vector<int> >(m+1, vector<int>());
-        used_pbits_C = vector<vector<int> >(m+1, vector<int>());
+        Z = vector<vector<chain> >(m+1, vector<chain>());
+        available_chain_Z = vector<vector<int> >(m+1, vector<int>());
+        used_chain_Z = vector<vector<int> >(m+1, vector<int>());
+        C = vector<vector<chain> >(m+1, vector<chain>());
+        available_chain_C = vector<vector<int> >(m+1, vector<int>());
+        used_chain_C = vector<vector<int> >(m+1, vector<int>());
         Cycle_Record = vector<vector<cycle_record > >(m+1, vector<cycle_record> ());
         pivots = vector<PivotMap>(m+1, PivotMap());
     }
 };
 class representative_matrices {
     public:
-    vector<vector<pbits> > bundle; // A collection of wires: bundle[p] stores p-dimensional wires.
+    vector<vector<chain> > bundle; // A collection of wires: bundle[p] stores p-dimensional wires.
     vector<vector<int> > timestamp; // Map from the cycle matrix to the wires: links[p][j] is the collection of wires associated with Z[p][j].
-    vector<vector<pbits> > links; // Represents a map from the cycle matrix to the wires: links[p][j] is the collection of wires associated with Z[p][j]; we use the same used/available pbitss as in Z.
+    vector<vector<chain> > links; // Represents a map from the cycle matrix to the wires: links[p][j] is the collection of wires associated with Z[p][j]; we use the same used/available chains as in Z.
     /* Constructor */
     representative_matrices(const int m) {
-        bundle = vector<vector<pbits> >(m+1, vector<pbits>());
+        bundle = vector<vector<chain> >(m+1, vector<chain>());
         timestamp = vector<vector<int> >(m+1, vector<int>());
-        links = vector<vector<pbits> >(m+1, vector<pbits>());
+        links = vector<vector<chain> >(m+1, vector<chain>());
     }
 };
 
 /* PRIMITIVE OPERATIONS: */
-int pivot(pbits a);
-void dynamic_xor(pbits a, pbits b);
+int pivot(chain a);
+void dynamic_xor(chain a, chain b);
 
 /* HELPER FUNCTIONS: */
 void update_id(
@@ -119,7 +119,7 @@ void update_id(
     );
 bool compute_boundary(
     const int p,
-    pbits &bd_simp,
+    chain &bd_simp,
     vector<int> &simp,
     vector<int> &I,
     zigzag_matrices &zz_mat
@@ -127,7 +127,7 @@ bool compute_boundary(
 // FORWARD BIRTH:
 void create_new_cycle(
     zigzag_matrices &zz_mat,
-    pbits &new_pbits,
+    chain &new_chain,
     vector<int> &I,
     vector<int> &simp,
     const int p,
@@ -136,7 +136,7 @@ void create_new_cycle(
 void add_new_cycle(
     zigzag_matrices &zz_mat,
     representative_matrices &rep_mat,
-    pbits &new_pbits,
+    chain &new_chain,
     vector<int> &simp,
     const int p,
     const int i
@@ -151,7 +151,7 @@ int find_dying_cycle(
 uint add_chain_bd(
     zigzag_matrices &zz_mat,
     representative_matrices &rep_mat,
-    pbits &bd_simp,
+    chain &bd_simp,
     vector<int> &simp,
     const int p,
     const int i,
@@ -226,7 +226,7 @@ void ZigzagRep::compute(
 
             // Represent the BOUNDARY as a SUM OF CYLES.
             bool all_boundary = true;
-            pbits bd_simp;
+            chain bd_simp;
             vector<int> I;
             if (p != 0) all_boundary = compute_boundary(p, bd_simp, simp, I, zz_mat);
 
@@ -234,11 +234,11 @@ void ZigzagRep::compute(
             if (all_boundary)
             {
                 // Create NEW CYCLE:
-                pbits new_pbits; 
-                create_new_cycle(zz_mat, new_pbits, I, simp, p, i);
+                chain new_chain; 
+                create_new_cycle(zz_mat, new_chain, I, simp, p, i);
 
                 // ADD & UPDATE:
-                add_new_cycle(zz_mat, rep_mat, new_pbits, simp, p, i);
+                add_new_cycle(zz_mat, rep_mat, new_chain, simp, p, i);
             }
             // FORWARD DEATH.
             else {
@@ -261,7 +261,7 @@ void ZigzagRep::compute(
             int idx = zz_mat.id[p].at(simp);
             uint simp_col_idx;
             bool cycle_found = false;
-            for (auto used_col_idx: zz_mat.used_pbits_Z[p]) {
+            for (auto used_col_idx: zz_mat.used_chain_Z[p]) {
                 if (idx < zz_mat.Z[p][used_col_idx] -> size() && (*zz_mat.Z[p][used_col_idx])[idx] == 1) {
                     simp_col_idx = used_col_idx;
                     cycle_found = true;
@@ -279,7 +279,7 @@ void ZigzagRep::compute(
             else
             {
                 // REMOVE simplex from C[p].
-                for (auto chain_idx : zz_mat.used_pbits_C[p]) if (idx < zz_mat.C[p][chain_idx] -> size() && (*zz_mat.C[p][chain_idx])[idx] == 1) dynamic_xor(zz_mat.C[p][chain_idx], zz_mat.Z[p][simp_col_idx]);
+                for (auto chain_idx : zz_mat.used_chain_C[p]) if (idx < zz_mat.C[p][chain_idx] -> size() && (*zz_mat.C[p][chain_idx])[idx] == 1) dynamic_xor(zz_mat.C[p][chain_idx], zz_mat.Z[p][simp_col_idx]);
 
                 // REMOVE simplex from Z[p]
                 uint alpha = delete_cycle(zz_mat, rep_mat, filt_op, p, idx);
@@ -295,7 +295,7 @@ void ZigzagRep::compute(
     }
     // POST-PROCESSING: 
     for (size_t p = 0; p <= m; p++) {
-        for (auto a: zz_mat.used_pbits_Z[p]) {
+        for (auto a: zz_mat.used_chain_Z[p]) {
             if (zz_mat.Cycle_Record[p][a].non_bd) {
                 uint birth = zz_mat.Cycle_Record[p][a].timestamp;
                 output_representatives(zz_mat, rep_mat, persistence, p, n, a, birth, n);            
@@ -327,14 +327,13 @@ void update_id(
 
 bool compute_boundary(
     const int p,
-    pbits &bd_simp,
+    chain &bd_simp,
     vector<int> &simp,
     vector<int> &I,
     zigzag_matrices &zz_mat
     )
 {
     bool all_boundary = true;
-    // Compute boundary of the simplex:
     bd_simp = make_shared<bitset>(zz_mat.unique_id[p-1].size(), 0);
     for (int i = 0; i <= p; i++) {
         // Remove the i-th vertex.
@@ -343,19 +342,15 @@ bool compute_boundary(
         int idx = zz_mat.id[p-1].at(boundary_simplex);
         bd_simp -> set(idx);
     }
-    /* 
-    Find the pbitss in Z[p-1] that sum to bd_simp:
-    */
-    // Copy bd_simp to a temporary pbits.
-    pbits bd_simp_temp;
-    bd_simp_temp = pbits(new bitset ( *bd_simp)); 
+    /* Find the columns in Z[p-1] that sum to bd_simp: */
+    chain bd_simp_temp;
+    bd_simp_temp = chain(new bitset ( *bd_simp)); 
     int pivot_bd = pivot(bd_simp_temp);
     bool zeroed = (pivot_bd == -1);
     while (!zeroed) {
-        // Find the pbits in M that has the same pivot as a.
-        // assert(pivots[p-1].find(pivot_bd) != pivots[p-1].end());
+        // Find the chain in M that has the same pivot as a.
         int conflict_idx = zz_mat.pivots[p-1].at(pivot_bd);
-        // Add this pbits to indices.
+        // Add this chain to indices.
         dynamic_xor(bd_simp_temp, zz_mat.Z[p-1][conflict_idx]);
         I.push_back(conflict_idx);
         if (zz_mat.Cycle_Record[p-1][conflict_idx].non_bd) {
@@ -369,58 +364,58 @@ bool compute_boundary(
 }
 void create_new_cycle(
     zigzag_matrices &zz_mat,
-    pbits &new_pbits,
+    chain &new_chain,
     vector<int> &I,
     vector<int> &simp,
     const int p,
     const int i
 )
 {
-    new_pbits = make_shared<bitset>(zz_mat.unique_id[p].size(), 0);
-    new_pbits -> set(zz_mat.id[p].at(simp));
+    new_chain = make_shared<bitset>(zz_mat.unique_id[p].size(), 0);
+    new_chain -> set(zz_mat.id[p].at(simp));
     if (p != 0)  {
         for (auto a: I) {
             int chain_a = zz_mat.Cycle_Record[p-1][a].chain_idx; // Since a is a boundary, we know that the birth timestamp is non-negative and this is safe!
-            dynamic_xor(new_pbits, zz_mat.C[p][chain_a]);
+            dynamic_xor(new_chain, zz_mat.C[p][chain_a]);
         }
     }
 }
 void add_new_cycle(
     zigzag_matrices &zz_mat,
     representative_matrices &rep_mat,
-    pbits &new_pbits,
+    chain &new_chain,
     vector<int> &simp,
     const int p,
     const int i
 )
 {
-    uint pivot_new = pivot(new_pbits);
+    uint pivot_new = pivot(new_chain);
     // Add a wire to the bundle with timestamp i+1 and update the link from the cycle to the bundle.
-    rep_mat.bundle[p].push_back(new_pbits);
+    rep_mat.bundle[p].push_back(new_chain);
     rep_mat.timestamp[p].push_back(i+1);
-    pbits new_link;
+    chain new_link;
     new_link = make_shared<bitset>(rep_mat.bundle[p].size(), 0);
     new_link -> set(rep_mat.bundle[p].size()-1);
-    // Now, we add the new pbits to the cycle matrix and the new link to the link matrix.
-    if (zz_mat.available_pbits_Z[p].size() != 0) 
+    // Now, we add the new chain to the cycle matrix and the new link to the link matrix.
+    if (zz_mat.available_chain_Z[p].size() != 0) 
     {
-        uint av_idx = zz_mat.available_pbits_Z[p].back();
-        zz_mat.Z[p][av_idx] = new_pbits;
+        uint av_idx = zz_mat.available_chain_Z[p].back();
+        zz_mat.Z[p][av_idx] = new_chain;
         rep_mat.links[p][av_idx] = new_link;    
         zz_mat.Cycle_Record[p][av_idx] = cycle_record(true, -1, i + 1);
         zz_mat.pivots[p][pivot_new] = av_idx;
-        // Update the used and available pbitss:
-        zz_mat.used_pbits_Z[p].push_back(av_idx);
-        zz_mat.available_pbits_Z[p].pop_back();
+        // Update the used and available chains:
+        zz_mat.used_chain_Z[p].push_back(av_idx);
+        zz_mat.available_chain_Z[p].pop_back();
     }
     else 
     {
-        zz_mat.Z[p].push_back(new_pbits);
+        zz_mat.Z[p].push_back(new_chain);
         rep_mat.links[p].push_back(new_link);
         zz_mat.Cycle_Record[p].push_back(cycle_record(true, -1, i+1));
         zz_mat.pivots[p][pivot_new] = zz_mat.Z[p].size() - 1;
-        // Update the used and available pbitss:
-        zz_mat.used_pbits_Z[p].push_back(zz_mat.Z[p].size() - 1);
+        // Update the used and available chains:
+        zz_mat.used_chain_Z[p].push_back(zz_mat.Z[p].size() - 1);
     }
 }
 int find_dying_cycle(
@@ -431,7 +426,7 @@ int find_dying_cycle(
 )
 {
     /*
-    Let J consist of indices in I whose corresponding pbitss in Z[p−1] have non-negative birth timestamps. 
+    Let J consist of indices in I whose corresponding chains in Z[p−1] have non-negative birth timestamps. 
     */ 
     vector<int> J;
     for (int a: I) {
@@ -458,7 +453,7 @@ int find_dying_cycle(
 uint add_chain_bd(
     zigzag_matrices &zz_mat,
     representative_matrices &rep_mat,
-    pbits &bd_simp,
+    chain &bd_simp,
     vector<int> &simp,
     const int p,
     const int i,
@@ -469,7 +464,7 @@ uint add_chain_bd(
     // Add a new wire to the (p-1)-th bundle:
     rep_mat.bundle[p-1].push_back(bd_simp);
     rep_mat.timestamp[p-1].push_back(i+1);
-    pbits new_link = make_shared<bitset>(rep_mat.bundle[p-1].size(), 0);
+    chain new_link = make_shared<bitset>(rep_mat.bundle[p-1].size(), 0);
     new_link -> set(rep_mat.bundle[p-1].size()-1);
     rep_mat.links[p-1][l] = new_link;
     /* 
@@ -478,25 +473,25 @@ uint add_chain_bd(
     uint prev_pivot = pivot(zz_mat.Z[p-1][l]);
     zz_mat.Z[p-1][l] = bd_simp;
     // Set C[p][l] = simp and update the boundary-to-chain map.
-    pbits current_chain;
+    chain current_chain;
     current_chain = make_shared<bitset>(zz_mat.unique_id[p].size(), 0);
     current_chain -> set(zz_mat.id[p].at(simp)); // Set last entry to 1.
-    if (zz_mat.available_pbits_C[p].size() != 0) 
+    if (zz_mat.available_chain_C[p].size() != 0) 
     {
-        uint av_idx = zz_mat.available_pbits_C[p].back();
+        uint av_idx = zz_mat.available_chain_C[p].back();
         zz_mat.C[p][av_idx] = current_chain;
         zz_mat.Cycle_Record[p-1][l] = cycle_record(false, av_idx, i+1);
-        // Update the used and available pbitss:
-        zz_mat.used_pbits_C[p].push_back(av_idx);
-        zz_mat.available_pbits_C[p].pop_back();
+        // Update the used and available chains:
+        zz_mat.used_chain_C[p].push_back(av_idx);
+        zz_mat.available_chain_C[p].pop_back();
     }
     else 
     {
         zz_mat.C[p].push_back(current_chain);
         uint av_idx = zz_mat.C[p].size() - 1;
         zz_mat.Cycle_Record[p-1][l] = cycle_record(false, av_idx, i+1);
-        // Update the used and available pbitss:
-        zz_mat.used_pbits_C[p].push_back(av_idx);
+        // Update the used and available chains:
+        zz_mat.used_chain_C[p].push_back(av_idx);
     }
     return prev_pivot;
 }
@@ -664,13 +659,13 @@ void reduce_bd_update(
     const int idx
 )
 {
-    // Find all the pbitss in C[p] that contain the simplex and get the indices of their corresponding boundaries.
+    // Find all the chains in C[p] that contain the simplex and get the indices of their corresponding boundaries.
     vector<int> I;
-    int alpha, chain_alpha; // alpha will be the only pbits with negative birth timestamp such that C[p][chain_a] contains the simplex.
+    int alpha, chain_alpha; // alpha will be the only chain with negative birth timestamp such that C[p][chain_a] contains the simplex.
     int smallest_pivot = zz_mat.unique_id[p-1].size();
-    for (auto cyc_idx: zz_mat.used_pbits_Z[p-1])
+    for (auto cyc_idx: zz_mat.used_chain_Z[p-1])
     {
-        if (!zz_mat.Cycle_Record[p-1][cyc_idx].non_bd) // If the birth timestamp is false, then the pbits is a boundary.
+        if (!zz_mat.Cycle_Record[p-1][cyc_idx].non_bd) // If the birth timestamp is false, then the chain is a boundary.
         {
             int chain_idx = zz_mat.Cycle_Record[p-1][cyc_idx].chain_idx;
             if (idx < zz_mat.C[p][chain_idx] -> size() && (*zz_mat.C[p][chain_idx])[idx]==1) {
@@ -684,7 +679,7 @@ void reduce_bd_update(
             }
         }
     }
-    // Add alpha to all the other pbitss in I.
+    // Add alpha to all the other chains in I.
     for (auto cyc_idx: I) {
         int chain_idx = zz_mat.Cycle_Record[p-1][cyc_idx].chain_idx;
         if (cyc_idx != alpha) {
@@ -695,13 +690,13 @@ void reduce_bd_update(
     }
     zz_mat.C[p][chain_alpha] = nullptr; // Zero out the chain C[p][chain_alpha] from C[p].
     // Update the used and available indices for C[p]:
-    zz_mat.available_pbits_C[p].push_back(chain_alpha);
-    zz_mat.used_pbits_C[p].erase(remove(zz_mat.used_pbits_C[p].begin(), zz_mat.used_pbits_C[p].end(), chain_alpha), zz_mat.used_pbits_C[p].end()); // TODO: Check that this is done correctly.
+    zz_mat.available_chain_C[p].push_back(chain_alpha);
+    zz_mat.used_chain_C[p].erase(remove(zz_mat.used_chain_C[p].begin(), zz_mat.used_chain_C[p].end(), chain_alpha), zz_mat.used_chain_C[p].end()); // TODO: Check that this is done correctly.
     zz_mat.Cycle_Record[p-1][alpha] = cycle_record(true, -1, i+1);
     // Add a new wire to the (p-1)-th bundle:
     rep_mat.bundle[p-1].push_back(zz_mat.Z[p-1][alpha]);
     rep_mat.timestamp[p-1].push_back(i+1);
-    pbits new_link = make_shared<bitset>(rep_mat.bundle[p-1].size(), 0);
+    chain new_link = make_shared<bitset>(rep_mat.bundle[p-1].size(), 0);
     new_link -> set(rep_mat.bundle[p-1].size()-1);
     rep_mat.links[p-1][alpha] = new_link;
 }
@@ -713,8 +708,8 @@ uint delete_cycle(
     const int idx
 )
 {
-    vector<int> I; // Gather indices of pbitss that contain the simplex. 
-    for (auto col_idx: zz_mat.used_pbits_Z[p]) 
+    vector<int> I; // Gather indices of chains that contain the simplex. 
+    for (auto col_idx: zz_mat.used_chain_Z[p]) 
     {
         if (idx < (zz_mat.Z[p][col_idx] -> size()) && (*zz_mat.Z[p][col_idx])[idx] == 1)
         {
@@ -727,14 +722,14 @@ uint delete_cycle(
         int birth_b = zz_mat.Cycle_Record[p][b].timestamp;
             return ((birth_a == birth_b) || ((birth_a < birth_b) && (filt_op[birth_b-1])) || ((birth_a > birth_b) && (!(filt_op[birth_a-1]))));
             });
-    // The pbits to be deleted is the first pbits in I.
+    // The chain to be deleted is the first chain in I.
     int alpha = I[0];
-    pbits z = zz_mat.Z[p][alpha];
+    chain z = zz_mat.Z[p][alpha];
     int z_pivot = pivot(z);
     zz_mat.pivots[p].erase(z_pivot); // Remove the pivot of Z[p][alpha] from pivots[p].
     I.erase(I.begin());
-    // DELETE: pbits alpha from Z[p] and links[p].
-    int current_alpha = alpha; // Keeps track of the pbits index being added in order to update links.
+    // DELETE: chain alpha from Z[p] and links[p].
+    int current_alpha = alpha; // Keeps track of the chain index being added in order to update links.
     if (I.size() != 0) 
     {
         // Iterate over the rest of I and ensure that the pivots remain distinct:
@@ -748,8 +743,8 @@ uint delete_cycle(
             }   
             else 
             {
-                // We want to deep copy Z[p][a] to a temporary pbits and then copyZ[p][a] to z.
-                pbits temp = make_shared<bitset>(*zz_mat.Z[p][a]);
+                // We want to deep copy Z[p][a] to a temporary chain and then copyZ[p][a] to z.
+                chain temp = make_shared<bitset>(*zz_mat.Z[p][a]);
                 int temp_pivot = a_pivot;
                 dynamic_xor(zz_mat.Z[p][a], z);
                 dynamic_xor(rep_mat.links[p][a], rep_mat.links[p][current_alpha]);
@@ -774,14 +769,14 @@ void delete_update(
     const int idx
 )
 {
-    // Remove the pbitss Z[p][alpha] from Z[p] and link[p][alpha] from links: assign these to null pbitss.
+    // Remove the chains Z[p][alpha] from Z[p] and link[p][alpha] from links: assign these to null chains.
     zz_mat.Z[p][alpha] = nullptr;
     rep_mat.links[p][alpha] = nullptr;
-    // Add this to the available pbitss for adding new cycles:
-    zz_mat.available_pbits_Z[p].push_back(alpha);
-    zz_mat.used_pbits_Z[p].erase(remove(zz_mat.used_pbits_Z[p].begin(), zz_mat.used_pbits_Z[p].end(), alpha), zz_mat.used_pbits_Z[p].end());
+    // Add this to the available chains for adding new cycles:
+    zz_mat.available_chain_Z[p].push_back(alpha);
+    zz_mat.used_chain_Z[p].erase(remove(zz_mat.used_chain_Z[p].begin(), zz_mat.used_chain_Z[p].end(), alpha), zz_mat.used_chain_Z[p].end());
     // We need to assign this to be invalid (redundant):
-    zz_mat.Cycle_Record[p][alpha] = cycle_record(false, -1, -1); // TODO: Probably use assertions to test that boudaries are not using invalid pbitss.
+    zz_mat.Cycle_Record[p][alpha] = cycle_record(false, -1, -1); // TODO: Probably use assertions to test that boudaries are not using invalid chains.
 }
 void output_representatives(
     zigzag_matrices &zz_mat,
@@ -795,7 +790,7 @@ void output_representatives(
 )
 {
     // Here, we need to gather all the wires pertaining to the cycle l and reconstruct the representatives at each index.
-    vector<tuple<int, pbits>> wire_representatives;
+    vector<tuple<int, chain>> wire_representatives;
     vector<tuple<int, vector<int>>> wire_representatives_ids;
     // Alternatively, just go over the non-zero values using the next operator
     size_t col_idx = rep_mat.links[p][a] -> find_first();
@@ -804,9 +799,9 @@ void output_representatives(
         col_idx = rep_mat.links[p][a] -> find_next(col_idx);
     }
     // Sort the representatives in the order of the timestamps.
-    sort(wire_representatives.begin(), wire_representatives.end(), [&](tuple<int, pbits> &a, tuple<int, pbits> &b){ return (get<0>(a) < get<0>(b));});
-    // Initialize a bitset pbits of size representative_max_size with all zeros.
-    pbits current_representative = make_shared<bitset>(1, 0);
+    sort(wire_representatives.begin(), wire_representatives.end(), [&](tuple<int, chain> &a, tuple<int, chain> &b){ return (get<0>(a) < get<0>(b));});
+    // Initialize a bitset chain of size representative_max_size with all zeros.
+    chain current_representative = make_shared<bitset>(1, 0);
     // Add all the representatives with timestamps less than or equal to interval_birth.
     size_t wire_idx;
     for (wire_idx = 0; wire_idx < wire_representatives.size(); ++wire_idx) {
@@ -841,7 +836,7 @@ void output_representatives(
 
 /* IMPLEMENTATION OF PRIMITIVE OPERATIONS: */
 // Goes over a vector of ints and finds the position of the last non-zero element.
-int pivot (pbits a)
+int pivot (chain a)
 {
     int pivot = (a -> find_first() != a -> npos) ? (a -> find_first()) : -1;
     // Find the next non-zero element.
@@ -852,7 +847,7 @@ int pivot (pbits a)
     return pivot;
 }
 // Takes the XOR of bitsets of differing lengths. Instead of appending by 0s and then XORing, we XOR the bitsets directly.
-void dynamic_xor(pbits a, pbits b)
+void dynamic_xor(chain a, chain b)
 {
     size_t a_size = a -> size();
     size_t b_size = b -> size();
