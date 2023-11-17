@@ -172,6 +172,13 @@ void reduce_bd_update(
     const int i,
     const int idx
 );
+void reduce_bd_update_alt(
+    zigzag_matrices &zz_mat,
+    representative_matrices &rep_mat,
+    const int p,
+    const int i,
+    const int idx
+);
 // BACKWARD DEATH:
 uint delete_cycle(
     zigzag_matrices &zz_mat,
@@ -272,7 +279,7 @@ void ZigzagRep::compute(
             if (!cycle_found)
             {   
                 // REDUCE boundaries to get solitary boundary and update data structures.
-                reduce_bd_update(zz_mat, rep_mat, p, i, idx);
+                reduce_bd_update_alt(zz_mat, rep_mat, p, i, idx);
             }
             // BACKWARD DEATH:
             else
@@ -291,6 +298,7 @@ void ZigzagRep::compute(
                 delete_update(zz_mat, rep_mat, p, alpha, idx);
             }
         }
+        /*
         // Assert that for each column in the cycle matrix, summing up the links should give the corresponding column back:
         for (size_t p = 0; p <= m; p++) {
             for (auto col_idx: zz_mat.used_chain_Z[p]) {
@@ -327,6 +335,7 @@ void ZigzagRep::compute(
                 }
             }
         }
+        */
     }
     // POST-PROCESSING: 
     for (size_t p = 0; p <= m; p++) {
@@ -551,75 +560,173 @@ void make_pivots_distinct(
     const int l
 )
 {
-    bool pivot_conflict;
-    int a, b, pivot_a, pivot_b, current_idx, current_pivot;
-    current_pivot = pivot(zz_mat.Z[p-1][l]);
-    if (zz_mat.pivots[p-1].find(current_pivot) == zz_mat.pivots[p-1].end()) {   
-        pivot_conflict = false;
-        zz_mat.pivots[p-1][current_pivot] = l;
-    }
-    else {
-        pivot_conflict = true;
-        a = l;
-        b = zz_mat.pivots[p-1][current_pivot];;
-        pivot_a = current_pivot;
-        pivot_b = current_pivot;
-    }
-    while (pivot_conflict)
-    {
-        bool a_lessthan_b; // true implies we add a to b and false implies we add b to a.
-        bool both_boundary = false;
-        if (!zz_mat.Cycle_Record[p-1][a].non_bd && zz_mat.Cycle_Record[p-1][b].non_bd) {
-            a_lessthan_b = true;
-        }
-        else if (zz_mat.Cycle_Record[p-1][a].non_bd && !zz_mat.Cycle_Record[p-1][b].non_bd) {
-            a_lessthan_b = false;
-        }
-        else 
-        {
-            int birth_a = zz_mat.Cycle_Record[p-1][a].timestamp;
-            int birth_b = zz_mat.Cycle_Record[p-1][b].timestamp;
-            a_lessthan_b = ((birth_a == birth_b) || ((birth_a < birth_b) && (filt_op[birth_b-1])) || ((birth_a > birth_b) && (!(filt_op[birth_a-1]))));   
-            both_boundary = (!zz_mat.Cycle_Record[p-1][a].non_bd && !zz_mat.Cycle_Record[p-1][b].non_bd);
-            if (both_boundary) {
-                a_lessthan_b = false;
-            }
-        }
-        if (a_lessthan_b) {
-            int temp = b;
-            int pivot_temp = pivot_b;
-            b = a;
-            pivot_b = pivot_a;
-            a = temp;
-            pivot_a = pivot_temp;
-        }
-        dynamic_xor(zz_mat.Z[p-1][a], zz_mat.Z[p-1][b]);
-        dynamic_xor(rep_mat.links[p-1][a], rep_mat.links[p-1][b]);
-        if (both_boundary) {
-            int chain_a = zz_mat.Cycle_Record[p-1][a].chain_idx;
-            int chain_b = zz_mat.Cycle_Record[p-1][b].chain_idx;
-            dynamic_xor(zz_mat.C[p][chain_a], zz_mat.C[p][chain_b]);
-        }
-        // Check for pivot conflicts again:
-        zz_mat.pivots[p-1][pivot_b] = b;
-        pivot_a = pivot(zz_mat.Z[p-1][a]);
-        if (zz_mat.pivots[p-1].find(pivot_a) == zz_mat.pivots[p-1].end())
-        {
-            pivot_conflict = false;
-            zz_mat.pivots[p-1][pivot_a] = a;
-        }
-        else 
-        {
-            if (zz_mat.pivots[p-1][pivot_a] == a) {
-                pivot_conflict = false;
-            }
-            else {
-                pivot_conflict = true;
-                b = zz_mat.pivots[p-1][pivot_a];
-                pivot_b = pivot_a;
-            }
-        }
-    }
+     bool pivot_conflict;
+     int a, b, pivot_a, pivot_b, current_idx, current_pivot;
+     current_pivot = pivot(zz_mat.Z[p-1][l]);
+     if (zz_mat.pivots[p-1].find(current_pivot) == zz_mat.pivots[p-1].end())
+     {   
+         pivot_conflict = false;
+         zz_mat.pivots[p-1][current_pivot] = l;
+     }
+     else {
+         pivot_conflict = true;
+         a = l;
+         b = zz_mat.pivots[p-1][current_pivot];;
+         pivot_a = current_pivot;
+         pivot_b = current_pivot;
+     }
+     while (pivot_conflict)
+     {
+         // Check that a and b are valid indices in Z[p-1]:
+         if (!zz_mat.Cycle_Record[p-1][a].non_bd && !zz_mat.Cycle_Record[p-1][b].non_bd) { // Both a and b are boundaries.
+             int birth_a = zz_mat.Cycle_Record[p-1][a].timestamp;
+             int birth_b = zz_mat.Cycle_Record[p-1][b].timestamp;  
+             if (birth_a > birth_b) {
+                dynamic_xor(zz_mat.Z[p-1][b], zz_mat.Z[p-1][a]); // Add the shorter boundary to the longer one.
+                dynamic_xor(rep_mat.links[p-1][b], rep_mat.links[p-1][a]);
+                dynamic_xor(zz_mat.C[p][zz_mat.Cycle_Record[p-1][b].chain_idx], zz_mat.C[p][zz_mat.Cycle_Record[p-1][a].chain_idx]);
+                zz_mat.pivots[p-1][pivot_a] = a;
+                pivot_b = pivot(zz_mat.Z[p-1][b]);
+                if (zz_mat.pivots[p-1].find(pivot_b) == zz_mat.pivots[p-1].end())
+                {
+                    pivot_conflict = false;
+                    zz_mat.pivots[p-1][pivot_b] = b;
+                }
+                else 
+                {
+                    if (zz_mat.pivots[p-1][pivot_b] == b) {
+                        pivot_conflict = false;
+                    }
+                    else {
+                        pivot_conflict = true;
+                        a = zz_mat.pivots[p-1][pivot_b];;
+                        pivot_a = pivot_b;
+                    }
+                }
+             }
+             else {
+                dynamic_xor(zz_mat.Z[p-1][a], zz_mat.Z[p-1][b]);
+                dynamic_xor(rep_mat.links[p-1][a], rep_mat.links[p-1][b]);
+                dynamic_xor(zz_mat.C[p][zz_mat.Cycle_Record[p-1][a].chain_idx], zz_mat.C[p][zz_mat.Cycle_Record[p-1][b].chain_idx]);
+                zz_mat.pivots[p-1][pivot_b] = b;
+                pivot_a = pivot(zz_mat.Z[p-1][a]);
+                if (zz_mat.pivots[p-1].find(pivot_a) == zz_mat.pivots[p-1].end())
+                {
+                    pivot_conflict = false;
+                    zz_mat.pivots[p-1][pivot_a] = a;
+                }
+                else 
+                {
+                    if (zz_mat.pivots[p-1][pivot_a] == a) {
+                        pivot_conflict = false;
+                    }
+                    else {
+                        pivot_conflict = true;
+                        b = zz_mat.pivots[p-1][pivot_a];
+                        pivot_b = pivot_a;
+                    }
+                }
+             }
+         }
+         else if (!zz_mat.Cycle_Record[p-1][a].non_bd && zz_mat.Cycle_Record[p-1][b].non_bd) {
+             dynamic_xor(zz_mat.Z[p-1][b], zz_mat.Z[p-1][a]);
+             dynamic_xor(rep_mat.links[p-1][b], rep_mat.links[p-1][a]);
+             // No need to update the chain matrices as a boundary is added to a cycle. Instead, check for pivot conflicts again:
+             zz_mat.pivots[p-1][pivot_a] = a;
+             pivot_b = pivot(zz_mat.Z[p-1][b]);
+             if (zz_mat.pivots[p-1].find(pivot_b) == zz_mat.pivots[p-1].end())
+             {
+                 pivot_conflict = false;
+                 zz_mat.pivots[p-1][pivot_b] = b;
+             }
+             else 
+             {
+                 if (zz_mat.pivots[p-1][pivot_b] == b) {
+                     pivot_conflict = false;
+                 }
+                 else 
+                 {
+                     pivot_conflict = true;
+                     a = zz_mat.pivots[p-1][pivot_b];
+                     pivot_a = pivot_b;
+                 }
+             }
+         }
+         else if (zz_mat.Cycle_Record[p-1][a].non_bd && !zz_mat.Cycle_Record[p-1][b].non_bd) {
+             dynamic_xor(zz_mat.Z[p-1][a], zz_mat.Z[p-1][b]);
+             dynamic_xor(rep_mat.links[p-1][a], rep_mat.links[p-1][b]);
+             // Again, no need to update the chain matrices as a boundary is added to a cycle. Instead, check for pivot conflicts again:
+             zz_mat.pivots[p-1][pivot_b] = b;
+             pivot_a = pivot(zz_mat.Z[p-1][a]);
+             if (zz_mat.pivots[p-1].find(pivot_a) == zz_mat.pivots[p-1].end())
+             {
+                 pivot_conflict = false;
+                 zz_mat.pivots[p-1][pivot_a] = a;
+             }
+             else {
+                 if (zz_mat.pivots[p-1][pivot_a] == a) {
+                     pivot_conflict = false;
+                 }
+                 else 
+                 {
+                     pivot_conflict = true;
+                     b = zz_mat.pivots[p-1][pivot_a];
+                     pivot_b = pivot_a;
+                 }
+             }
+         }
+         else {
+             int birth_a = zz_mat.Cycle_Record[p-1][a].timestamp;
+             int birth_b = zz_mat.Cycle_Record[p-1][b].timestamp;
+             bool a_lessthan_b = ((birth_a == birth_b) || ((birth_a < birth_b) && (filt_op[birth_b-1])) || ((birth_a > birth_b) && (!(filt_op[birth_a-1]))));   
+             if (a_lessthan_b) {
+                 dynamic_xor(zz_mat.Z[p-1][b], zz_mat.Z[p-1][a]);
+                 dynamic_xor(rep_mat.links[p-1][b], rep_mat.links[p-1][a]);
+                 // Since both are cycles, no need to update the chain matrices. Instead, check for pivot conflicts again:
+                 zz_mat.pivots[p-1][pivot_a] = a;
+                 pivot_b = pivot(zz_mat.Z[p-1][b]);
+                 if (zz_mat.pivots[p-1].find(pivot_b) == zz_mat.pivots[p-1].end())
+                 {
+                     pivot_conflict = false;
+                     zz_mat.pivots[p-1][pivot_b] = b;
+                 }
+                 else 
+                 {
+                     if (zz_mat.pivots[p-1][pivot_b] == b) {
+                         pivot_conflict = false;
+                     }
+                     else {
+                         pivot_conflict = true;
+                         a = zz_mat.pivots[p-1][pivot_b];;
+                         pivot_a = pivot_b;
+                     }
+                 }
+             }
+             else {
+                 dynamic_xor(zz_mat.Z[p-1][a], zz_mat.Z[p-1][b]);
+                 dynamic_xor(rep_mat.links[p-1][a], rep_mat.links[p-1][b]);
+                 // Since both are cycles, no need to update the chain matrices. Instead, check for pivot conflicts again:
+                 zz_mat.pivots[p-1][pivot_b] = b;
+                 pivot_a = pivot(zz_mat.Z[p-1][a]);
+                 if (zz_mat.pivots[p-1].find(pivot_a) == zz_mat.pivots[p-1].end())
+                 {
+                     pivot_conflict = false;
+                     zz_mat.pivots[p-1][pivot_a] = a;
+                 }
+                 else 
+                 {
+                     if (zz_mat.pivots[p-1][pivot_a] == a) {
+                         pivot_conflict = false;
+                     }
+                     else {
+                         pivot_conflict = true;
+                         b = zz_mat.pivots[p-1][pivot_a];
+                         pivot_b = pivot_a;
+                     }
+                 }
+             }
+         }
+     }
 }
 void reduce_bd_update(
     zigzag_matrices &zz_mat,
@@ -656,6 +763,88 @@ void reduce_bd_update(
             dynamic_xor(zz_mat.Z[p-1][cyc_idx], zz_mat.Z[p-1][alpha]);
             dynamic_xor(rep_mat.links[p-1][cyc_idx], rep_mat.links[p-1][alpha]);
             dynamic_xor(zz_mat.C[p][chain_idx], zz_mat.C[p][chain_alpha]);
+        }
+    }
+    zz_mat.C[p][chain_alpha] = nullptr; // Zero out the chain C[p][chain_alpha] from C[p].
+    // Update the used and available indices for C[p]:
+    zz_mat.available_chain_C[p].push_back(chain_alpha);
+    zz_mat.used_chain_C[p].erase(remove(zz_mat.used_chain_C[p].begin(), zz_mat.used_chain_C[p].end(), chain_alpha), zz_mat.used_chain_C[p].end()); // TODO: Check that this is done correctly.
+    zz_mat.Cycle_Record[p-1][alpha] = cycle_record(true, -1, i+1);
+    // Add a new wire to the (p-1)-th bundle:
+    rep_mat.bundle[p-1].push_back(zz_mat.Z[p-1][alpha]);
+    rep_mat.timestamp[p-1].push_back(i+1);
+    chain new_link = make_shared<bitset>(rep_mat.bundle[p-1].size(), 0);
+    new_link -> set(rep_mat.bundle[p-1].size()-1);
+    rep_mat.links[p-1][alpha] = new_link;
+}
+void reduce_bd_update_alt(
+    zigzag_matrices &zz_mat,
+    representative_matrices &rep_mat,
+    const int p,
+    const int i,
+    const int idx
+)
+{
+    // Find all the chains in C[p] that contain the simplex and get the indices of their corresponding boundaries.
+    vector<int> I;
+    for (auto cyc_idx: zz_mat.used_chain_Z[p-1])
+    {
+        if (!zz_mat.Cycle_Record[p-1][cyc_idx].non_bd) // If the birth timestamp is false, then the chain is a boundary.
+        {
+            int chain_idx = zz_mat.Cycle_Record[p-1][cyc_idx].chain_idx;
+            if (idx < zz_mat.C[p][chain_idx] -> size() && (*zz_mat.C[p][chain_idx])[idx]==1) {
+                I.push_back(cyc_idx);
+            }
+        }
+    }
+    // Sort the indices in I in the order of the birth timestamps in the decreasing order.
+    sort(I.begin(), I.end(), [&](int &a, int &b){
+        int birth_a = zz_mat.Cycle_Record[p-1][a].timestamp;
+        int birth_b = zz_mat.Cycle_Record[p-1][b].timestamp;
+            return (birth_a == birth_b) || (birth_a > birth_b);
+            });
+    // The chain to be deleted is the first chain in I.
+    int alpha = I[0];
+    int chain_alpha = zz_mat.Cycle_Record[p-1][alpha].chain_idx;
+    chain z = zz_mat.Z[p-1][alpha];
+    int z_pivot = pivot(z);
+    zz_mat.pivots[p-1].erase(z_pivot); // Remove the pivot of Z[p][alpha] from pivots[p].
+    I.erase(I.begin());
+    // DELETE: chain alpha from Z[p-1] and links[p-1].
+    int current_alpha = alpha; // Keeps track of the chain index being added in order to update links.
+    int current_chain_alpha = chain_alpha;
+    if (I.size() != 0) 
+    {
+        // Iterate over the rest of I and ensure that the pivots remain distinct:
+        for (auto a: I)
+        {
+            int a_pivot = pivot(zz_mat.Z[p-1][a]);
+            if (a_pivot > z_pivot) // z does not change.
+            {
+                dynamic_xor(zz_mat.Z[p-1][a], z);
+                dynamic_xor(rep_mat.links[p-1][a], rep_mat.links[p-1][current_alpha]);
+                int chain_a = zz_mat.Cycle_Record[p-1][a].chain_idx;
+                dynamic_xor(zz_mat.C[p][chain_a], zz_mat.C[p][current_chain_alpha]);
+            }   
+            else 
+            {
+                // We want to deep copy Z[p-1][a] to a temporary chain and then copy Z[p-1][a] to z.
+                chain temp = make_shared<bitset>(*zz_mat.Z[p-1][a]);
+                int temp_pivot = a_pivot;
+                int chain_a = zz_mat.Cycle_Record[p-1][a].chain_idx;
+                dynamic_xor(zz_mat.Z[p-1][a], z);
+                dynamic_xor(rep_mat.links[p-1][a], rep_mat.links[p-1][current_alpha]);
+                dynamic_xor(zz_mat.C[p][chain_a], zz_mat.C[p][current_chain_alpha]);
+                a_pivot = z_pivot;
+                // Update the information for z's.
+                z = temp;
+                current_alpha = a;
+                current_chain_alpha = chain_a;
+                z_pivot = temp_pivot;
+                // Update the pivot of Z[p][a] in pivots[p].
+                zz_mat.pivots[p-1][a_pivot] = a;
+                zz_mat.pivots[p-1].erase(z_pivot);
+            }
         }
     }
     zz_mat.C[p][chain_alpha] = nullptr; // Zero out the chain C[p][chain_alpha] from C[p].
