@@ -876,23 +876,26 @@ void output_representatives(
 )
 {
     // Here, we need to gather all the wires pertaining to the cycle l and reconstruct the representatives at each index.
-    vector<tuple<int, pbits>> wire_representatives;
-    vector<tuple<int, vector<int>>> wire_representatives_ids;
+    vector<tuple<int, pbits>> wires;
     // Alternatively, just go over the non-zero values using the next operator
     size_t col_idx = rep_mat.links[p][a] -> find_first();
     while (col_idx != rep_mat.links[p][a] -> npos) {
-        wire_representatives.push_back(make_tuple(rep_mat.timestamp[p][col_idx], rep_mat.bundle[p][col_idx]));
+        wires.push_back(make_tuple(rep_mat.timestamp[p][col_idx], rep_mat.bundle[p][col_idx]));
         col_idx = rep_mat.links[p][a] -> find_next(col_idx);
     }
     // Sort the representatives in the order of the timestamps.
-    sort(wire_representatives.begin(), wire_representatives.end(), [&](tuple<int, pbits> &a, tuple<int, pbits> &b){ return (get<0>(a) < get<0>(b));});
+    sort(wires.begin(), wires.end(), [&](tuple<int, pbits> &a, tuple<int, pbits> &b){ return (get<0>(a) < get<0>(b));});
     // Initialize a bitset pbits of size representative_max_size with all zeros.
     pbits current_representative = make_shared<bitset>(1, 0);
+    vector<tuple<int, vector<int>>> rep_ids;
     // Add all the representatives with timestamps less than or equal to interval_birth.
     size_t wire_idx;
-    for (wire_idx = 0; wire_idx < wire_representatives.size(); ++wire_idx) {
-        if (get<0>(wire_representatives[wire_idx]) <= birth) {
-            dynamic_xor(current_representative, get<1>(wire_representatives[wire_idx]));
+    for (wire_idx = 0; wire_idx < wires.size(); ++wire_idx) {
+        if (get<0>(wires[wire_idx]) <= birth) {
+            dynamic_xor(current_representative, get<1>(wires[wire_idx]));
+        }
+        else {
+            break;
         }
     }
     vector<int> indices;
@@ -901,46 +904,20 @@ void output_representatives(
             indices.push_back(zz_mat.unique_id[p][rep_idx]);
             rep_idx = current_representative -> find_next(rep_idx);
     }
-    wire_representatives_ids.push_back(make_tuple(birth, indices));
-    for (; wire_idx < wire_representatives.size(); ++wire_idx) {
-        int time = get<0>(wire_representatives[wire_idx]);
-        dynamic_xor(current_representative, get<1>(wire_representatives[wire_idx]));
+    rep_ids.push_back(make_tuple(birth, indices));
+    for (; wire_idx < wires.size(); ++wire_idx) {
+        int time = get<0>(wires[wire_idx]);
+        dynamic_xor(current_representative, get<1>(wires[wire_idx]));
         vector<int> indices;
         int rep_idx = current_representative -> find_first();
         while (rep_idx != current_representative -> npos) {
                 indices.push_back(zz_mat.unique_id[p][rep_idx]);
                 rep_idx = current_representative -> find_next(rep_idx);
         }
-        wire_representatives_ids.push_back(make_tuple(time, indices));
+        rep_ids.push_back(make_tuple(time, indices));
     }
-    persistence -> push_back(make_tuple(birth, death, p, wire_representatives_ids));
+    persistence -> push_back(make_tuple(birth, death, p, rep_ids));
 }
-
-void check_link_invariant(
-    zigzag_matrices &zz_mat,
-    representative_matrices &rep_mat,
-    const int p,
-    const int a
-)
-{
-    pbits link_a = rep_mat.links[p][a];
-    pbits final_sum = make_shared<bitset>(zz_mat.unique_id[p].size(), 0);
-    for (size_t i = 0; i < link_a -> size(); i++) {
-        if ((*link_a)[i] == 1) {
-            dynamic_xor(final_sum, rep_mat.bundle[p][i]);
-        }
-    }
-    // Check that the final sum equals the current cycle:
-    int next_bit = final_sum -> find_first();
-    while (next_bit != final_sum -> npos) {
-        assert((*zz_mat.Z[p][a])[next_bit] == 1);
-        next_bit = final_sum -> find_next(next_bit);
-    } 
-}
-
-
-
-
 
 /* IMPLEMENTATION OF PRIMITIVE OPERATIONS: */
 // Goes over a vector of ints and finds the position of the last non-zero element.
@@ -966,4 +943,26 @@ void dynamic_xor(pbits a, pbits b)
         (*a)[i] ^= (*b)[i];
     }
 }
-}// namespace ZZREP
+void check_link_invariant(
+    zigzag_matrices &zz_mat,
+    representative_matrices &rep_mat,
+    const int p,
+    const int a
+)
+{
+    pbits link_a = rep_mat.links[p][a];
+    pbits final_sum = make_shared<bitset>(zz_mat.unique_id[p].size(), 0);
+    for (size_t i = 0; i < link_a -> size(); i++) {
+        if ((*link_a)[i] == 1) {
+            dynamic_xor(final_sum, rep_mat.bundle[p][i]);
+        }
+    }
+    // Check that the final sum equals the current cycle:
+    int next_bit = final_sum -> find_first();
+    while (next_bit != final_sum -> npos) {
+        assert((*zz_mat.Z[p][a])[next_bit] == 1);
+        next_bit = final_sum -> find_next(next_bit);
+    } 
+}
+}
+// namespace ZZREP
