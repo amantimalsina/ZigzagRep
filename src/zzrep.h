@@ -33,7 +33,7 @@ public:
         const std::vector<std::vector<int> > &filt_simp, 
         const std::vector<bool> &filt_op,
         std::vector <std::tuple <int, int, int, std::vector<std::tuple<int, std::vector<int>>> > > *persistence,
-        std::vector <std::map<int, int>> *i_to_id,
+        std::vector< std::vector<int>> *id_to_i,
         const int m);
 };
 
