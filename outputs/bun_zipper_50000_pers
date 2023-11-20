@@ -1,30 +1,30 @@
-0-dimensional bar [1, 2000]
+0-dimensional bar [2, 2000]
 Representatives: 
-From 1: 0
+From 2: 1
 -----------------------
-0-dimensional bar [2, 2001]
+0-dimensional bar [3, 2001]
 Representatives: 
-From 2: 0
+From 3: 2
 -----------------------
-0-dimensional bar [3, 2003]
+0-dimensional bar [4, 2003]
 Representatives: 
-From 3: 0
+From 4: 3
 -----------------------
-0-dimensional bar [4, 2006]
+0-dimensional bar [5, 2006]
 Representatives: 
-From 4: 0
+From 5: 4
 -----------------------
-0-dimensional bar [5, 2010]
+0-dimensional bar [6, 2010]
 Representatives: 
-From 5: 0
+From 6: 5
 -----------------------
-0-dimensional bar [6, 2015]
+0-dimensional bar [7, 2015]
 Representatives: 
-From 6: 0
+From 7: 6
 -----------------------
-0-dimensional bar [7, 2021]
+0-dimensional bar [8, 2021]
 Representatives: 
-From 7: 0
+From 8: 7
 -----------------------
 1-dimensional bar [2018, 2028]
 Representatives: 
@@ -38,21 +38,21 @@ From 2023: 0 + 21 + 22
 Representatives: 
 From 2003: 0 + 1 + 2
 -----------------------
-0-dimensional bar [8, 2031]
+0-dimensional bar [9, 2031]
 Representatives: 
-From 8: 0
+From 9: 8
 -----------------------
-0-dimensional bar [9, 2039]
+0-dimensional bar [10, 2039]
 Representatives: 
-From 9: 0
+From 10: 9
 -----------------------
 1-dimensional bar [2005, 2048]
 Representatives: 
 From 2005: 0 + 3 + 4
 -----------------------
-0-dimensional bar [10, 2049]
+0-dimensional bar [11, 2049]
 Representatives: 
-From 10: 0
+From 11: 10
 -----------------------
 1-dimensional bar [2058, 2060]
 Representatives: 
@@ -70,9 +70,9 @@ From 2006: 1 + 3 + 5
 Representatives: 
 From 2051: 1 + 3 + 4 + 2
 -----------------------
-0-dimensional bar [11, 2064]
+0-dimensional bar [12, 2064]
 Representatives: 
-From 11: 0
+From 12: 11
 -----------------------
 1-dimensional bar [2075, 2079]
 Representatives: 
@@ -122,9 +122,9 @@ From 2052: 3 + 4 + 45 + 47
 Representatives: 
 From 2033: 0 + 28 + 29
 -----------------------
-0-dimensional bar [12, 2094]
+0-dimensional bar [13, 2094]
 Representatives: 
-From 12: 0
+From 13: 12
 -----------------------
 1-dimensional bar [2038, 2106]
 Representatives: 
@@ -158,9 +158,9 @@ From 2093: 3 + 4 + 15 + 16
 Representatives: 
 From 2092: 3 + 4 + 47 + 45
 -----------------------
-0-dimensional bar [13, 2114]
+0-dimensional bar [14, 2114]
 Representatives: 
-From 13: 0
+From 14: 13
 -----------------------
 1-dimensional bar [2128, 2128]
 Representatives: 
@@ -182,9 +182,9 @@ From 2025: 3 + 21 + 24
 Representatives: 
 From 2116: 3 + 4 + 15 + 16
 -----------------------
-0-dimensional bar [14, 2133]
+0-dimensional bar [15, 2133]
 Representatives: 
-From 14: 0
+From 15: 14
 -----------------------
 1-dimensional bar [2145, 2147]
 Representatives: 
@@ -198,9 +198,9 @@ From 2136: 4 + 29 + 31
 Representatives: 
 From 2135: 3 + 21 + 24
 -----------------------
-0-dimensional bar [15, 2150]
+0-dimensional bar [16, 2150]
 Representatives: 
-From 15: 0
+From 16: 15
 -----------------------
 1-dimensional bar [2161, 2162]
 Representatives: 
@@ -250,9 +250,9 @@ From 2010: 3 + 6 + 9
 Representatives: 
 From 2013: 1 + 3 + 4 + 6 + 7 + 10 + 12
 -----------------------
-0-dimensional bar [16, 2178]
+0-dimensional bar [17, 2178]
 Representatives: 
-From 16: 0
+From 17: 16
 -----------------------
 1-dimensional bar [2188, 2194]
 Representatives: 
@@ -290,9 +290,9 @@ From 2176: 6 + 9 + 3
 Representatives: 
 From 2175: 6 + 7 + 11 + 12 + 1
 -----------------------
-0-dimensional bar [17, 2205]
+0-dimensional bar [18, 2205]
 Representatives: 
-From 17: 0
+From 18: 17
 -----------------------
 1-dimensional bar [2216, 2220]
 Representatives: 
@@ -330,9 +330,9 @@ From 2205: 6 + 7 + 11 + 10
 Representatives: 
 From 2204: 6 + 7 + 11 + 12 + 1
 -----------------------
-0-dimensional bar [18, 2229]
+0-dimensional bar [19, 2229]
 Representatives: 
-From 18: 0
+From 19: 18
 -----------------------
 1-dimensional bar [2251, 2252]
 Representatives: 
@@ -370,9 +370,9 @@ From 2233: 6 + 7 + 11 + 12 + 163 + 166
 Representatives: 
 From 2231: 7 + 9 + 4
 -----------------------
-0-dimensional bar [19, 2261]
+0-dimensional bar [20, 2261]
 Representatives: 
-From 19: 0
+From 20: 19
 -----------------------
 1-dimensional bar [2282, 2284]
 Representatives: 
@@ -406,9 +406,9 @@ From 2264: 6 + 7 + 11 + 12 + 163 + 166
 Representatives: 
 From 2263: 6 + 7 + 186 + 187
 -----------------------
-0-dimensional bar [20, 2293]
+0-dimensional bar [21, 2293]
 Representatives: 
-From 20: 0
+From 21: 20
 -----------------------
 1-dimensional bar [2315, 2315]
 Representatives: 
@@ -482,9 +482,9 @@ From 2293: 6 + 7 + 187 + 186
 Representatives: 
 From 2232: 6 + 7 + 163 + 165
 -----------------------
-0-dimensional bar [21, 2334]
+0-dimensional bar [22, 2334]
 Representatives: 
-From 21: 0
+From 22: 21
 -----------------------
 1-dimensional bar [2356, 2357]
 Representatives: 
@@ -574,9 +574,9 @@ From 2234: 4 + 10 + 11 + 163 + 167
 Representatives: 
 From 2334: 4 + 6 + 7 + 10 + 13 + 163 + 163
 -----------------------
-0-dimensional bar [22, 2379]
+0-dimensional bar [23, 2379]
 Representatives: 
-From 22: 0
+From 23: 22
 -----------------------
 1-dimensional bar [2404, 2406]
 Representatives: 
@@ -650,9 +650,9 @@ From 2382: 6 + 7 + 11 + 12 + 36 + 38
 Representatives: 
 From 2381: 11 + 13 + 167 + 165
 -----------------------
-0-dimensional bar [23, 2424]
+0-dimensional bar [24, 2424]
 Representatives: 
-From 23: 0
+From 24: 23
 -----------------------
 1-dimensional bar [2451, 2455]
 Representatives: 
@@ -730,9 +730,9 @@ From 2427: 6 + 7 + 11 + 12 + 36 + 38
 Representatives: 
 From 2426: 11 + 13 + 167 + 165
 -----------------------
-0-dimensional bar [24, 2476]
+0-dimensional bar [25, 2476]
 Representatives: 
-From 24: 0
+From 25: 24
 -----------------------
 1-dimensional bar [2495, 2496]
 Representatives: 
@@ -814,9 +814,9 @@ From 2475: 11 + 13 + 167 + 165
 Representatives: 
 From 2019: 3 + 4 + 6 + 9 + 10 + 11 + 15 + 18
 -----------------------
-0-dimensional bar [25, 2517]
+0-dimensional bar [26, 2517]
 Representatives: 
-From 25: 0
+From 26: 25
 -----------------------
 1-dimensional bar [2556, 2556]
 Representatives: 
@@ -1018,9 +1018,9 @@ From 2024: 1 + 7 + 9 + 11 + 13 + 21 + 23
 Representatives: 
 From 2517: 1 + 3 + 4 + 9 + 10 + 11 + 12 + 13 + 6
 -----------------------
-0-dimensional bar [26, 2609]
+0-dimensional bar [27, 2609]
 Representatives: 
-From 26: 0
+From 27: 26
 -----------------------
 1-dimensional bar [2553, 2639]
 Representatives: 
@@ -1114,9 +1114,9 @@ From 2608: 11 + 12 + 189 + 187
 Representatives: 
 From 2607: 11 + 13 + 131 + 130
 -----------------------
-0-dimensional bar [27, 2662]
+0-dimensional bar [28, 2662]
 Representatives: 
-From 27: 0
+From 28: 27
 -----------------------
 1-dimensional bar [2692, 2696]
 Representatives: 
@@ -1238,9 +1238,9 @@ From 2665: 11 + 12 + 189 + 187
 Representatives: 
 From 2664: 11 + 13 + 131 + 130
 -----------------------
-0-dimensional bar [28, 2727]
+0-dimensional bar [29, 2727]
 Representatives: 
-From 28: 0
+From 29: 28
 -----------------------
 1-dimensional bar [2754, 2757]
 Representatives: 
@@ -1310,9 +1310,9 @@ From 2729: 13 + 18 + 19 + 14
 Representatives: 
 From 2727: 12 + 13 + 21 + 23 + 86 + 89
 -----------------------
-0-dimensional bar [29, 2774]
+0-dimensional bar [30, 2774]
 Representatives: 
-From 29: 0
+From 30: 29
 -----------------------
 1-dimensional bar [2813, 2813]
 Representatives: 
@@ -1406,9 +1406,9 @@ From 2779: 13 + 18 + 19 + 14
 Representatives: 
 From 2777: 12 + 13 + 21 + 23 + 86 + 89
 -----------------------
-0-dimensional bar [30, 2836]
+0-dimensional bar [31, 2836]
 Representatives: 
-From 30: 0
+From 31: 30
 -----------------------
 1-dimensional bar [2861, 2862]
 Representatives: 
@@ -1462,9 +1462,9 @@ From 2840: 12 + 13 + 18 + 19 + 21 + 23 + 148 + 151
 Representatives: 
 From 2839: 13 + 18 + 19 + 14
 -----------------------
-0-dimensional bar [31, 2875]
+0-dimensional bar [32, 2875]
 Representatives: 
-From 31: 0
+From 32: 31
 -----------------------
 1-dimensional bar [2907, 2910]
 Representatives: 
@@ -1574,9 +1574,9 @@ From 2043: 1 + 6 + 9 + 12 + 13 + 15 + 18 + 36 + 39
 Representatives: 
 From 2036: 0 + 1 + 2 + 3 + 4 + 7 + 9 + 10 + 14 + 15 + 18 + 28 + 32
 -----------------------
-0-dimensional bar [32, 2938]
+0-dimensional bar [33, 2938]
 Representatives: 
-From 32: 0
+From 33: 32
 -----------------------
 1-dimensional bar [2971, 2972]
 Representatives: 
@@ -1686,9 +1686,9 @@ From 2940: 6 + 9 + 11 + 13 + 14 + 15 + 18 + 21 + 23 + 29 + 32 + 36 + 39 + 12
 Representatives: 
 From 2938: 6 + 9 + 11 + 13 + 14 + 15 + 19 + 11
 -----------------------
-0-dimensional bar [33, 2999]
+0-dimensional bar [34, 2999]
 Representatives: 
-From 33: 0
+From 34: 33
 -----------------------
 1-dimensional bar [3038, 3042]
 Representatives: 
@@ -1838,9 +1838,9 @@ From 3001: 29 + 33 + 11
 Representatives: 
 From 3006: 36 + 39 + 609 + 615
 -----------------------
-0-dimensional bar [34, 3081]
+0-dimensional bar [35, 3081]
 Representatives: 
-From 34: 0
+From 35: 34
 -----------------------
 1-dimensional bar [3041, 3121]
 Representatives: 
@@ -2082,9 +2082,9 @@ From 2776: 21 + 23 + 474 + 475
 Representatives: 
 From 2295: 3 + 6 + 9 + 12 + 13 + 21 + 23 + 210 + 211
 -----------------------
-0-dimensional bar [35, 3184]
+0-dimensional bar [36, 3184]
 Representatives: 
-From 35: 0
+From 36: 35
 -----------------------
 1-dimensional bar [3223, 3223]
 Representatives: 
@@ -2250,9 +2250,9 @@ From 3183: 21 + 23 + 475 + 474
 Representatives: 
 From 3182: 36 + 39 + 211 + 210
 -----------------------
-0-dimensional bar [36, 3266]
+0-dimensional bar [37, 3266]
 Representatives: 
-From 36: 0
+From 37: 36
 -----------------------
 1-dimensional bar [3304, 3305]
 Representatives: 
@@ -2374,9 +2374,9 @@ From 3266: 21 + 23 + 475 + 474
 Representatives: 
 From 3265: 36 + 39 + 211 + 210
 -----------------------
-0-dimensional bar [37, 3337]
+0-dimensional bar [38, 3337]
 Representatives: 
-From 37: 0
+From 38: 37
 -----------------------
 1-dimensional bar [3377, 3380]
 Representatives: 
@@ -2514,9 +2514,9 @@ From 3337: 21 + 23 + 475 + 474
 Representatives: 
 From 3336: 36 + 39 + 211 + 210
 -----------------------
-0-dimensional bar [38, 3415]
+0-dimensional bar [39, 3415]
 Representatives: 
-From 38: 0
+From 39: 38
 -----------------------
 1-dimensional bar [3459, 3459]
 Representatives: 
@@ -2674,9 +2674,9 @@ From 3341: 29 + 32 + 779 + 782
 Representatives: 
 From 3415: 21 + 23 + 475 + 474
 -----------------------
-0-dimensional bar [39, 3503]
+0-dimensional bar [40, 3503]
 Representatives: 
-From 39: 0
+From 40: 39
 -----------------------
 1-dimensional bar [3551, 3552]
 Representatives: 
@@ -2834,9 +2834,9 @@ From 3500: 29 + 32 + 782 + 779
 Representatives: 
 From 3499: 21 + 23 + 475 + 474
 -----------------------
-0-dimensional bar [40, 3593]
+0-dimensional bar [41, 3593]
 Representatives: 
-From 40: 0
+From 41: 40
 -----------------------
 1-dimensional bar [3552, 3643]
 Representatives: 
@@ -3026,9 +3026,9 @@ From 3593: 29 + 32 + 782 + 779
 Representatives: 
 From 3592: 21 + 23 + 475 + 474
 -----------------------
-0-dimensional bar [41, 3694]
+0-dimensional bar [42, 3694]
 Representatives: 
-From 41: 0
+From 42: 41
 -----------------------
 1-dimensional bar [3741, 3742]
 Representatives: 
@@ -3238,9 +3238,9 @@ From 3691: 29 + 32 + 782 + 779
 Representatives: 
 From 3272: 29 + 33 + 738 + 743
 -----------------------
-0-dimensional bar [42, 3800]
+0-dimensional bar [43, 3800]
 Representatives: 
-From 42: 0
+From 43: 42
 -----------------------
 1-dimensional bar [3843, 3844]
 Representatives: 
@@ -3498,9 +3498,9 @@ From 2157: 21 + 114 + 120
 Representatives: 
 From 2047: 21 + 36 + 43
 -----------------------
-0-dimensional bar [43, 3910]
+0-dimensional bar [44, 3910]
 Representatives: 
-From 43: 0
+From 44: 43
 -----------------------
 1-dimensional bar [3956, 3957]
 Representatives: 
@@ -3682,9 +3682,9 @@ From 3910: 36 + 43 + 120 + 114
 Representatives: 
 From 3909: 36 + 43 + 21
 -----------------------
-0-dimensional bar [44, 4004]
+0-dimensional bar [45, 4004]
 Representatives: 
-From 44: 0
+From 45: 44
 -----------------------
 1-dimensional bar [4045, 4047]
 Representatives: 
@@ -3794,9 +3794,9 @@ From 4004: 36 + 43 + 120 + 114
 Representatives: 
 From 4003: 36 + 43 + 21
 -----------------------
-0-dimensional bar [45, 4078]
+0-dimensional bar [46, 4078]
 Representatives: 
-From 45: 0
+From 46: 45
 -----------------------
 1-dimensional bar [4113, 4115]
 Representatives: 
@@ -3918,9 +3918,9 @@ From 4076: 36 + 43 + 120 + 114
 Representatives: 
 From 4075: 36 + 43 + 21
 -----------------------
-0-dimensional bar [46, 4146]
+0-dimensional bar [47, 4146]
 Representatives: 
-From 46: 0
+From 47: 46
 -----------------------
 1-dimensional bar [4110, 4185]
 Representatives: 
@@ -4050,9 +4050,9 @@ From 4146: 36 + 43 + 120 + 114
 Representatives: 
 From 2072: 11 + 18 + 19 + 29 + 33 + 36 + 39 + 56 + 63
 -----------------------
-0-dimensional bar [47, 4219]
+0-dimensional bar [48, 4219]
 Representatives: 
-From 47: 0
+From 48: 47
 -----------------------
 1-dimensional bar [4047, 4259]
 Representatives: 
@@ -4178,9 +4178,9 @@ From 4219: 36 + 43 + 120 + 114
 Representatives: 
 From 4218: 32 + 33 + 36 + 41 + 63 + 56
 -----------------------
-0-dimensional bar [48, 4292]
+0-dimensional bar [49, 4292]
 Representatives: 
-From 48: 0
+From 49: 48
 -----------------------
 1-dimensional bar [4332, 4332]
 Representatives: 
@@ -4322,9 +4322,9 @@ From 4292: 36 + 43 + 120 + 114
 Representatives: 
 From 4291: 11 + 29 + 33 + 56 + 56
 -----------------------
-0-dimensional bar [49, 4370]
+0-dimensional bar [50, 4370]
 Representatives: 
-From 49: 0
+From 50: 49
 -----------------------
 1-dimensional bar [4412, 4412]
 Representatives: 
@@ -4458,9 +4458,9 @@ From 4369: 36 + 43 + 120 + 114
 Representatives: 
 From 4368: 36 + 41 + 64 + 56
 -----------------------
-0-dimensional bar [50, 4447]
+0-dimensional bar [51, 4447]
 Representatives: 
-From 50: 0
+From 51: 50
 -----------------------
 1-dimensional bar [4489, 4490]
 Representatives: 
@@ -4646,9 +4646,9 @@ From 4447: 36 + 43 + 120 + 114
 Representatives: 
 From 4446: 18 + 19 + 36 + 39 + 63 + 56
 -----------------------
-0-dimensional bar [51, 4537]
+0-dimensional bar [52, 4537]
 Representatives: 
-From 51: 0
+From 52: 51
 -----------------------
 1-dimensional bar [4584, 4586]
 Representatives: 
@@ -4810,9 +4810,9 @@ From 4539: 100 + 107 + 29
 Representatives: 
 From 4537: 36 + 69 + 56
 -----------------------
-0-dimensional bar [52, 4629]
+0-dimensional bar [53, 4629]
 Representatives: 
-From 52: 0
+From 53: 52
 -----------------------
 1-dimensional bar [4677, 4678]
 Representatives: 
@@ -5014,9 +5014,9 @@ From 4627: 36 + 69 + 56
 Representatives: 
 From 2119: 32 + 33 + 56 + 64 + 86 + 90
 -----------------------
-0-dimensional bar [53, 4729]
+0-dimensional bar [54, 4729]
 Representatives: 
-From 53: 0
+From 54: 53
 -----------------------
 1-dimensional bar [4778, 4780]
 Representatives: 
@@ -5214,9 +5214,9 @@ From 3922: 32 + 33 + 36 + 41 + 56 + 63 + 114 + 120 + 1077 + 1088
 Representatives: 
 From 4729: 63 + 69 + 86 + 90 + 36
 -----------------------
-0-dimensional bar [54, 4838]
+0-dimensional bar [55, 4838]
 Representatives: 
-From 54: 0
+From 55: 54
 -----------------------
 1-dimensional bar [4884, 4887]
 Representatives: 
@@ -5410,9 +5410,9 @@ From 4831: 63 + 86 + 90 + 120 + 123 + 1088 + 1077
 Representatives: 
 From 4830: 63 + 69 + 86 + 90 + 36
 -----------------------
-0-dimensional bar [55, 4947]
+0-dimensional bar [56, 4947]
 Representatives: 
-From 55: 0
+From 56: 55
 -----------------------
 1-dimensional bar [4678, 4993]
 Representatives: 
@@ -5654,9 +5654,9 @@ From 2880: 1 + 7 + 9 + 11 + 14 + 18 + 19 + 21 + 23 + 36 + 63 + 69 + 539 + 543
 Representatives: 
 From 4936: 63 + 69 + 86 + 90 + 36
 -----------------------
-0-dimensional bar [56, 5071]
+0-dimensional bar [57, 5071]
 Representatives: 
-From 56: 0
+From 57: 56
 -----------------------
 1-dimensional bar [5114, 5114]
 Representatives: 
@@ -5898,9 +5898,9 @@ From 5055: 86 + 90 + 543 + 539
 Representatives: 
 From 5054: 63 + 69 + 86 + 90 + 36
 -----------------------
-0-dimensional bar [57, 5189]
+0-dimensional bar [58, 5189]
 Representatives: 
-From 57: 0
+From 58: 57
 -----------------------
 1-dimensional bar [5244, 5244]
 Representatives: 
@@ -6162,9 +6162,9 @@ From 5176: 86 + 90 + 543 + 539
 Representatives: 
 From 5175: 63 + 69 + 86 + 90 + 36
 -----------------------
-0-dimensional bar [58, 5313]
+0-dimensional bar [59, 5313]
 Representatives: 
-From 58: 0
+From 59: 58
 -----------------------
 1-dimensional bar [5387, 5388]
 Representatives: 
@@ -6450,9 +6450,9 @@ From 5311: 86 + 90 + 543 + 539
 Representatives: 
 From 5310: 63 + 69 + 86 + 90 + 36
 -----------------------
-0-dimensional bar [59, 5465]
+0-dimensional bar [60, 5465]
 Representatives: 
-From 59: 0
+From 60: 59
 -----------------------
 1-dimensional bar [5535, 5536]
 Representatives: 
@@ -6750,9 +6750,9 @@ From 5461: 86 + 90 + 543 + 539
 Representatives: 
 From 5460: 32 + 33 + 41 + 56 + 63 + 36
 -----------------------
-0-dimensional bar [60, 5614]
+0-dimensional bar [61, 5614]
 Representatives: 
-From 60: 0
+From 61: 60
 -----------------------
 1-dimensional bar [5696, 5698]
 Representatives: 
@@ -7050,9 +7050,9 @@ From 5612: 86 + 90 + 543 + 539
 Representatives: 
 From 5611: 3 + 4 + 10 + 11 + 36 + 39 + 41 + 63 + 64 + 74 + 80 + 100 + 104 + 167 + 170 + 36
 -----------------------
-0-dimensional bar [61, 5777]
+0-dimensional bar [62, 5777]
 Representatives: 
-From 61: 0
+From 62: 61
 -----------------------
 1-dimensional bar [5856, 5857]
 Representatives: 
@@ -7398,9 +7398,9 @@ From 5774: 120 + 123 + 148 + 160 + 1088 + 1077
 Representatives: 
 From 5773: 86 + 90 + 543 + 539
 -----------------------
-0-dimensional bar [62, 5946]
+0-dimensional bar [63, 5946]
 Representatives: 
-From 62: 0
+From 63: 62
 -----------------------
 1-dimensional bar [6015, 6017]
 Representatives: 
@@ -7710,9 +7710,9 @@ From 5945: 74 + 80 + 1921 + 1910
 Representatives: 
 From 5944: 86 + 90 + 543 + 539
 -----------------------
-0-dimensional bar [63, 6095]
+0-dimensional bar [64, 6095]
 Representatives: 
-From 63: 0
+From 64: 63
 -----------------------
 1-dimensional bar [6162, 6162]
 Representatives: 
@@ -7950,9 +7950,9 @@ From 6097: 74 + 80 + 86 + 90 + 100 + 104 + 115 + 123 + 148 + 160 + 1483 + 1477
 Representatives: 
 From 6095: 74 + 80 + 1921 + 1910
 -----------------------
-0-dimensional bar [64, 6226]
+0-dimensional bar [65, 6226]
 Representatives: 
-From 64: 0
+From 65: 64
 -----------------------
 1-dimensional bar [6292, 6292]
 Representatives: 
@@ -8186,9 +8186,9 @@ From 6223: 74 + 80 + 86 + 90 + 100 + 104 + 115 + 123 + 148 + 160 + 1483 + 1477
 Representatives: 
 From 6222: 74 + 80 + 1921 + 1910
 -----------------------
-0-dimensional bar [65, 6351]
+0-dimensional bar [66, 6351]
 Representatives: 
-From 65: 0
+From 66: 65
 -----------------------
 1-dimensional bar [6418, 6418]
 Representatives: 
@@ -8422,9 +8422,9 @@ From 6353: 74 + 80 + 86 + 90 + 100 + 104 + 115 + 123 + 148 + 160 + 1483 + 1477
 Representatives: 
 From 6351: 74 + 80 + 1921 + 1910
 -----------------------
-0-dimensional bar [66, 6476]
+0-dimensional bar [67, 6476]
 Representatives: 
-From 66: 0
+From 67: 66
 -----------------------
 1-dimensional bar [6547, 6547]
 Representatives: 
@@ -8690,9 +8690,9 @@ From 6479: 74 + 80 + 86 + 90 + 100 + 104 + 115 + 123 + 148 + 160 + 1483 + 1477
 Representatives: 
 From 6478: 74 + 80 + 1921 + 1910
 -----------------------
-0-dimensional bar [67, 6616]
+0-dimensional bar [68, 6616]
 Representatives: 
-From 67: 0
+From 68: 67
 -----------------------
 1-dimensional bar [6691, 6691]
 Representatives: 
@@ -8978,9 +8978,9 @@ From 6365: 74 + 84 + 2368 + 2381
 Representatives: 
 From 6614: 74 + 80 + 1921 + 1910
 -----------------------
-0-dimensional bar [68, 6766]
+0-dimensional bar [69, 6766]
 Representatives: 
-From 68: 0
+From 69: 68
 -----------------------
 1-dimensional bar [6832, 6832]
 Representatives: 
@@ -9218,9 +9218,9 @@ From 6764: 74 + 84 + 2381 + 2368
 Representatives: 
 From 6763: 74 + 80 + 1921 + 1910
 -----------------------
-0-dimensional bar [69, 6895]
+0-dimensional bar [70, 6895]
 Representatives: 
-From 69: 0
+From 70: 69
 -----------------------
 1-dimensional bar [6959, 6959]
 Representatives: 
@@ -9610,9 +9610,9 @@ From 6892: 74 + 80 + 1921 + 1910
 Representatives: 
 From 4296: 0 + 13 + 18 + 19 + 28 + 29 + 32 + 33 + 39 + 47 + 49 + 64 + 69 + 1294 + 1297
 -----------------------
-0-dimensional bar [70, 7058]
+0-dimensional bar [71, 7058]
 Representatives: 
-From 70: 0
+From 71: 70
 -----------------------
 1-dimensional bar [7115, 7115]
 Representatives: 
@@ -9810,9 +9810,9 @@ From 7058: 100 + 107 + 2238 + 2229
 Representatives: 
 From 7057: 74 + 80 + 1297 + 1294
 -----------------------
-0-dimensional bar [71, 7166]
+0-dimensional bar [72, 7166]
 Representatives: 
-From 71: 0
+From 72: 71
 -----------------------
 1-dimensional bar [7227, 7228]
 Representatives: 
@@ -10070,9 +10070,9 @@ From 7166: 100 + 107 + 2238 + 2229
 Representatives: 
 From 7165: 74 + 80 + 1297 + 1294
 -----------------------
-0-dimensional bar [72, 7300]
+0-dimensional bar [73, 7300]
 Representatives: 
-From 72: 0
+From 73: 72
 -----------------------
 1-dimensional bar [7354, 7355]
 Representatives: 
@@ -10278,9 +10278,9 @@ From 7294: 100 + 107 + 2238 + 2229
 Representatives: 
 From 7293: 74 + 80 + 1297 + 1294
 -----------------------
-0-dimensional bar [73, 7412]
+0-dimensional bar [74, 7412]
 Representatives: 
-From 73: 0
+From 74: 73
 -----------------------
 1-dimensional bar [7469, 7471]
 Representatives: 
@@ -10490,9 +10490,9 @@ From 7408: 100 + 107 + 2238 + 2229
 Representatives: 
 From 7407: 74 + 80 + 1297 + 1294
 -----------------------
-0-dimensional bar [74, 7524]
+0-dimensional bar [75, 7524]
 Representatives: 
-From 74: 0
+From 75: 74
 -----------------------
 1-dimensional bar [7587, 7587]
 Representatives: 
@@ -10702,9 +10702,9 @@ From 7526: 167 + 170 + 2516 + 2509
 Representatives: 
 From 7524: 100 + 107 + 2238 + 2229
 -----------------------
-0-dimensional bar [75, 7640]
+0-dimensional bar [76, 7640]
 Representatives: 
-From 75: 0
+From 76: 75
 -----------------------
 1-dimensional bar [7701, 7702]
 Representatives: 
@@ -10986,9 +10986,9 @@ From 7640: 100 + 107 + 2238 + 2229
 Representatives: 
 From 2276: 3 + 4 + 10 + 11 + 19 + 36 + 43 + 47 + 49 + 64 + 74 + 80 + 86 + 93 + 115 + 120 + 131 + 132 + 189 + 200
 -----------------------
-0-dimensional bar [76, 7773]
+0-dimensional bar [77, 7773]
 Representatives: 
-From 76: 0
+From 77: 76
 -----------------------
 1-dimensional bar [6017, 7830]
 Representatives: 
@@ -11198,9 +11198,9 @@ From 7775: 167 + 170 + 2516 + 2509
 Representatives: 
 From 7773: 74 + 80 + 93 + 100 + 104 + 132 + 136 + 148 + 160 + 192 + 200 + 86
 -----------------------
-0-dimensional bar [77, 7883]
+0-dimensional bar [78, 7883]
 Representatives: 
-From 77: 0
+From 78: 77
 -----------------------
 1-dimensional bar [7940, 7943]
 Representatives: 
@@ -11390,9 +11390,9 @@ From 7888: 256 + 267 + 3159 + 3163
 Representatives: 
 From 7883: 74 + 80 + 93 + 100 + 104 + 132 + 136 + 148 + 160 + 192 + 200 + 86
 -----------------------
-0-dimensional bar [78, 7997]
+0-dimensional bar [79, 7997]
 Representatives: 
-From 78: 0
+From 79: 78
 -----------------------
 1-dimensional bar [7228, 8055]
 Representatives: 
@@ -11690,9 +11690,9 @@ From 5640: 148 + 160 + 1985 + 2010
 Representatives: 
 From 7991: 1 + 2 + 3 + 4 + 6 + 7 + 10 + 11 + 33 + 43 + 64 + 69 + 93 + 104 + 107 + 115 + 120 + 132 + 136 + 148 + 160 + 189 + 200 + 86
 -----------------------
-0-dimensional bar [79, 8133]
+0-dimensional bar [80, 8133]
 Representatives: 
-From 79: 0
+From 80: 79
 -----------------------
 1-dimensional bar [8192, 8194]
 Representatives: 
@@ -11898,9 +11898,9 @@ From 8131: 233 + 249 + 74
 Representatives: 
 From 8130: 43 + 63 + 69 + 86 + 90 + 120 + 123 + 2010 + 1985
 -----------------------
-0-dimensional bar [80, 8252]
+0-dimensional bar [81, 8252]
 Representatives: 
-From 80: 0
+From 81: 80
 -----------------------
 1-dimensional bar [8054, 8309]
 Representatives: 
@@ -12162,9 +12162,9 @@ From 8247: 233 + 249 + 74
 Representatives: 
 From 8246: 123 + 148 + 162 + 2010 + 1985
 -----------------------
-0-dimensional bar [81, 8378]
+0-dimensional bar [82, 8378]
 Representatives: 
-From 81: 0
+From 82: 81
 -----------------------
 1-dimensional bar [8442, 8445]
 Representatives: 
@@ -12390,9 +12390,9 @@ From 8376: 233 + 249 + 74
 Representatives: 
 From 8375: 123 + 148 + 162 + 2010 + 1985
 -----------------------
-0-dimensional bar [82, 8511]
+0-dimensional bar [83, 8511]
 Representatives: 
-From 82: 0
+From 83: 82
 -----------------------
 1-dimensional bar [8567, 8571]
 Representatives: 
@@ -12650,9 +12650,9 @@ From 8503: 233 + 249 + 74
 Representatives: 
 From 8502: 123 + 148 + 162 + 2010 + 1985
 -----------------------
-0-dimensional bar [83, 8643]
+0-dimensional bar [84, 8643]
 Representatives: 
-From 83: 0
+From 84: 83
 -----------------------
 1-dimensional bar [8703, 8706]
 Representatives: 
@@ -12890,9 +12890,9 @@ From 8637: 233 + 249 + 74
 Representatives: 
 From 8636: 123 + 148 + 162 + 2010 + 1985
 -----------------------
-0-dimensional bar [84, 8770]
+0-dimensional bar [85, 8770]
 Representatives: 
-From 84: 0
+From 85: 84
 -----------------------
 1-dimensional bar [8836, 8836]
 Representatives: 
@@ -13194,9 +13194,9 @@ From 8767: 233 + 249 + 74
 Representatives: 
 From 8766: 123 + 148 + 162 + 2010 + 1985
 -----------------------
-0-dimensional bar [85, 8920]
+0-dimensional bar [86, 8920]
 Representatives: 
-From 85: 0
+From 86: 85
 -----------------------
 1-dimensional bar [8445, 8974]
 Representatives: 
@@ -13462,9 +13462,9 @@ From 8913: 123 + 697 + 712 + 115
 Representatives: 
 From 8912: 123 + 148 + 162 + 2010 + 1985
 -----------------------
-0-dimensional bar [86, 9047]
+0-dimensional bar [87, 9047]
 Representatives: 
-From 86: 0
+From 87: 86
 -----------------------
 1-dimensional bar [9097, 9098]
 Representatives: 
@@ -13698,9 +13698,9 @@ From 9042: 132 + 141 + 670 + 676 + 104
 Representatives: 
 From 9041: 167 + 178 + 1541 + 1531
 -----------------------
-0-dimensional bar [87, 9156]
+0-dimensional bar [88, 9156]
 Representatives: 
-From 87: 0
+From 88: 87
 -----------------------
 1-dimensional bar [9227, 9227]
 Representatives: 
@@ -13934,9 +13934,9 @@ From 9159: 192 + 197 + 246 + 242
 Representatives: 
 From 9158: 132 + 141 + 670 + 676 + 104
 -----------------------
-0-dimensional bar [88, 9285]
+0-dimensional bar [89, 9285]
 Representatives: 
-From 88: 0
+From 89: 88
 -----------------------
 1-dimensional bar [9354, 9355]
 Representatives: 
@@ -14166,9 +14166,9 @@ From 9288: 192 + 197 + 246 + 242
 Representatives: 
 From 9287: 132 + 141 + 670 + 676 + 104
 -----------------------
-0-dimensional bar [89, 9414]
+0-dimensional bar [90, 9414]
 Representatives: 
-From 89: 0
+From 90: 89
 -----------------------
 1-dimensional bar [9477, 9478]
 Representatives: 
@@ -14422,9 +14422,9 @@ From 9414: 192 + 197 + 246 + 242
 Representatives: 
 From 9413: 132 + 141 + 670 + 676 + 104
 -----------------------
-0-dimensional bar [90, 9542]
+0-dimensional bar [91, 9542]
 Representatives: 
-From 90: 0
+From 91: 90
 -----------------------
 1-dimensional bar [9606, 9608]
 Representatives: 
@@ -14686,9 +14686,9 @@ From 9542: 132 + 141 + 670 + 676 + 104
 Representatives: 
 From 2399: 123 + 148 + 160 + 256 + 275
 -----------------------
-0-dimensional bar [91, 9675]
+0-dimensional bar [92, 9675]
 Representatives: 
-From 91: 0
+From 92: 91
 -----------------------
 1-dimensional bar [9746, 9747]
 Representatives: 
@@ -14946,9 +14946,9 @@ From 9675: 132 + 141 + 670 + 676 + 104
 Representatives: 
 From 9674: 148 + 162 + 275 + 256
 -----------------------
-0-dimensional bar [92, 9812]
+0-dimensional bar [93, 9812]
 Representatives: 
-From 92: 0
+From 93: 92
 -----------------------
 1-dimensional bar [9884, 9886]
 Representatives: 
@@ -15206,9 +15206,9 @@ From 9814: 132 + 141 + 670 + 676 + 104
 Representatives: 
 From 9812: 148 + 162 + 275 + 256
 -----------------------
-0-dimensional bar [93, 9951]
+0-dimensional bar [94, 9951]
 Representatives: 
-From 93: 0
+From 94: 93
 -----------------------
 1-dimensional bar [10017, 10019]
 Representatives: 
@@ -15510,9 +15510,9 @@ From 4020: 43 + 47 + 49 + 64 + 74 + 80 + 90 + 93 + 115 + 120 + 132 + 136 + 148 +
 Representatives: 
 From 9951: 148 + 162 + 275 + 256
 -----------------------
-0-dimensional bar [94, 10096]
+0-dimensional bar [95, 10096]
 Representatives: 
-From 94: 0
+From 95: 94
 -----------------------
 1-dimensional bar [9747, 10162]
 Representatives: 
@@ -15834,9 +15834,9 @@ From 10096: 43 + 47 + 49 + 64 + 74 + 80 + 90 + 93 + 115 + 120 + 123 + 132 + 136 
 Representatives: 
 From 10095: 148 + 162 + 275 + 256
 -----------------------
-0-dimensional bar [95, 10245]
+0-dimensional bar [96, 10245]
 Representatives: 
-From 95: 0
+From 96: 95
 -----------------------
 1-dimensional bar [10322, 10323]
 Representatives: 
@@ -16138,9 +16138,9 @@ From 10244: 148 + 162 + 272 + 275 + 1141 + 1126
 Representatives: 
 From 10243: 148 + 162 + 275 + 256
 -----------------------
-0-dimensional bar [96, 10400]
+0-dimensional bar [97, 10400]
 Representatives: 
-From 96: 0
+From 97: 96
 -----------------------
 1-dimensional bar [10481, 10483]
 Representatives: 
@@ -16450,9 +16450,9 @@ From 10400: 148 + 162 + 272 + 275 + 1141 + 1126
 Representatives: 
 From 10399: 148 + 162 + 275 + 256
 -----------------------
-0-dimensional bar [97, 10567]
+0-dimensional bar [98, 10567]
 Representatives: 
-From 97: 0
+From 98: 97
 -----------------------
 1-dimensional bar [10645, 10646]
 Representatives: 
@@ -16774,9 +16774,9 @@ From 10562: 148 + 162 + 272 + 275 + 1141 + 1126
 Representatives: 
 From 10561: 148 + 162 + 275 + 256
 -----------------------
-0-dimensional bar [98, 10728]
+0-dimensional bar [99, 10728]
 Representatives: 
-From 98: 0
+From 99: 98
 -----------------------
 1-dimensional bar [10815, 10817]
 Representatives: 
@@ -17134,9 +17134,9 @@ From 10727: 148 + 162 + 275 + 256
 Representatives: 
 From 2441: 148 + 160 + 170 + 178 + 192 + 200 + 283 + 299
 -----------------------
-0-dimensional bar [99, 10911]
+0-dimensional bar [100, 10911]
 Representatives: 
-From 99: 0
+From 100: 99
 -----------------------
 1-dimensional bar [10998, 10998]
 Representatives: 
@@ -17470,9 +17470,9 @@ From 10908: 270 + 283 + 299 + 256
 Representatives: 
 From 10907: 162 + 270 + 275 + 283 + 299 + 148
 -----------------------
-0-dimensional bar [100, 11098]
+0-dimensional bar [101, 11098]
 Representatives: 
-From 100: 0
+From 101: 100
 -----------------------
 1-dimensional bar [11181, 11184]
 Representatives: 
@@ -17822,9 +17822,9 @@ From 11083: 270 + 272 + 283 + 299 + 1141 + 1126
 Representatives: 
 From 11082: 162 + 270 + 275 + 283 + 299 + 148
 -----------------------
-0-dimensional bar [101, 11276]
+0-dimensional bar [102, 11276]
 Representatives: 
-From 101: 0
+From 102: 101
 -----------------------
 1-dimensional bar [11363, 11366]
 Representatives: 
@@ -18182,9 +18182,9 @@ From 11273: 270 + 272 + 283 + 299 + 1141 + 1126
 Representatives: 
 From 11272: 162 + 270 + 275 + 283 + 299 + 148
 -----------------------
-0-dimensional bar [102, 11460]
+0-dimensional bar [103, 11460]
 Representatives: 
-From 102: 0
+From 103: 102
 -----------------------
 1-dimensional bar [10323, 11557]
 Representatives: 
@@ -18566,9 +18566,9 @@ From 11457: 270 + 272 + 283 + 299 + 1141 + 1126
 Representatives: 
 From 11456: 162 + 270 + 275 + 283 + 299 + 148
 -----------------------
-0-dimensional bar [103, 11655]
+0-dimensional bar [104, 11655]
 Representatives: 
-From 103: 0
+From 104: 103
 -----------------------
 1-dimensional bar [11754, 11757]
 Representatives: 
@@ -18930,9 +18930,9 @@ From 11654: 270 + 272 + 283 + 299 + 1141 + 1126
 Representatives: 
 From 11653: 162 + 270 + 275 + 283 + 299 + 148
 -----------------------
-0-dimensional bar [104, 11853]
+0-dimensional bar [105, 11853]
 Representatives: 
-From 104: 0
+From 105: 104
 -----------------------
 1-dimensional bar [11950, 11951]
 Representatives: 
@@ -19310,9 +19310,9 @@ From 11849: 270 + 272 + 283 + 299 + 1141 + 1126
 Representatives: 
 From 11848: 162 + 270 + 275 + 283 + 299 + 148
 -----------------------
-0-dimensional bar [105, 12051]
+0-dimensional bar [106, 12051]
 Representatives: 
-From 105: 0
+From 106: 105
 -----------------------
 1-dimensional bar [12145, 12146]
 Representatives: 
@@ -19662,9 +19662,9 @@ From 12047: 270 + 272 + 283 + 299 + 1141 + 1126
 Representatives: 
 From 12046: 162 + 270 + 275 + 283 + 299 + 148
 -----------------------
-0-dimensional bar [106, 12240]
+0-dimensional bar [107, 12240]
 Representatives: 
-From 106: 0
+From 107: 106
 -----------------------
 1-dimensional bar [12332, 12332]
 Representatives: 
@@ -20082,9 +20082,9 @@ From 2684: 123 + 148 + 162 + 167 + 170 + 192 + 200 + 211 + 224 + 409 + 430
 Representatives: 
 From 12234: 148 + 160 + 162 + 170 + 178 + 192 + 200 + 270 + 275 + 148
 -----------------------
-0-dimensional bar [107, 12456]
+0-dimensional bar [108, 12456]
 Representatives: 
-From 107: 0
+From 108: 107
 -----------------------
 1-dimensional bar [12536, 12538]
 Representatives: 
@@ -20482,9 +20482,9 @@ From 12438: 304 + 409 + 430 + 283
 Representatives: 
 From 12437: 409 + 436 + 148
 -----------------------
-0-dimensional bar [108, 12661]
+0-dimensional bar [109, 12661]
 Representatives: 
-From 108: 0
+From 109: 108
 -----------------------
 1-dimensional bar [12736, 12737]
 Representatives: 
@@ -20862,9 +20862,9 @@ From 12639: 304 + 409 + 430 + 283
 Representatives: 
 From 12638: 409 + 436 + 148
 -----------------------
-0-dimensional bar [109, 12840]
+0-dimensional bar [110, 12840]
 Representatives: 
-From 109: 0
+From 110: 109
 -----------------------
 1-dimensional bar [12916, 12918]
 Representatives: 
@@ -21190,9 +21190,9 @@ From 12833: 167 + 178 + 211 + 224 + 283 + 299 + 304 + 283
 Representatives: 
 From 12832: 167 + 178 + 211 + 224 + 283 + 299 + 430 + 436 + 148
 -----------------------
-0-dimensional bar [110, 13006]
+0-dimensional bar [111, 13006]
 Representatives: 
-From 110: 0
+From 111: 110
 -----------------------
 1-dimensional bar [13088, 13091]
 Representatives: 
@@ -21518,9 +21518,9 @@ From 13001: 270 + 275 + 299 + 513 + 530 + 283
 Representatives: 
 From 13000: 270 + 275 + 299 + 304 + 430 + 436 + 513 + 530 + 148
 -----------------------
-0-dimensional bar [111, 13187]
+0-dimensional bar [112, 13187]
 Representatives: 
-From 111: 0
+From 112: 111
 -----------------------
 1-dimensional bar [13257, 13257]
 Representatives: 
@@ -21834,9 +21834,9 @@ From 13174: 270 + 275 + 299 + 513 + 530 + 283
 Representatives: 
 From 13173: 270 + 275 + 299 + 304 + 430 + 436 + 513 + 530 + 148
 -----------------------
-0-dimensional bar [112, 13344]
+0-dimensional bar [113, 13344]
 Representatives: 
-From 112: 0
+From 113: 112
 -----------------------
 1-dimensional bar [13424, 13426]
 Representatives: 
@@ -22178,9 +22178,9 @@ From 13337: 270 + 275 + 299 + 513 + 530 + 283
 Representatives: 
 From 13336: 270 + 275 + 299 + 304 + 430 + 436 + 513 + 530 + 148
 -----------------------
-0-dimensional bar [113, 13515]
+0-dimensional bar [114, 13515]
 Representatives: 
-From 113: 0
+From 114: 113
 -----------------------
 1-dimensional bar [12918, 13600]
 Representatives: 
@@ -22530,9 +22530,9 @@ From 13513: 270 + 275 + 299 + 304 + 430 + 513 + 530 + 409
 Representatives: 
 From 13512: 270 + 275 + 299 + 513 + 530 + 283
 -----------------------
-0-dimensional bar [114, 13697]
+0-dimensional bar [115, 13697]
 Representatives: 
-From 114: 0
+From 115: 114
 -----------------------
 1-dimensional bar [13777, 13780]
 Representatives: 
@@ -22858,9 +22858,9 @@ From 13689: 270 + 275 + 299 + 304 + 430 + 513 + 530 + 409
 Representatives: 
 From 13688: 270 + 275 + 299 + 513 + 530 + 283
 -----------------------
-0-dimensional bar [115, 13877]
+0-dimensional bar [116, 13877]
 Representatives: 
-From 115: 0
+From 116: 115
 -----------------------
 1-dimensional bar [13951, 13952]
 Representatives: 
@@ -23194,9 +23194,9 @@ From 13863: 270 + 275 + 299 + 304 + 430 + 513 + 530 + 409
 Representatives: 
 From 13862: 270 + 275 + 299 + 513 + 530 + 283
 -----------------------
-0-dimensional bar [116, 14042]
+0-dimensional bar [117, 14042]
 Representatives: 
-From 116: 0
+From 117: 116
 -----------------------
 1-dimensional bar [14131, 14131]
 Representatives: 
@@ -23558,9 +23558,9 @@ From 14037: 270 + 275 + 299 + 304 + 430 + 513 + 530 + 409
 Representatives: 
 From 14036: 270 + 275 + 299 + 513 + 530 + 283
 -----------------------
-0-dimensional bar [117, 14225]
+0-dimensional bar [118, 14225]
 Representatives: 
-From 117: 0
+From 118: 117
 -----------------------
 1-dimensional bar [14314, 14316]
 Representatives: 
@@ -23986,9 +23986,9 @@ From 14223: 162 + 167 + 178 + 211 + 224 + 270 + 275 + 409 + 430 + 436 + 409
 Representatives: 
 From 14222: 162 + 167 + 178 + 211 + 224 + 270 + 275 + 304 + 409 + 436 + 283
 -----------------------
-0-dimensional bar [118, 14426]
+0-dimensional bar [119, 14426]
 Representatives: 
-From 118: 0
+From 119: 118
 -----------------------
 1-dimensional bar [14516, 14517]
 Representatives: 
@@ -24398,9 +24398,9 @@ From 9172: 123 + 148 + 167 + 170 + 192 + 200 + 211 + 224 + 283 + 304 + 430 + 436
 Representatives: 
 From 14423: 436 + 513 + 531 + 409
 -----------------------
-0-dimensional bar [119, 14622]
+0-dimensional bar [120, 14622]
 Representatives: 
-From 119: 0
+From 120: 119
 -----------------------
 1-dimensional bar [13600, 14723]
 Representatives: 
@@ -24798,9 +24798,9 @@ From 14621: 430 + 436 + 513 + 531 + 3832 + 3817
 Representatives: 
 From 14620: 436 + 513 + 531 + 409
 -----------------------
-0-dimensional bar [120, 14836]
+0-dimensional bar [121, 14836]
 Representatives: 
-From 120: 0
+From 121: 120
 -----------------------
 1-dimensional bar [14928, 14929]
 Representatives: 
@@ -25262,9 +25262,9 @@ From 14824: 430 + 436 + 513 + 531 + 3832 + 3817
 Representatives: 
 From 14823: 436 + 513 + 531 + 409
 -----------------------
-0-dimensional bar [121, 15048]
+0-dimensional bar [122, 15048]
 Representatives: 
-From 121: 0
+From 122: 121
 -----------------------
 1-dimensional bar [15135, 15135]
 Representatives: 
@@ -25626,9 +25626,9 @@ From 15046: 513 + 531 + 4479 + 4460
 Representatives: 
 From 15045: 430 + 436 + 513 + 531 + 3832 + 3817
 -----------------------
-0-dimensional bar [122, 15231]
+0-dimensional bar [123, 15231]
 Representatives: 
-From 122: 0
+From 123: 122
 -----------------------
 1-dimensional bar [13425, 15319]
 Representatives: 
@@ -26046,9 +26046,9 @@ From 15227: 513 + 531 + 4479 + 4460
 Representatives: 
 From 15226: 430 + 436 + 513 + 531 + 3832 + 3817
 -----------------------
-0-dimensional bar [123, 15426]
+0-dimensional bar [124, 15426]
 Representatives: 
-From 123: 0
+From 124: 123
 -----------------------
 1-dimensional bar [15521, 15524]
 Representatives: 
@@ -26438,9 +26438,9 @@ From 15425: 513 + 531 + 4479 + 4460
 Representatives: 
 From 15424: 430 + 436 + 513 + 531 + 3832 + 3817
 -----------------------
-0-dimensional bar [124, 15623]
+0-dimensional bar [125, 15623]
 Representatives: 
-From 124: 0
+From 125: 124
 -----------------------
 1-dimensional bar [15719, 15719]
 Representatives: 
@@ -26930,9 +26930,9 @@ From 15622: 430 + 436 + 513 + 531 + 3832 + 3817
 Representatives: 
 From 3426: 170 + 211 + 270 + 272 + 304 + 312 + 382 + 406 + 430 + 436 + 485 + 494 + 513 + 531 + 823 + 833
 -----------------------
-0-dimensional bar [125, 15847]
+0-dimensional bar [126, 15847]
 Representatives: 
-From 125: 0
+From 126: 125
 -----------------------
 1-dimensional bar [15941, 15943]
 Representatives: 
@@ -27310,9 +27310,9 @@ From 15843: 490 + 506 + 531 + 532 + 823 + 833 + 4479 + 4460
 Representatives: 
 From 15842: 490 + 506 + 532 + 823 + 833 + 513
 -----------------------
-0-dimensional bar [126, 16054]
+0-dimensional bar [127, 16054]
 Representatives: 
-From 126: 0
+From 127: 126
 -----------------------
 1-dimensional bar [16138, 16140]
 Representatives: 
@@ -27690,9 +27690,9 @@ From 16039: 490 + 506 + 531 + 532 + 823 + 833 + 4479 + 4460
 Representatives: 
 From 16038: 490 + 506 + 532 + 823 + 833 + 513
 -----------------------
-0-dimensional bar [127, 16246]
+0-dimensional bar [128, 16246]
 Representatives: 
-From 127: 0
+From 128: 127
 -----------------------
 1-dimensional bar [16334, 16336]
 Representatives: 
@@ -28062,9 +28062,9 @@ From 16236: 490 + 506 + 531 + 532 + 823 + 833 + 4479 + 4460
 Representatives: 
 From 16235: 490 + 506 + 532 + 823 + 833 + 513
 -----------------------
-0-dimensional bar [128, 16435]
+0-dimensional bar [129, 16435]
 Representatives: 
-From 128: 0
+From 129: 128
 -----------------------
 1-dimensional bar [16532, 16535]
 Representatives: 
@@ -28450,9 +28450,9 @@ From 16430: 490 + 506 + 531 + 532 + 823 + 833 + 4479 + 4460
 Representatives: 
 From 16429: 490 + 506 + 532 + 823 + 833 + 513
 -----------------------
-0-dimensional bar [129, 16635]
+0-dimensional bar [130, 16635]
 Representatives: 
-From 129: 0
+From 130: 129
 -----------------------
 1-dimensional bar [16732, 16733]
 Representatives: 
@@ -28866,9 +28866,9 @@ From 16633: 490 + 506 + 531 + 532 + 823 + 833 + 4479 + 4460
 Representatives: 
 From 16632: 490 + 506 + 532 + 823 + 833 + 513
 -----------------------
-0-dimensional bar [130, 16853]
+0-dimensional bar [131, 16853]
 Representatives: 
-From 130: 0
+From 131: 130
 -----------------------
 1-dimensional bar [16951, 16953]
 Representatives: 
@@ -29286,9 +29286,9 @@ From 16838: 490 + 506 + 531 + 532 + 823 + 833 + 7154 + 7136
 Representatives: 
 From 16837: 490 + 506 + 532 + 823 + 833 + 513
 -----------------------
-0-dimensional bar [131, 17068]
+0-dimensional bar [132, 17068]
 Representatives: 
-From 131: 0
+From 132: 131
 -----------------------
 1-dimensional bar [14723, 17168]
 Representatives: 
@@ -29750,9 +29750,9 @@ From 17059: 490 + 506 + 531 + 532 + 823 + 833 + 7154 + 7136
 Representatives: 
 From 17058: 490 + 506 + 532 + 823 + 833 + 513
 -----------------------
-0-dimensional bar [132, 17302]
+0-dimensional bar [133, 17302]
 Representatives: 
-From 132: 0
+From 133: 132
 -----------------------
 1-dimensional bar [17394, 17396]
 Representatives: 
@@ -30166,9 +30166,9 @@ From 17285: 490 + 506 + 531 + 532 + 823 + 833 + 7154 + 7136
 Representatives: 
 From 17284: 490 + 506 + 532 + 823 + 833 + 513
 -----------------------
-0-dimensional bar [133, 17501]
+0-dimensional bar [134, 17501]
 Representatives: 
-From 133: 0
+From 134: 133
 -----------------------
 1-dimensional bar [16533, 17604]
 Representatives: 
@@ -30582,9 +30582,9 @@ From 17501: 490 + 506 + 531 + 532 + 823 + 833 + 7154 + 7136
 Representatives: 
 From 17500: 490 + 506 + 532 + 823 + 833 + 513
 -----------------------
-0-dimensional bar [134, 17713]
+0-dimensional bar [135, 17713]
 Representatives: 
-From 134: 0
+From 135: 134
 -----------------------
 1-dimensional bar [17806, 17807]
 Representatives: 
@@ -30958,9 +30958,9 @@ From 17709: 490 + 506 + 531 + 532 + 823 + 833 + 7154 + 7136
 Representatives: 
 From 17708: 490 + 506 + 532 + 823 + 833 + 513
 -----------------------
-0-dimensional bar [135, 17904]
+0-dimensional bar [136, 17904]
 Representatives: 
-From 135: 0
+From 136: 135
 -----------------------
 1-dimensional bar [17999, 18000]
 Representatives: 
@@ -31362,9 +31362,9 @@ From 17902: 490 + 506 + 531 + 532 + 823 + 833 + 7154 + 7136
 Representatives: 
 From 17901: 490 + 506 + 532 + 823 + 833 + 513
 -----------------------
-0-dimensional bar [136, 18105]
+0-dimensional bar [137, 18105]
 Representatives: 
-From 136: 0
+From 137: 136
 -----------------------
 1-dimensional bar [18202, 18202]
 Representatives: 
@@ -31726,9 +31726,9 @@ From 18102: 382 + 398 + 459 + 594 + 597 + 444
 Representatives: 
 From 18101: 490 + 506 + 531 + 532 + 823 + 833 + 7154 + 7136
 -----------------------
-0-dimensional bar [137, 18293]
+0-dimensional bar [138, 18293]
 Representatives: 
-From 137: 0
+From 138: 137
 -----------------------
 1-dimensional bar [18391, 18391]
 Representatives: 
@@ -32110,9 +32110,9 @@ From 18295: 382 + 398 + 459 + 594 + 597 + 444
 Representatives: 
 From 18293: 490 + 506 + 531 + 532 + 823 + 833 + 7154 + 7136
 -----------------------
-0-dimensional bar [138, 18490]
+0-dimensional bar [139, 18490]
 Representatives: 
-From 138: 0
+From 139: 138
 -----------------------
 1-dimensional bar [18591, 18591]
 Representatives: 
@@ -32518,9 +32518,9 @@ From 18488: 382 + 398 + 459 + 594 + 597 + 444
 Representatives: 
 From 18487: 490 + 506 + 531 + 532 + 823 + 833 + 7154 + 7136
 -----------------------
-0-dimensional bar [139, 18694]
+0-dimensional bar [140, 18694]
 Representatives: 
-From 139: 0
+From 140: 139
 -----------------------
 1-dimensional bar [18795, 18795]
 Representatives: 
@@ -32870,9 +32870,9 @@ From 18694: 382 + 398 + 430 + 436 + 490 + 506 + 531 + 532 + 543 + 556 + 594 + 59
 Representatives: 
 From 18693: 382 + 398 + 459 + 594 + 597 + 444
 -----------------------
-0-dimensional bar [140, 18882]
+0-dimensional bar [141, 18882]
 Representatives: 
-From 140: 0
+From 141: 140
 -----------------------
 1-dimensional bar [18979, 18980]
 Representatives: 
@@ -33230,9 +33230,9 @@ From 18885: 382 + 398 + 430 + 436 + 490 + 506 + 531 + 532 + 543 + 556 + 594 + 59
 Representatives: 
 From 18884: 382 + 398 + 459 + 594 + 597 + 444
 -----------------------
-0-dimensional bar [141, 19069]
+0-dimensional bar [142, 19069]
 Representatives: 
-From 141: 0
+From 142: 141
 -----------------------
 1-dimensional bar [19169, 19170]
 Representatives: 
@@ -33610,9 +33610,9 @@ From 19071: 382 + 398 + 459 + 594 + 597 + 444
 Representatives: 
 From 3533: 1 + 3 + 15 + 19 + 21 + 23 + 29 + 32 + 36 + 39 + 167 + 170 + 192 + 197 + 210 + 211 + 233 + 249 + 270 + 272 + 299 + 312 + 350 + 359 + 379 + 382 + 395 + 398 + 575 + 594 + 872 + 901
 -----------------------
-0-dimensional bar [142, 19268]
+0-dimensional bar [143, 19268]
 Representatives: 
-From 142: 0
+From 143: 142
 -----------------------
 1-dimensional bar [19363, 19363]
 Representatives: 
@@ -33970,9 +33970,9 @@ From 19266: 471 + 872 + 901 + 444
 Representatives: 
 From 19265: 398 + 459 + 471 + 594 + 597 + 872 + 901 + 382
 -----------------------
-0-dimensional bar [143, 19456]
+0-dimensional bar [144, 19456]
 Representatives: 
-From 143: 0
+From 144: 143
 -----------------------
 1-dimensional bar [19547, 19547]
 Representatives: 
@@ -34330,9 +34330,9 @@ From 19454: 471 + 872 + 901 + 444
 Representatives: 
 From 19453: 398 + 459 + 471 + 594 + 597 + 872 + 901 + 382
 -----------------------
-0-dimensional bar [144, 19640]
+0-dimensional bar [145, 19640]
 Representatives: 
-From 144: 0
+From 145: 144
 -----------------------
 1-dimensional bar [19736, 19736]
 Representatives: 
@@ -34726,9 +34726,9 @@ From 19638: 471 + 872 + 901 + 444
 Representatives: 
 From 19637: 398 + 459 + 471 + 594 + 597 + 872 + 901 + 382
 -----------------------
-0-dimensional bar [145, 19840]
+0-dimensional bar [146, 19840]
 Representatives: 
-From 145: 0
+From 146: 145
 -----------------------
 1-dimensional bar [19924, 19928]
 Representatives: 
@@ -35142,9 +35142,9 @@ From 19836: 471 + 872 + 901 + 444
 Representatives: 
 From 19835: 1 + 2 + 3 + 18 + 19 + 29 + 32 + 39 + 64 + 69 + 165 + 167 + 192 + 197 + 246 + 249 + 379 + 459 + 471 + 872 + 901 + 2381 + 2387 + 382
 -----------------------
-0-dimensional bar [146, 20031]
+0-dimensional bar [147, 20031]
 Representatives: 
-From 146: 0
+From 147: 146
 -----------------------
 1-dimensional bar [20133, 20134]
 Representatives: 
@@ -35570,9 +35570,9 @@ From 20033: 459 + 471 + 594 + 597 + 872 + 901 + 2387 + 2407 + 382
 Representatives: 
 From 20038: 823 + 833 + 9390 + 9396
 -----------------------
-0-dimensional bar [147, 20246]
+0-dimensional bar [148, 20246]
 Representatives: 
-From 147: 0
+From 148: 147
 -----------------------
 1-dimensional bar [20347, 20348]
 Representatives: 
@@ -36018,9 +36018,9 @@ From 20242: 459 + 471 + 594 + 597 + 872 + 901 + 2387 + 2407 + 382
 Representatives: 
 From 20241: 823 + 833 + 9396 + 9390
 -----------------------
-0-dimensional bar [148, 20471]
+0-dimensional bar [149, 20471]
 Representatives: 
-From 148: 0
+From 149: 148
 -----------------------
 1-dimensional bar [20564, 20564]
 Representatives: 
@@ -36438,9 +36438,9 @@ From 20461: 459 + 471 + 594 + 597 + 872 + 901 + 2387 + 2407 + 382
 Representatives: 
 From 20460: 823 + 833 + 9396 + 9390
 -----------------------
-0-dimensional bar [149, 20676]
+0-dimensional bar [150, 20676]
 Representatives: 
-From 149: 0
+From 150: 149
 -----------------------
 1-dimensional bar [20775, 20776]
 Representatives: 
@@ -36858,9 +36858,9 @@ From 20670: 459 + 471 + 594 + 597 + 872 + 901 + 2387 + 2407 + 382
 Representatives: 
 From 20669: 823 + 833 + 9396 + 9390
 -----------------------
-0-dimensional bar [150, 20885]
+0-dimensional bar [151, 20885]
 Representatives: 
-From 150: 0
+From 151: 150
 -----------------------
 1-dimensional bar [20991, 20992]
 Representatives: 
@@ -37298,9 +37298,9 @@ From 20881: 823 + 833 + 9396 + 9390
 Representatives: 
 From 19087: 148 + 162 + 178 + 192 + 200 + 211 + 270 + 272 + 299 + 312 + 344 + 359 + 382 + 406 + 430 + 485 + 506 + 513 + 530 + 543 + 555 + 556 + 569 + 833 + 854 + 1126 + 1152 + 8901 + 8918
 -----------------------
-0-dimensional bar [151, 21110]
+0-dimensional bar [152, 21110]
 Representatives: 
-From 151: 0
+From 152: 151
 -----------------------
 1-dimensional bar [21220, 21221]
 Representatives: 
@@ -37734,9 +37734,9 @@ From 21103: 823 + 833 + 9396 + 9390
 Representatives: 
 From 21102: 555 + 556 + 1141 + 1152 + 1252 + 1269 + 8918 + 8901
 -----------------------
-0-dimensional bar [152, 21335]
+0-dimensional bar [153, 21335]
 Representatives: 
-From 152: 0
+From 153: 152
 -----------------------
 1-dimensional bar [21451, 21451]
 Representatives: 
@@ -38238,9 +38238,9 @@ From 21331: 823 + 833 + 9396 + 9390
 Representatives: 
 From 21330: 555 + 556 + 1141 + 1152 + 1252 + 1269 + 8918 + 8901
 -----------------------
-0-dimensional bar [153, 21592]
+0-dimensional bar [154, 21592]
 Representatives: 
-From 153: 0
+From 154: 153
 -----------------------
 1-dimensional bar [21700, 21701]
 Representatives: 
@@ -38706,9 +38706,9 @@ From 21578: 823 + 833 + 9396 + 9390
 Representatives: 
 From 21577: 555 + 556 + 1141 + 1152 + 1252 + 1269 + 8918 + 8901
 -----------------------
-0-dimensional bar [154, 21820]
+0-dimensional bar [155, 21820]
 Representatives: 
-From 154: 0
+From 155: 154
 -----------------------
 1-dimensional bar [21938, 21938]
 Representatives: 
@@ -39186,9 +39186,9 @@ From 21819: 823 + 833 + 9396 + 9390
 Representatives: 
 From 21818: 555 + 556 + 1141 + 1152 + 1252 + 1269 + 8918 + 8901
 -----------------------
-0-dimensional bar [155, 22069]
+0-dimensional bar [156, 22069]
 Representatives: 
-From 155: 0
+From 156: 155
 -----------------------
 1-dimensional bar [22180, 22182]
 Representatives: 
@@ -39662,9 +39662,9 @@ From 22059: 823 + 833 + 9396 + 9390
 Representatives: 
 From 22058: 555 + 556 + 1141 + 1152 + 1252 + 1269 + 8918 + 8901
 -----------------------
-0-dimensional bar [156, 22304]
+0-dimensional bar [157, 22304]
 Representatives: 
-From 156: 0
+From 157: 156
 -----------------------
 1-dimensional bar [22420, 22420]
 Representatives: 
@@ -40110,9 +40110,9 @@ From 22302: 823 + 833 + 9396 + 9390
 Representatives: 
 From 22301: 555 + 556 + 1141 + 1152 + 1252 + 1269 + 8918 + 8901
 -----------------------
-0-dimensional bar [157, 22533]
+0-dimensional bar [158, 22533]
 Representatives: 
-From 157: 0
+From 158: 157
 -----------------------
 1-dimensional bar [22651, 22653]
 Representatives: 
@@ -40566,9 +40566,9 @@ From 22533: 823 + 833 + 9396 + 9390
 Representatives: 
 From 22532: 555 + 556 + 1141 + 1152 + 1252 + 1269 + 8918 + 8901
 -----------------------
-0-dimensional bar [158, 22778]
+0-dimensional bar [159, 22778]
 Representatives: 
-From 158: 0
+From 159: 158
 -----------------------
 1-dimensional bar [22889, 22889]
 Representatives: 
@@ -41046,9 +41046,9 @@ From 22768: 823 + 833 + 9396 + 9390
 Representatives: 
 From 22767: 148 + 162 + 170 + 178 + 192 + 200 + 270 + 275 + 344 + 359 + 430 + 436 + 494 + 506 + 543 + 555 + 556 + 569 + 823 + 854 + 1126 + 1159 + 8918 + 8901
 -----------------------
-0-dimensional bar [159, 23012]
+0-dimensional bar [160, 23012]
 Representatives: 
-From 159: 0
+From 160: 159
 -----------------------
 1-dimensional bar [23127, 23128]
 Representatives: 
@@ -41482,9 +41482,9 @@ From 23010: 823 + 833 + 9396 + 9390
 Representatives: 
 From 23009: 1152 + 1159 + 1252 + 1283 + 8918 + 8901
 -----------------------
-0-dimensional bar [160, 23245]
+0-dimensional bar [161, 23245]
 Representatives: 
-From 160: 0
+From 161: 160
 -----------------------
 1-dimensional bar [23354, 23354]
 Representatives: 
@@ -41946,9 +41946,9 @@ From 23238: 823 + 833 + 9396 + 9390
 Representatives: 
 From 23237: 1152 + 1159 + 1252 + 1283 + 8918 + 8901
 -----------------------
-0-dimensional bar [161, 23489]
+0-dimensional bar [162, 23489]
 Representatives: 
-From 161: 0
+From 162: 161
 -----------------------
 1-dimensional bar [23585, 23589]
 Representatives: 
@@ -42418,9 +42418,9 @@ From 23471: 823 + 833 + 9396 + 9390
 Representatives: 
 From 23470: 1152 + 1159 + 1252 + 1283 + 8918 + 8901
 -----------------------
-0-dimensional bar [162, 23715]
+0-dimensional bar [163, 23715]
 Representatives: 
-From 162: 0
+From 163: 162
 -----------------------
 1-dimensional bar [23818, 23818]
 Representatives: 
@@ -42890,9 +42890,9 @@ From 23708: 9390 + 9390
 Representatives: 
 From 23707: 1152 + 1159 + 1252 + 1283 + 8918 + 8901
 -----------------------
-0-dimensional bar [163, 23942]
+0-dimensional bar [164, 23942]
 Representatives: 
-From 163: 0
+From 164: 163
 -----------------------
 1-dimensional bar [24056, 24056]
 Representatives: 
@@ -43342,9 +43342,9 @@ From 23937: 1152 + 1159 + 1252 + 1283 + 10680 + 10661
 Representatives: 
 From 23936: 1152 + 1159 + 1252 + 1283 + 8918 + 8901
 -----------------------
-0-dimensional bar [164, 24173]
+0-dimensional bar [165, 24173]
 Representatives: 
-From 164: 0
+From 165: 164
 -----------------------
 1-dimensional bar [24290, 24291]
 Representatives: 
@@ -43818,9 +43818,9 @@ From 24170: 1152 + 1159 + 1252 + 1283 + 10680 + 10661
 Representatives: 
 From 24169: 1152 + 1159 + 1252 + 1283 + 8918 + 8901
 -----------------------
-0-dimensional bar [165, 24425]
+0-dimensional bar [166, 24425]
 Representatives: 
-From 165: 0
+From 166: 165
 -----------------------
 1-dimensional bar [24535, 24538]
 Representatives: 
@@ -44286,9 +44286,9 @@ From 24411: 670 + 676 + 923 + 946 + 1224 + 1211
 Representatives: 
 From 24410: 1152 + 1159 + 1252 + 1283 + 8918 + 8901
 -----------------------
-0-dimensional bar [166, 24671]
+0-dimensional bar [167, 24671]
 Representatives: 
-From 166: 0
+From 167: 166
 -----------------------
 1-dimensional bar [24774, 24776]
 Representatives: 
@@ -44794,9 +44794,9 @@ From 24656: 74 + 84 + 100 + 132 + 141 + 575 + 594 + 661 + 670 + 923 + 946 + 1211
 Representatives: 
 From 24655: 1152 + 1159 + 1252 + 1283 + 8918 + 8901
 -----------------------
-0-dimensional bar [167, 24912]
+0-dimensional bar [168, 24912]
 Representatives: 
-From 167: 0
+From 168: 167
 -----------------------
 1-dimensional bar [25018, 25019]
 Representatives: 
@@ -45242,9 +45242,9 @@ From 24904: 923 + 946 + 1230 + 1211
 Representatives: 
 From 24903: 1152 + 1159 + 1252 + 1283 + 8918 + 8901
 -----------------------
-0-dimensional bar [168, 25147]
+0-dimensional bar [169, 25147]
 Representatives: 
-From 168: 0
+From 169: 168
 -----------------------
 1-dimensional bar [25250, 25253]
 Representatives: 
@@ -45690,9 +45690,9 @@ From 25132: 575 + 597 + 743 + 768 + 983 + 993 + 7057 + 7036
 Representatives: 
 From 25131: 575 + 597 + 6655 + 6640
 -----------------------
-0-dimensional bar [169, 25393]
+0-dimensional bar [170, 25393]
 Representatives: 
-From 169: 0
+From 170: 169
 -----------------------
 1-dimensional bar [25485, 25487]
 Representatives: 
@@ -46146,9 +46146,9 @@ From 25366: 6 + 7 + 11 + 12 + 13 + 14 + 15 + 18 + 21 + 23 + 32 + 33 + 56 + 64 + 
 Representatives: 
 From 25365: 6 + 7 + 11 + 12 + 13 + 14 + 15 + 18 + 21 + 23 + 32 + 33 + 56 + 64 + 104 + 132 + 141 + 270 + 272 + 299 + 312 + 344 + 359 + 398 + 406 + 444 + 459 + 594 + 597 + 617 + 622 + 670 + 678 + 872 + 901 + 923 + 946 + 993 + 1000 + 1341 + 1357 + 6655 + 6640
 -----------------------
-0-dimensional bar [170, 25610]
+0-dimensional bar [171, 25610]
 Representatives: 
-From 170: 0
+From 171: 170
 -----------------------
 1-dimensional bar [25725, 25726]
 Representatives: 
@@ -46626,9 +46626,9 @@ From 25602: 676 + 678 + 743 + 768 + 899 + 911 + 923 + 946 + 983 + 1000 + 1357 + 
 Representatives: 
 From 25601: 676 + 678 + 899 + 911 + 923 + 946 + 993 + 1000 + 1357 + 1366 + 6655 + 6640
 -----------------------
-0-dimensional bar [171, 25867]
+0-dimensional bar [172, 25867]
 Representatives: 
-From 171: 0
+From 172: 171
 -----------------------
 1-dimensional bar [25967, 25967]
 Representatives: 
@@ -47114,9 +47114,9 @@ From 25847: 676 + 678 + 743 + 768 + 899 + 911 + 923 + 946 + 983 + 1000 + 1357 + 
 Representatives: 
 From 25846: 676 + 678 + 899 + 911 + 923 + 946 + 993 + 1000 + 1357 + 1366 + 6655 + 6640
 -----------------------
-0-dimensional bar [172, 26088]
+0-dimensional bar [173, 26088]
 Representatives: 
-From 172: 0
+From 173: 172
 -----------------------
 1-dimensional bar [26223, 26223]
 Representatives: 
@@ -47618,9 +47618,9 @@ From 26090: 676 + 678 + 899 + 911 + 923 + 946 + 993 + 1000 + 1357 + 1366 + 6655 
 Representatives: 
 From 4181: 594 + 1224 + 1245
 -----------------------
-0-dimensional bar [173, 26355]
+0-dimensional bar [174, 26355]
 Representatives: 
-From 173: 0
+From 174: 173
 -----------------------
 1-dimensional bar [26468, 26470]
 Representatives: 
@@ -48166,9 +48166,9 @@ From 26350: 3 + 4 + 12 + 13 + 21 + 23 + 29 + 33 + 36 + 39 + 45 + 47 + 56 + 63 + 
 Representatives: 
 From 26349: 923 + 946 + 1230 + 1245 + 575
 -----------------------
-0-dimensional bar [174, 26615]
+0-dimensional bar [175, 26615]
 Representatives: 
-From 174: 0
+From 175: 174
 -----------------------
 1-dimensional bar [26735, 26736]
 Representatives: 
@@ -48634,9 +48634,9 @@ From 26608: 899 + 901 + 923 + 946 + 993 + 1000 + 1189 + 1195 + 1341 + 1357 + 159
 Representatives: 
 From 26607: 923 + 946 + 1230 + 1245 + 575
 -----------------------
-0-dimensional bar [175, 26865]
+0-dimensional bar [176, 26865]
 Representatives: 
-From 175: 0
+From 176: 175
 -----------------------
 1-dimensional bar [26979, 26982]
 Representatives: 
@@ -49110,9 +49110,9 @@ From 26854: 899 + 901 + 923 + 946 + 993 + 1000 + 1189 + 1195 + 1341 + 1357 + 159
 Representatives: 
 From 26853: 923 + 946 + 1230 + 1245 + 575
 -----------------------
-0-dimensional bar [176, 27120]
+0-dimensional bar [177, 27120]
 Representatives: 
-From 176: 0
+From 177: 176
 -----------------------
 1-dimensional bar [26980, 27223]
 Representatives: 
@@ -49582,9 +49582,9 @@ From 27102: 899 + 901 + 923 + 946 + 993 + 1000 + 1189 + 1195 + 1341 + 1357 + 159
 Representatives: 
 From 27101: 923 + 946 + 1230 + 1245 + 575
 -----------------------
-0-dimensional bar [177, 27348]
+0-dimensional bar [178, 27348]
 Representatives: 
-From 177: 0
+From 178: 177
 -----------------------
 1-dimensional bar [27466, 27468]
 Representatives: 
@@ -50058,9 +50058,9 @@ From 27342: 743 + 768 + 899 + 901 + 923 + 946 + 983 + 1000 + 1189 + 1195 + 1341 
 Representatives: 
 From 27341: 923 + 946 + 1230 + 1245 + 575
 -----------------------
-0-dimensional bar [178, 27599]
+0-dimensional bar [179, 27599]
 Representatives: 
-From 178: 0
+From 179: 178
 -----------------------
 1-dimensional bar [27715, 27716]
 Representatives: 
@@ -50546,9 +50546,9 @@ From 27588: 743 + 768 + 899 + 901 + 923 + 946 + 983 + 1000 + 1189 + 1195 + 1341 
 Representatives: 
 From 27587: 923 + 946 + 1230 + 1245 + 575
 -----------------------
-0-dimensional bar [179, 27839]
+0-dimensional bar [180, 27839]
 Representatives: 
-From 179: 0
+From 180: 179
 -----------------------
 1-dimensional bar [27968, 27969]
 Representatives: 
@@ -51030,9 +51030,9 @@ From 27839: 743 + 768 + 899 + 901 + 923 + 946 + 983 + 1000 + 1189 + 1195 + 1341 
 Representatives: 
 From 27838: 923 + 946 + 1230 + 1245 + 575
 -----------------------
-0-dimensional bar [180, 28101]
+0-dimensional bar [181, 28101]
 Representatives: 
-From 180: 0
+From 181: 180
 -----------------------
 1-dimensional bar [28214, 28215]
 Representatives: 
@@ -51534,9 +51534,9 @@ From 28091: 743 + 768 + 899 + 901 + 923 + 946 + 983 + 1000 + 1189 + 1195 + 1341 
 Representatives: 
 From 28090: 923 + 946 + 1230 + 1245 + 575
 -----------------------
-0-dimensional bar [181, 28342]
+0-dimensional bar [182, 28342]
 Representatives: 
-From 181: 0
+From 182: 181
 -----------------------
 1-dimensional bar [28473, 28474]
 Representatives: 
@@ -52034,9 +52034,9 @@ From 28342: 743 + 768 + 899 + 901 + 923 + 946 + 983 + 1000 + 1189 + 1195 + 1341 
 Representatives: 
 From 28341: 923 + 946 + 1230 + 1245 + 575
 -----------------------
-0-dimensional bar [182, 28626]
+0-dimensional bar [183, 28626]
 Representatives: 
-From 182: 0
+From 183: 182
 -----------------------
 1-dimensional bar [25253, 28729]
 Representatives: 
@@ -52614,9 +52614,9 @@ From 28600: 743 + 768 + 899 + 901 + 923 + 946 + 983 + 1000 + 1189 + 1195 + 1341 
 Representatives: 
 From 28599: 923 + 946 + 1230 + 1245 + 575
 -----------------------
-0-dimensional bar [183, 28874]
+0-dimensional bar [184, 28874]
 Representatives: 
-From 183: 0
+From 184: 183
 -----------------------
 1-dimensional bar [29014, 29016]
 Representatives: 
@@ -53146,9 +53146,9 @@ From 28903: 923 + 946 + 13902 + 13930
 Representatives: 
 From 28874: 923 + 946 + 1230 + 1245 + 575
 -----------------------
-0-dimensional bar [184, 29181]
+0-dimensional bar [185, 29181]
 Representatives: 
-From 184: 0
+From 185: 184
 -----------------------
 1-dimensional bar [29285, 29287]
 Representatives: 
@@ -53690,9 +53690,9 @@ From 29150: 923 + 946 + 13930 + 13902
 Representatives: 
 From 29149: 923 + 946 + 1230 + 1245 + 575
 -----------------------
-0-dimensional bar [185, 29446]
+0-dimensional bar [186, 29446]
 Representatives: 
-From 185: 0
+From 186: 185
 -----------------------
 1-dimensional bar [29561, 29561]
 Representatives: 
@@ -54206,9 +54206,9 @@ From 29424: 923 + 946 + 13930 + 13902
 Representatives: 
 From 29423: 923 + 946 + 1230 + 1245 + 575
 -----------------------
-0-dimensional bar [186, 29700]
+0-dimensional bar [187, 29700]
 Representatives: 
-From 186: 0
+From 187: 186
 -----------------------
 1-dimensional bar [29829, 29831]
 Representatives: 
@@ -54742,9 +54742,9 @@ From 29691: 923 + 946 + 13930 + 13902
 Representatives: 
 From 29690: 923 + 946 + 1230 + 1245 + 575
 -----------------------
-0-dimensional bar [187, 29988]
+0-dimensional bar [188, 29988]
 Representatives: 
-From 187: 0
+From 188: 187
 -----------------------
 1-dimensional bar [30105, 30106]
 Representatives: 
@@ -55294,9 +55294,9 @@ From 29966: 923 + 946 + 13930 + 13902
 Representatives: 
 From 29965: 923 + 946 + 1230 + 1245 + 575
 -----------------------
-0-dimensional bar [188, 30257]
+0-dimensional bar [189, 30257]
 Representatives: 
-From 188: 0
+From 189: 188
 -----------------------
 1-dimensional bar [30381, 30384]
 Representatives: 
@@ -55802,9 +55802,9 @@ From 30245: 923 + 946 + 13930 + 13902
 Representatives: 
 From 30244: 923 + 946 + 1230 + 1245 + 575
 -----------------------
-0-dimensional bar [189, 30526]
+0-dimensional bar [190, 30526]
 Representatives: 
-From 189: 0
+From 190: 189
 -----------------------
 1-dimensional bar [30645, 30645]
 Representatives: 
@@ -56306,9 +56306,9 @@ From 30512: 923 + 946 + 13930 + 13902
 Representatives: 
 From 30511: 923 + 946 + 1230 + 1245 + 575
 -----------------------
-0-dimensional bar [190, 30772]
+0-dimensional bar [191, 30772]
 Representatives: 
-From 190: 0
+From 191: 190
 -----------------------
 1-dimensional bar [30902, 30903]
 Representatives: 
@@ -56806,9 +56806,9 @@ From 30772: 923 + 946 + 13930 + 13902
 Representatives: 
 From 30771: 923 + 946 + 1230 + 1245 + 575
 -----------------------
-0-dimensional bar [191, 31027]
+0-dimensional bar [192, 31027]
 Representatives: 
-From 191: 0
+From 192: 191
 -----------------------
 1-dimensional bar [31163, 31163]
 Representatives: 
@@ -57310,9 +57310,9 @@ From 31030: 1173 + 1195 + 1341 + 1357 + 2788 + 2821 + 617
 Representatives: 
 From 31029: 923 + 946 + 1230 + 1245 + 575
 -----------------------
-0-dimensional bar [192, 31319]
+0-dimensional bar [193, 31319]
 Representatives: 
-From 192: 0
+From 193: 192
 -----------------------
 1-dimensional bar [31424, 31424]
 Representatives: 
@@ -57826,9 +57826,9 @@ From 31290: 1173 + 1195 + 1341 + 1357 + 2788 + 2821 + 617
 Representatives: 
 From 31289: 923 + 946 + 1230 + 1245 + 575
 -----------------------
-0-dimensional bar [193, 31570]
+0-dimensional bar [194, 31570]
 Representatives: 
-From 193: 0
+From 194: 193
 -----------------------
 1-dimensional bar [31682, 31682]
 Representatives: 
@@ -58322,9 +58322,9 @@ From 31554: 1173 + 1195 + 1341 + 1357 + 2788 + 2821 + 617
 Representatives: 
 From 31553: 923 + 946 + 1230 + 1245 + 575
 -----------------------
-0-dimensional bar [194, 31824]
+0-dimensional bar [195, 31824]
 Representatives: 
-From 194: 0
+From 195: 194
 -----------------------
 1-dimensional bar [31936, 31937]
 Representatives: 
@@ -58814,9 +58814,9 @@ From 31807: 1173 + 1195 + 1341 + 1357 + 2788 + 2821 + 617
 Representatives: 
 From 31806: 923 + 946 + 1230 + 1245 + 575
 -----------------------
-0-dimensional bar [195, 32080]
+0-dimensional bar [196, 32080]
 Representatives: 
-From 195: 0
+From 196: 195
 -----------------------
 1-dimensional bar [32191, 32191]
 Representatives: 
@@ -59306,9 +59306,9 @@ From 32061: 1173 + 1195 + 1341 + 1357 + 2788 + 2821 + 617
 Representatives: 
 From 32060: 923 + 946 + 1230 + 1245 + 575
 -----------------------
-0-dimensional bar [196, 32326]
+0-dimensional bar [197, 32326]
 Representatives: 
-From 196: 0
+From 197: 196
 -----------------------
 1-dimensional bar [32442, 32442]
 Representatives: 
@@ -59810,9 +59810,9 @@ From 32315: 1173 + 1195 + 1341 + 1357 + 1446 + 1453 + 1596 + 1615 + 5342 + 5327
 Representatives: 
 From 32314: 1173 + 1195 + 1341 + 1357 + 2788 + 2821 + 617
 -----------------------
-0-dimensional bar [197, 32567]
+0-dimensional bar [198, 32567]
 Representatives: 
-From 197: 0
+From 198: 197
 -----------------------
 1-dimensional bar [32700, 32701]
 Representatives: 
@@ -60354,9 +60354,9 @@ From 32570: 1173 + 1195 + 1341 + 1357 + 1446 + 1453 + 1596 + 1615 + 5342 + 5327
 Representatives: 
 From 32569: 1173 + 1195 + 1341 + 1357 + 2788 + 2821 + 617
 -----------------------
-0-dimensional bar [198, 32851]
+0-dimensional bar [199, 32851]
 Representatives: 
-From 198: 0
+From 199: 198
 -----------------------
 1-dimensional bar [32966, 32967]
 Representatives: 
@@ -60830,9 +60830,9 @@ From 32838: 1173 + 1195 + 1341 + 1357 + 1446 + 1453 + 1596 + 1615 + 5342 + 5327
 Representatives: 
 From 32837: 1173 + 1195 + 1341 + 1357 + 2788 + 2821 + 617
 -----------------------
-0-dimensional bar [199, 33089]
+0-dimensional bar [200, 33089]
 Representatives: 
-From 199: 0
+From 200: 199
 -----------------------
 1-dimensional bar [33215, 33215]
 Representatives: 
@@ -61338,9 +61338,9 @@ From 33087: 1173 + 1195 + 1341 + 1357 + 1446 + 1453 + 1596 + 1615 + 5342 + 5327
 Representatives: 
 From 33086: 1173 + 1195 + 1341 + 1357 + 2788 + 2821 + 617
 -----------------------
-0-dimensional bar [200, 33345]
+0-dimensional bar [201, 33345]
 Representatives: 
-From 200: 0
+From 201: 200
 -----------------------
 1-dimensional bar [33468, 33469]
 Representatives: 
@@ -61810,9 +61810,9 @@ From 33342: 1173 + 1195 + 1341 + 1357 + 2788 + 2821 + 617
 Representatives: 
 From 18711: 872 + 899 + 8702 + 8718
 -----------------------
-0-dimensional bar [201, 33594]
+0-dimensional bar [202, 33594]
 Representatives: 
-From 201: 0
+From 202: 201
 -----------------------
 1-dimensional bar [33715, 33715]
 Representatives: 
@@ -62306,9 +62306,9 @@ From 33588: 1173 + 1195 + 1341 + 1357 + 2788 + 2821 + 617
 Representatives: 
 From 33587: 872 + 899 + 8718 + 8702
 -----------------------
-0-dimensional bar [202, 33862]
+0-dimensional bar [203, 33862]
 Representatives: 
-From 202: 0
+From 203: 202
 -----------------------
 1-dimensional bar [33973, 33973]
 Representatives: 
@@ -62798,9 +62798,9 @@ From 33840: 1173 + 1195 + 1341 + 1357 + 2788 + 2821 + 617
 Representatives: 
 From 33839: 872 + 899 + 8718 + 8702
 -----------------------
-0-dimensional bar [203, 34095]
+0-dimensional bar [204, 34095]
 Representatives: 
-From 203: 0
+From 204: 203
 -----------------------
 1-dimensional bar [34225, 34226]
 Representatives: 
@@ -63294,9 +63294,9 @@ From 34097: 872 + 899 + 8718 + 8702
 Representatives: 
 From 31048: 1252 + 1269 + 15015 + 15035
 -----------------------
-0-dimensional bar [204, 34360]
+0-dimensional bar [205, 34360]
 Representatives: 
-From 204: 0
+From 205: 204
 -----------------------
 1-dimensional bar [34483, 34483]
 Representatives: 
@@ -63858,9 +63858,9 @@ From 34351: 872 + 899 + 8718 + 8702
 Representatives: 
 From 34350: 1252 + 1269 + 15035 + 15015
 -----------------------
-0-dimensional bar [205, 34629]
+0-dimensional bar [206, 34629]
 Representatives: 
-From 205: 0
+From 206: 205
 -----------------------
 1-dimensional bar [34765, 34765]
 Representatives: 
@@ -64482,9 +64482,9 @@ From 5807: 3 + 4 + 11 + 12 + 13 + 21 + 23 + 39 + 41 + 45 + 47 + 63 + 64 + 74 + 8
 Representatives: 
 From 34624: 1252 + 1269 + 15035 + 15015
 -----------------------
-0-dimensional bar [206, 34938]
+0-dimensional bar [207, 34938]
 Representatives: 
-From 206: 0
+From 207: 206
 -----------------------
 1-dimensional bar [35065, 35066]
 Representatives: 
@@ -65022,9 +65022,9 @@ From 34922: 899 + 901 + 923 + 946 + 1000 + 1189 + 1195 + 1308 + 1331 + 1341 + 13
 Representatives: 
 From 34921: 1252 + 1269 + 15035 + 15015
 -----------------------
-0-dimensional bar [207, 35204]
+0-dimensional bar [208, 35204]
 Representatives: 
-From 207: 0
+From 208: 207
 -----------------------
 1-dimensional bar [35336, 35336]
 Representatives: 
@@ -65542,9 +65542,9 @@ From 35202: 899 + 901 + 923 + 946 + 1000 + 1189 + 1195 + 1308 + 1331 + 1341 + 13
 Representatives: 
 From 35201: 1252 + 1269 + 15035 + 15015
 -----------------------
-0-dimensional bar [208, 35483]
+0-dimensional bar [209, 35483]
 Representatives: 
-From 208: 0
+From 209: 208
 -----------------------
 1-dimensional bar [35602, 35603]
 Representatives: 
@@ -66054,9 +66054,9 @@ From 35467: 899 + 901 + 923 + 946 + 1000 + 1189 + 1195 + 1308 + 1331 + 1341 + 13
 Representatives: 
 From 35466: 1252 + 1269 + 15035 + 15015
 -----------------------
-0-dimensional bar [209, 35732]
+0-dimensional bar [210, 35732]
 Representatives: 
-From 209: 0
+From 210: 209
 -----------------------
 1-dimensional bar [35864, 35866]
 Representatives: 
@@ -66582,9 +66582,9 @@ From 7557: 3 + 4 + 11 + 12 + 13 + 21 + 23 + 39 + 41 + 45 + 47 + 63 + 64 + 74 + 8
 Representatives: 
 From 35731: 1252 + 1269 + 15035 + 15015
 -----------------------
-0-dimensional bar [210, 36005]
+0-dimensional bar [211, 36005]
 Representatives: 
-From 210: 0
+From 211: 210
 -----------------------
 1-dimensional bar [36133, 36136]
 Representatives: 
@@ -67090,9 +67090,9 @@ From 35999: 899 + 901 + 946 + 1000 + 1189 + 1195 + 1317 + 1331 + 1341 + 1357 + 1
 Representatives: 
 From 35998: 1252 + 1269 + 15035 + 15015
 -----------------------
-0-dimensional bar [211, 36292]
+0-dimensional bar [212, 36292]
 Representatives: 
-From 211: 0
+From 212: 211
 -----------------------
 1-dimensional bar [36400, 36401]
 Representatives: 
@@ -67626,9 +67626,9 @@ From 36264: 899 + 901 + 946 + 1000 + 1189 + 1195 + 1317 + 1331 + 1341 + 1357 + 1
 Representatives: 
 From 36263: 1252 + 1269 + 15035 + 15015
 -----------------------
-0-dimensional bar [212, 36555]
+0-dimensional bar [213, 36555]
 Representatives: 
-From 212: 0
+From 213: 212
 -----------------------
 1-dimensional bar [34226, 36673]
 Representatives: 
@@ -68214,9 +68214,9 @@ From 36536: 899 + 901 + 946 + 1000 + 1189 + 1195 + 1317 + 1331 + 1341 + 1357 + 1
 Representatives: 
 From 36535: 1252 + 1269 + 15035 + 15015
 -----------------------
-0-dimensional bar [213, 36827]
+0-dimensional bar [214, 36827]
 Representatives: 
-From 213: 0
+From 214: 213
 -----------------------
 1-dimensional bar [36967, 36967]
 Representatives: 
@@ -68782,9 +68782,9 @@ From 36821: 899 + 901 + 946 + 1000 + 1189 + 1195 + 1317 + 1331 + 1341 + 1357 + 1
 Representatives: 
 From 36820: 1252 + 1269 + 15035 + 15015
 -----------------------
-0-dimensional bar [214, 37120]
+0-dimensional bar [215, 37120]
 Representatives: 
-From 214: 0
+From 215: 214
 -----------------------
 1-dimensional bar [37258, 37258]
 Representatives: 
@@ -69354,9 +69354,9 @@ From 37110: 899 + 901 + 946 + 1000 + 1189 + 1195 + 1317 + 1331 + 1341 + 1357 + 1
 Representatives: 
 From 37109: 1252 + 1269 + 15035 + 15015
 -----------------------
-0-dimensional bar [215, 37417]
+0-dimensional bar [216, 37417]
 Representatives: 
-From 215: 0
+From 216: 215
 -----------------------
 1-dimensional bar [37553, 37553]
 Representatives: 
@@ -69998,9 +69998,9 @@ From 37402: 899 + 901 + 946 + 1000 + 1189 + 1195 + 1317 + 1331 + 1341 + 1357 + 1
 Representatives: 
 From 37401: 1252 + 1269 + 15035 + 15015
 -----------------------
-0-dimensional bar [216, 37731]
+0-dimensional bar [217, 37731]
 Representatives: 
-From 216: 0
+From 217: 216
 -----------------------
 1-dimensional bar [37874, 37875]
 Representatives: 
@@ -70630,9 +70630,9 @@ From 37715: 0 + 6 + 7 + 12 + 14 + 15 + 19 + 21 + 23 + 28 + 33 + 36 + 39 + 41 + 6
 Representatives: 
 From 37714: 1252 + 1269 + 15035 + 15015
 -----------------------
-0-dimensional bar [217, 38043]
+0-dimensional bar [218, 38043]
 Representatives: 
-From 217: 0
+From 218: 217
 -----------------------
 1-dimensional bar [33469, 38198]
 Representatives: 
@@ -71266,9 +71266,9 @@ From 38034: 743 + 899 + 901 + 946 + 983 + 1000 + 1189 + 1195 + 1341 + 1357 + 159
 Representatives: 
 From 38033: 1252 + 1269 + 15035 + 15015
 -----------------------
-0-dimensional bar [218, 38359]
+0-dimensional bar [219, 38359]
 Representatives: 
-From 218: 0
+From 219: 218
 -----------------------
 1-dimensional bar [38521, 38522]
 Representatives: 
@@ -71990,9 +71990,9 @@ From 38358: 0 + 3 + 4 + 6 + 7 + 11 + 13 + 14 + 15 + 19 + 28 + 33 + 36 + 45 + 47 
 Representatives: 
 From 38357: 1252 + 1269 + 15035 + 15015
 -----------------------
-0-dimensional bar [219, 38711]
+0-dimensional bar [220, 38711]
 Representatives: 
-From 219: 0
+From 220: 219
 -----------------------
 1-dimensional bar [38867, 38868]
 Representatives: 
@@ -72630,9 +72630,9 @@ From 38704: 946 + 1926 + 1945 + 2238 + 2253 + 2974 + 3006 + 923
 Representatives: 
 From 38703: 1252 + 1269 + 15035 + 15015
 -----------------------
-0-dimensional bar [220, 39040]
+0-dimensional bar [221, 39040]
 Representatives: 
-From 220: 0
+From 221: 220
 -----------------------
 1-dimensional bar [39194, 39194]
 Representatives: 
@@ -73310,9 +73310,9 @@ From 39028: 1252 + 1269 + 15035 + 15015
 Representatives: 
 From 4569: 312 + 459 + 471 + 494 + 506 + 513 + 531 + 543 + 556 + 635 + 639 + 670 + 676 + 782 + 799 + 823 + 854 + 1141 + 1152 + 1341 + 1357 + 1434 + 1456
 -----------------------
-0-dimensional bar [221, 39373]
+0-dimensional bar [222, 39373]
 Representatives: 
-From 221: 0
+From 222: 221
 -----------------------
 1-dimensional bar [39536, 39537]
 Representatives: 
@@ -73994,9 +73994,9 @@ From 39365: 1252 + 1269 + 15035 + 15015
 Representatives: 
 From 39364: 312 + 459 + 471 + 494 + 506 + 513 + 531 + 543 + 556 + 635 + 639 + 670 + 676 + 782 + 799 + 823 + 854 + 855 + 1141 + 1152 + 1252 + 1269 + 1341 + 1357 + 1434 + 1446 + 823
 -----------------------
-0-dimensional bar [222, 39713]
+0-dimensional bar [223, 39713]
 Representatives: 
-From 222: 0
+From 223: 222
 -----------------------
 1-dimensional bar [39879, 39879]
 Representatives: 
@@ -74634,9 +74634,9 @@ From 39709: 946 + 1926 + 1945 + 2238 + 2253 + 2974 + 3006 + 923
 Representatives: 
 From 39708: 1829 + 1895 + 823
 -----------------------
-0-dimensional bar [223, 40045]
+0-dimensional bar [224, 40045]
 Representatives: 
-From 223: 0
+From 224: 223
 -----------------------
 1-dimensional bar [40207, 40207]
 Representatives: 
@@ -75278,9 +75278,9 @@ From 40040: 946 + 1926 + 1945 + 2238 + 2253 + 2974 + 3006 + 923
 Representatives: 
 From 40039: 1829 + 1895 + 823
 -----------------------
-0-dimensional bar [224, 40370]
+0-dimensional bar [225, 40370]
 Representatives: 
-From 224: 0
+From 225: 224
 -----------------------
 1-dimensional bar [40538, 40538]
 Representatives: 
@@ -75938,9 +75938,9 @@ From 40369: 946 + 1926 + 1945 + 2238 + 2253 + 2974 + 3006 + 923
 Representatives: 
 From 40368: 1829 + 1895 + 823
 -----------------------
-0-dimensional bar [225, 40738]
+0-dimensional bar [226, 40738]
 Representatives: 
-From 225: 0
+From 226: 225
 -----------------------
 1-dimensional bar [40862, 40863]
 Representatives: 
@@ -76574,9 +76574,9 @@ From 40704: 946 + 1926 + 1945 + 2238 + 2253 + 2974 + 3006 + 923
 Representatives: 
 From 40703: 1829 + 1895 + 823
 -----------------------
-0-dimensional bar [226, 41035]
+0-dimensional bar [227, 41035]
 Representatives: 
-From 226: 0
+From 227: 226
 -----------------------
 1-dimensional bar [41190, 41190]
 Representatives: 
@@ -77198,9 +77198,9 @@ From 41023: 946 + 1926 + 1945 + 2238 + 2253 + 2974 + 3006 + 923
 Representatives: 
 From 41022: 1829 + 1895 + 823
 -----------------------
-0-dimensional bar [227, 41351]
+0-dimensional bar [228, 41351]
 Representatives: 
-From 227: 0
+From 228: 227
 -----------------------
 1-dimensional bar [41513, 41514]
 Representatives: 
@@ -77862,9 +77862,9 @@ From 41347: 946 + 1926 + 1945 + 2238 + 2253 + 2974 + 3006 + 923
 Representatives: 
 From 41346: 1829 + 1895 + 823
 -----------------------
-0-dimensional bar [228, 41694]
+0-dimensional bar [229, 41694]
 Representatives: 
-From 228: 0
+From 229: 228
 -----------------------
 1-dimensional bar [41849, 41849]
 Representatives: 
@@ -78514,9 +78514,9 @@ From 41681: 575 + 594 + 670 + 676 + 743 + 899 + 901 + 923 + 983 + 1000 + 1189 + 
 Representatives: 
 From 41680: 1829 + 1895 + 823
 -----------------------
-0-dimensional bar [229, 42030]
+0-dimensional bar [230, 42030]
 Representatives: 
-From 229: 0
+From 230: 229
 -----------------------
 1-dimensional bar [42183, 42184]
 Representatives: 
@@ -79146,9 +79146,9 @@ From 42013: 1926 + 1945 + 2238 + 2289 + 2974 + 3006 + 923
 Representatives: 
 From 42012: 1829 + 1895 + 823
 -----------------------
-0-dimensional bar [230, 42346]
+0-dimensional bar [231, 42346]
 Representatives: 
-From 230: 0
+From 231: 230
 -----------------------
 1-dimensional bar [42506, 42507]
 Representatives: 
@@ -79774,9 +79774,9 @@ From 42343: 1926 + 1945 + 2238 + 2289 + 2974 + 3006 + 923
 Representatives: 
 From 42342: 1829 + 1895 + 823
 -----------------------
-0-dimensional bar [231, 42671]
+0-dimensional bar [232, 42671]
 Representatives: 
-From 231: 0
+From 232: 231
 -----------------------
 1-dimensional bar [42824, 42825]
 Representatives: 
@@ -80470,9 +80470,9 @@ From 9978: 555 + 556 + 1141 + 1159 + 1252 + 1269 + 4241 + 4267
 Representatives: 
 From 42664: 1829 + 1895 + 823
 -----------------------
-0-dimensional bar [232, 43005]
+0-dimensional bar [233, 43005]
 Representatives: 
-From 232: 0
+From 233: 232
 -----------------------
 1-dimensional bar [43165, 43166]
 Representatives: 
@@ -81118,9 +81118,9 @@ From 43000: 1252 + 1283 + 4267 + 4241
 Representatives: 
 From 42999: 1829 + 1895 + 823
 -----------------------
-0-dimensional bar [233, 43336]
+0-dimensional bar [234, 43336]
 Representatives: 
-From 233: 0
+From 234: 233
 -----------------------
 1-dimensional bar [43492, 43492]
 Representatives: 
@@ -81806,9 +81806,9 @@ From 43329: 1252 + 1283 + 4267 + 4241
 Representatives: 
 From 43328: 1829 + 1895 + 823
 -----------------------
-0-dimensional bar [234, 43696]
+0-dimensional bar [235, 43696]
 Representatives: 
-From 234: 0
+From 235: 234
 -----------------------
 1-dimensional bar [43837, 43838]
 Representatives: 
@@ -82550,9 +82550,9 @@ From 4469: 436 + 555 + 556 + 1141 + 1159 + 1252 + 1269 + 1381 + 1402
 Representatives: 
 From 43664: 1829 + 1895 + 823
 -----------------------
-0-dimensional bar [235, 44033]
+0-dimensional bar [236, 44033]
 Representatives: 
-From 235: 0
+From 236: 235
 -----------------------
 1-dimensional bar [44207, 44208]
 Representatives: 
@@ -83262,9 +83262,9 @@ From 44025: 1152 + 1159 + 1252 + 1283 + 1402 + 1381
 Representatives: 
 From 44024: 1829 + 1895 + 823
 -----------------------
-0-dimensional bar [236, 44401]
+0-dimensional bar [237, 44401]
 Representatives: 
-From 236: 0
+From 237: 236
 -----------------------
 1-dimensional bar [44569, 44570]
 Representatives: 
@@ -83970,9 +83970,9 @@ From 44387: 1152 + 1159 + 1252 + 1283 + 1402 + 1381
 Representatives: 
 From 44386: 1829 + 1895 + 823
 -----------------------
-0-dimensional bar [237, 44774]
+0-dimensional bar [238, 44774]
 Representatives: 
-From 237: 0
+From 238: 237
 -----------------------
 1-dimensional bar [44935, 44936]
 Representatives: 
@@ -84706,9 +84706,9 @@ From 44748: 1152 + 1159 + 1252 + 1283 + 1402 + 1381
 Representatives: 
 From 44747: 1829 + 1895 + 823
 -----------------------
-0-dimensional bar [238, 45157]
+0-dimensional bar [239, 45157]
 Representatives: 
-From 238: 0
+From 239: 238
 -----------------------
 1-dimensional bar [45308, 45309]
 Representatives: 
@@ -85462,9 +85462,9 @@ From 45121: 1152 + 1159 + 1252 + 1283 + 1402 + 1381
 Representatives: 
 From 45120: 1829 + 1895 + 823
 -----------------------
-0-dimensional bar [239, 45507]
+0-dimensional bar [240, 45507]
 Representatives: 
-From 239: 0
+From 240: 239
 -----------------------
 1-dimensional bar [45687, 45687]
 Representatives: 
@@ -86194,9 +86194,9 @@ From 45499: 1152 + 1159 + 1252 + 1283 + 1402 + 1381
 Representatives: 
 From 45498: 1829 + 1895 + 823
 -----------------------
-0-dimensional bar [240, 45889]
+0-dimensional bar [241, 45889]
 Representatives: 
-From 240: 0
+From 241: 240
 -----------------------
 1-dimensional bar [46057, 46058]
 Representatives: 
@@ -86930,9 +86930,9 @@ From 45871: 1152 + 1159 + 1252 + 1283 + 1402 + 1381
 Representatives: 
 From 45870: 1829 + 1895 + 823
 -----------------------
-0-dimensional bar [241, 46263]
+0-dimensional bar [242, 46263]
 Representatives: 
-From 241: 0
+From 242: 241
 -----------------------
 1-dimensional bar [46430, 46430]
 Representatives: 
@@ -87686,9 +87686,9 @@ From 46243: 1152 + 1159 + 1252 + 1283 + 1402 + 1381
 Representatives: 
 From 46242: 1829 + 1895 + 823
 -----------------------
-0-dimensional bar [242, 46635]
+0-dimensional bar [243, 46635]
 Representatives: 
-From 242: 0
+From 243: 242
 -----------------------
 1-dimensional bar [46801, 46801]
 Representatives: 
@@ -88430,9 +88430,9 @@ From 46620: 1152 + 1159 + 1252 + 1283 + 1402 + 1381
 Representatives: 
 From 46619: 1829 + 1895 + 823
 -----------------------
-0-dimensional bar [243, 46993]
+0-dimensional bar [244, 46993]
 Representatives: 
-From 243: 0
+From 244: 243
 -----------------------
 1-dimensional bar [47168, 47170]
 Representatives: 
@@ -89142,9 +89142,9 @@ From 46988: 1252 + 1283 + 4267 + 4241
 Representatives: 
 From 46987: 1152 + 1159 + 1252 + 1283 + 1402 + 1381
 -----------------------
-0-dimensional bar [244, 47366]
+0-dimensional bar [245, 47366]
 Representatives: 
-From 244: 0
+From 245: 244
 -----------------------
 1-dimensional bar [47523, 47523]
 Representatives: 
@@ -89822,9 +89822,9 @@ From 47349: 1252 + 1283 + 4267 + 4241
 Representatives: 
 From 47348: 1152 + 1159 + 1252 + 1283 + 1402 + 1381
 -----------------------
-0-dimensional bar [245, 47718]
+0-dimensional bar [246, 47718]
 Representatives: 
-From 245: 0
+From 246: 245
 -----------------------
 1-dimensional bar [47869, 47870]
 Representatives: 
@@ -90566,9 +90566,9 @@ From 47694: 1252 + 1283 + 4267 + 4241
 Representatives: 
 From 47693: 1152 + 1159 + 1252 + 1283 + 1402 + 1381
 -----------------------
-0-dimensional bar [246, 48063]
+0-dimensional bar [247, 48063]
 Representatives: 
-From 246: 0
+From 247: 246
 -----------------------
 1-dimensional bar [48229, 48229]
 Representatives: 
@@ -91230,9 +91230,9 @@ From 48057: 1252 + 1283 + 4267 + 4241
 Representatives: 
 From 48056: 1152 + 1159 + 1252 + 1283 + 1402 + 1381
 -----------------------
-0-dimensional bar [247, 48404]
+0-dimensional bar [248, 48404]
 Representatives: 
-From 247: 0
+From 248: 247
 -----------------------
 1-dimensional bar [48568, 48568]
 Representatives: 
@@ -91942,9 +91942,9 @@ From 48396: 1252 + 1283 + 4267 + 4241
 Representatives: 
 From 48395: 1152 + 1159 + 1252 + 1283 + 1402 + 1381
 -----------------------
-0-dimensional bar [248, 48770]
+0-dimensional bar [249, 48770]
 Representatives: 
-From 248: 0
+From 249: 248
 -----------------------
 1-dimensional bar [48929, 48930]
 Representatives: 
@@ -92646,9 +92646,9 @@ From 48747: 1252 + 1283 + 4267 + 4241
 Representatives: 
 From 48746: 1152 + 1159 + 1252 + 1283 + 1402 + 1381
 -----------------------
-0-dimensional bar [249, 49115]
+0-dimensional bar [250, 49115]
 Representatives: 
-From 249: 0
+From 250: 249
 -----------------------
 1-dimensional bar [47870, 49291]
 Representatives: 
@@ -93430,9 +93430,9 @@ From 6504: 436 + 555 + 556 + 1141 + 1159 + 1252 + 1269 + 2435 + 2462
 Representatives: 
 From 49106: 1152 + 1159 + 1252 + 1283 + 1402 + 1381
 -----------------------
-0-dimensional bar [250, 49490]
+0-dimensional bar [251, 49490]
 Representatives: 
-From 250: 0
+From 251: 250
 -----------------------
 1-dimensional bar [49675, 49676]
 Representatives: 
@@ -94146,9 +94146,9 @@ From 49488: 1152 + 1159 + 1252 + 1283 + 2462 + 2435
 Representatives: 
 From 49487: 1152 + 1159 + 1252 + 1283 + 1402 + 1381
 -----------------------
-0-dimensional bar [251, 49859]
+0-dimensional bar [252, 49859]
 Representatives: 
-From 251: 0
+From 252: 251
 -----------------------
 1-dimensional bar [50040, 50041]
 Representatives: 
@@ -94882,9 +94882,9 @@ From 49856: 436 + 1152 + 1159 + 1381 + 1402 + 2462 + 2435
 Representatives: 
 From 49855: 436 + 1152 + 1159 + 1381 + 1381
 -----------------------
-0-dimensional bar [252, 50249]
+0-dimensional bar [253, 50249]
 Representatives: 
-From 252: 0
+From 253: 252
 -----------------------
 1-dimensional bar [50405, 50406]
 Representatives: 
@@ -95710,9 +95710,9 @@ From 50226: 531 + 555 + 556 + 1141 + 1159 + 1269 + 1283 + 1381 + 1402 + 1829 + 1
 Representatives: 
 From 50225: 1252 + 1283 + 1409 + 1381
 -----------------------
-0-dimensional bar [253, 50637]
+0-dimensional bar [254, 50637]
 Representatives: 
-From 253: 0
+From 254: 253
 -----------------------
 1-dimensional bar [50783, 50783]
 Representatives: 
@@ -96386,13 +96386,13 @@ From 50614: 1308 + 1317 + 1541 + 1556 + 1596 + 1631 + 1770 + 1790 + 1926 + 1945 
 Representatives: 
 From 50613: 1829 + 1888 + 2485 + 2435
 -----------------------
-0-dimensional bar [254, 50952]
+0-dimensional bar [255, 50952]
 Representatives: 
-From 254: 0
+From 255: 254
 -----------------------
-0-dimensional bar [255, 50960]
+0-dimensional bar [1, 50960]
 Representatives: 
-From 255: 0
+From 1: 0
 -----------------------
 0-dimensional bar [256, 50960]
 Representatives: 

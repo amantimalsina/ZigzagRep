@@ -11,7 +11,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/zzrep",
-            "args": ["${workspaceFolder}/filtrations/sample_filt_var/sample_filt"],
+            "args": ["${workspaceFolder}/filtrations/sample_filt_var/10_sample_filt"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
