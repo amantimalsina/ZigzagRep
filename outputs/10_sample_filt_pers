@@ -1,6 +1,6 @@
-0-dimensional bar [2, 11]
+0-dimensional bar [9, 11]
 Representatives: 
-From 2: 1
+From 9: 8
 -----------------------
 0-dimensional bar [3, 12]
 Representatives: 
@@ -22,21 +22,21 @@ From 4: 3
 Representatives: 
 From 8: 7
 -----------------------
-0-dimensional bar [1, 18]
+0-dimensional bar [2, 18]
 Representatives: 
-From 1: 0
+From 2: 1
 -----------------------
-0-dimensional bar [7, 19]
+0-dimensional bar [10, 19]
 Representatives: 
-From 7: 6
+From 10: 9
 -----------------------
-0-dimensional bar [9, 21]
+0-dimensional bar [11, 21]
 Representatives: 
-From 9: 0
+From 11: 10
 -----------------------
-1-dimensional bar [17, 23]
+1-dimensional bar [23, 23]
 Representatives: 
-From 17: 0 + 1 + 2 + 5
+From 23: 0 + 1 + 2 + 4 + 11
 -----------------------
 1-dimensional bar [25, 25]
 Representatives: 
@@ -46,33 +46,33 @@ From 25: 2 + 3 + 12
 Representatives: 
 From 28: 4 + 10 + 14
 -----------------------
-0-dimensional bar [10, 29]
+0-dimensional bar [7, 29]
 Representatives: 
-From 10: 6
+From 7: 6
 -----------------------
-1-dimensional bar [27, 31]
+1-dimensional bar [31, 31]
 Representatives: 
-From 27: 0 + 2 + 6 + 13
+From 31: 0 + 2 + 3 + 6 + 16
 -----------------------
 1-dimensional bar [34, 34]
 Representatives: 
 From 34: 1 + 6 + 18
 -----------------------
-1-dimensional bar [23, 35]
+1-dimensional bar [27, 35]
 Representatives: 
-From 23: 0 + 1 + 2 + 5
+From 27: 0 + 2 + 6 + 13
 -----------------------
-1-dimensional bar [31, 37]
+1-dimensional bar [37, 37]
 Representatives: 
-From 31: 0 + 1 + 2 + 5
+From 37: 0 + 2 + 3 + 19
 -----------------------
-1-dimensional bar [37, 38]
+1-dimensional bar [17, 38]
 Representatives: 
-From 37: 0 + 1 + 2 + 3 + 16 + 18
+From 17: 0 + 1 + 2 + 5
 -----------------------
-1-dimensional bar [33, 40]
+1-dimensional bar [40, 40]
 Representatives: 
-From 33: 6 + 8 + 15 + 17
+From 40: 1 + 6 + 8 + 15 + 20
 -----------------------
 1-dimensional bar [42, 42]
 Representatives: 
@@ -90,13 +90,13 @@ From 47: 0 + 1 + 2 + 5
 Representatives: 
 From 49: 0 + 2 + 6 + 13
 -----------------------
-1-dimensional bar [40, 51]
+1-dimensional bar [33, 51]
 Representatives: 
-From 40: 6 + 8 + 15 + 17
+From 33: 6 + 8 + 15 + 17
 -----------------------
 1-dimensional bar [21, 52]
 Representatives: 
-From 21: 1 + 6 + 7 + 9 + 11
+From 21: 0 + 2 + 4 + 6 + 7 + 9
 -----------------------
 1-dimensional bar [54, 54]
 Representatives: 
@@ -106,9 +106,9 @@ From 54: 1 + 6 + 18
 Representatives: 
 From 56: 1 + 11 + 23
 -----------------------
-1-dimensional bar [46, 59]
+1-dimensional bar [59, 59]
 Representatives: 
-From 46: 1 + 4 + 6 + 11 + 13
+From 59: 1 + 4 + 6 + 11 + 15 + 25
 -----------------------
 1-dimensional bar [63, 63]
 Representatives: 
@@ -128,27 +128,27 @@ From 69: 2 + 3 + 12
 -----------------------
 1-dimensional bar [51, 70]
 Representatives: 
-From 51: 1 + 4 + 5 + 7 + 8 + 11 + 15 + 17 + 20 + 22
+From 51: 1 + 9 + 11 + 17 + 22
 -----------------------
 1-dimensional bar [62, 71]
 Representatives: 
-From 62: 10 + 15 + 21 + 25
+From 62: 13 + 15 + 25
 -----------------------
 1-dimensional bar [73, 73]
 Representatives: 
 From 73: 3 + 10 + 26
 -----------------------
-1-dimensional bar [61, 77]
+1-dimensional bar [77, 77]
 Representatives: 
-From 61: 3 + 6 + 15 + 19 + 25
+From 77: 1 + 6 + 11 + 15 + 29
 -----------------------
 1-dimensional bar [80, 80]
 Representatives: 
 From 80: 1 + 4 + 11 + 31
 -----------------------
-1-dimensional bar [59, 81]
+1-dimensional bar [46, 81]
 Representatives: 
-From 59: 1 + 3 + 4 + 11 + 19
+From 46: 4 + 5 + 11
 -----------------------
 1-dimensional bar [83, 83]
 Representatives: 
@@ -158,29 +158,29 @@ From 83: 1 + 3 + 4 + 11 + 19
 Representatives: 
 From 76: 1 + 17 + 22 + 28
 -----------------------
-1-dimensional bar [58, 86]
+1-dimensional bar [85, 86]
 Representatives: 
-From 58: 1 + 4 + 5 + 7 + 8 + 11 + 15 + 19 + 20 + 24
+From 85: 17 + 22 + 32
 -----------------------
-1-dimensional bar [85, 87]
+1-dimensional bar [58, 87]
 Representatives: 
-From 85: 17 + 19 + 22 + 24
+From 58: 1 + 3 + 4 + 11 + 17 + 22 + 24
 -----------------------
-1-dimensional bar [77, 89]
+1-dimensional bar [89, 89]
 Representatives: 
-From 77: 3 + 6 + 15 + 19 + 25
+From 89: 3 + 6 + 10 + 15 + 19 + 33
 -----------------------
 1-dimensional bar [91, 91]
 Representatives: 
-From 91: 3 + 4 + 22 + 24 + 34
+From 91: 3 + 4 + 17 + 19 + 34
 -----------------------
 1-dimensional bar [93, 93]
 Representatives: 
-From 93: 3 + 4 + 6 + 17 + 22 + 24 + 35
+From 93: 3 + 4 + 6 + 19 + 35
 -----------------------
-1-dimensional bar [89, 94]
+1-dimensional bar [61, 94]
 Representatives: 
-From 89: 3 + 6 + 15 + 17 + 22 + 24 + 25
+From 61: 3 + 13 + 16
 -----------------------
 1-dimensional bar [96, 96]
 Representatives: 
@@ -228,7 +228,7 @@ From 119: 1 + 17 + 22 + 28
 -----------------------
 1-dimensional bar [79, 120]
 Representatives: 
-From 79: 4 + 17 + 22 + 23 + 25 + 30
+From 79: 6 + 15 + 17 + 22 + 30
 -----------------------
 1-dimensional bar [122, 122]
 Representatives: 
@@ -246,25 +246,25 @@ From 129: 6 + 23 + 35
 Representatives: 
 From 131: 19 + 31 + 3
 -----------------------
-1-dimensional bar [133, 133]
-Representatives: 
-From 133: 17 + 19 + 22 + 25 + 26 + 28 + 33 + 5
------------------------
-1-dimensional bar [75, 135]
-Representatives: 
-From 75: 17 + 19 + 26 + 27
------------------------
-1-dimensional bar [125, 137]
+1-dimensional bar [125, 133]
 Representatives: 
 From 125: 2 + 17 + 19 + 22 + 25 + 26 + 28 + 33 + 40
 -----------------------
-1-dimensional bar [135, 138]
+1-dimensional bar [135, 135]
 Representatives: 
-From 135: 2 + 10 + 17 + 19 + 26 + 27 + 36
+From 135: 2 + 17 + 19 + 25 + 26 + 33 + 43
+-----------------------
+1-dimensional bar [137, 137]
+Representatives: 
+From 137: 2 + 17 + 19 + 22 + 25 + 26 + 33 + 44
+-----------------------
+1-dimensional bar [75, 138]
+Representatives: 
+From 75: 1 + 4 + 10 + 11 + 17 + 27
 -----------------------
 1-dimensional bar [114, 139]
 Representatives: 
-From 114: 2 + 25 + 33 + 36
+From 114: 2 + 10 + 36
 -----------------------
 1-dimensional bar [141, 141]
 Representatives: 
@@ -272,25 +272,25 @@ From 141: 17 + 22 + 32
 -----------------------
 1-dimensional bar [105, 142]
 Representatives: 
-From 105: 2 + 19 + 26 + 31 + 36
+From 105: 3 + 4 + 19 + 23
 -----------------------
 1-dimensional bar [128, 143]
 Representatives: 
-From 128: 6 + 17 + 34 + 35
+From 128: 17 + 23 + 34
 -----------------------
 1-dimensional bar [98, 144]
 Representatives: 
-From 98: 6 + 19 + 26 + 36 + 37
+From 98: 2 + 3 + 6 + 19 + 37
 -----------------------
-0-dimensional bar [11, 145]
+0-dimensional bar [1, 145]
 Representatives: 
-From 11: 0
+From 1: 0
 -----------------------
 1-dimensional bar [124, 145]
 Representatives: 
-From 124: 6 + 17 + 22 + 24 + 26 + 33 + 35 + 29
+From 124: 2 + 6 + 23 + 25 + 37 + 29
 -----------------------
-1-dimensional bar [137, 145]
+1-dimensional bar [133, 145]
 Representatives: 
-From 137: 10 + 22 + 24 + 25 + 26 + 33 + 36 + 43
+From 133: 2 + 6 + 17 + 22 + 28 + 37 + 5
 -----------------------
