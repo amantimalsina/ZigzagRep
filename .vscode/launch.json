@@ -11,7 +11,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/zzrep",
-            "args": ["${workspaceFolder}/filtrations/sample_filt_var/sample_filt"],
+            "args": ["${workspaceFolder}/filtrations/dragon_vrip_var/dragon_vrip_s2000_nu2_mu2_25_d4"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

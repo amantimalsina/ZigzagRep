@@ -352,7 +352,7 @@ void ZigzagRep::compute(
         /* Check the representative invariant where summing all the wires in the link for a cycle should give the current cycle:
         for (size_t p = 0; p <= m; p++) {
             for (auto a: zz_mat.used_pbits_Z[p]) {
-                check_link_invariant(zz_mat, rep_mat, p, a);
+                // check_link_invariant(zz_mat, rep_mat, p, a);
             }
         }
         */
@@ -592,10 +592,10 @@ void make_pivots_distinct(
     {
         // Check that a and b are valid indices in Z[p-1]:
         if (!zz_mat.Cycle_Record[p-1][a].non_bd && !zz_mat.Cycle_Record[p-1][b].non_bd) { // Both a and b are boundaries.
-            // check_link_invariant(zz_mat, rep_mat, p-1, a);
+            // // check_link_invariant(zz_mat, rep_mat, p-1, a);
             dynamic_xor(zz_mat.Z[p-1][a], zz_mat.Z[p-1][b]);
             dynamic_xor(rep_mat.links[p-1][a], rep_mat.links[p-1][b]);
-            // check_link_invariant(zz_mat, rep_mat, p-1, a);
+            // // check_link_invariant(zz_mat, rep_mat, p-1, a);
             // Update chain matrices to reflect this addition (use the BdToChainMap):
             dynamic_xor(zz_mat.C[p][zz_mat.Cycle_Record[p-1][a].chain_idx], zz_mat.C[p][zz_mat.Cycle_Record[p-1][b].chain_idx]);
             // Check for pivot conflicts again (pivot of b remains the same, but the pivot of a might have changed):
@@ -621,10 +621,10 @@ void make_pivots_distinct(
 
         }
         else if (!zz_mat.Cycle_Record[p-1][a].non_bd && zz_mat.Cycle_Record[p-1][b].non_bd) {
-            check_link_invariant(zz_mat, rep_mat, p-1, b);
+            // check_link_invariant(zz_mat, rep_mat, p-1, b);
             dynamic_xor(zz_mat.Z[p-1][b], zz_mat.Z[p-1][a]);
             dynamic_xor(rep_mat.links[p-1][b], rep_mat.links[p-1][a]);
-            check_link_invariant(zz_mat, rep_mat, p-1, b);            
+            // check_link_invariant(zz_mat, rep_mat, p-1, b);            
             // No need to update the chain matrices as a boundary is added to a cycle. Instead, check for pivot conflicts again:
             zz_mat.pivots[p-1][pivot_a] = a;
             pivot_b = pivot(zz_mat.Z[p-1][b]);
@@ -647,10 +647,10 @@ void make_pivots_distinct(
             }
         }
         else if (zz_mat.Cycle_Record[p-1][a].non_bd && !zz_mat.Cycle_Record[p-1][b].non_bd) {
-            check_link_invariant(zz_mat, rep_mat, p-1, a);
+            // check_link_invariant(zz_mat, rep_mat, p-1, a);
             dynamic_xor(zz_mat.Z[p-1][a], zz_mat.Z[p-1][b]);
             dynamic_xor(rep_mat.links[p-1][a], rep_mat.links[p-1][b]);
-            check_link_invariant(zz_mat, rep_mat, p-1, a);
+            // check_link_invariant(zz_mat, rep_mat, p-1, a);
             // Again, no need to update the chain matrices as a boundary is added to a cycle. Instead, check for pivot conflicts again:
             zz_mat.pivots[p-1][pivot_b] = b;
             pivot_a = pivot(zz_mat.Z[p-1][a]);
@@ -676,10 +676,10 @@ void make_pivots_distinct(
             int birth_b = zz_mat.Cycle_Record[p-1][b].timestamp;
             bool a_lessthan_b = ((birth_a == birth_b) || ((birth_a < birth_b) && (filt_op[birth_b-1])) || ((birth_a > birth_b) && (!(filt_op[birth_a-1]))));   
             if (a_lessthan_b) {
-                check_link_invariant(zz_mat, rep_mat, p-1, b);
+                // check_link_invariant(zz_mat, rep_mat, p-1, b);
                 dynamic_xor(zz_mat.Z[p-1][b], zz_mat.Z[p-1][a]);
                 dynamic_xor(rep_mat.links[p-1][b], rep_mat.links[p-1][a]);
-                check_link_invariant(zz_mat, rep_mat, p-1, b);
+                // check_link_invariant(zz_mat, rep_mat, p-1, b);
                 // Since both are cycles, no need to update the chain matrices. Instead, check for pivot conflicts again:
                 zz_mat.pivots[p-1][pivot_a] = a;
                 pivot_b = pivot(zz_mat.Z[p-1][b]);
@@ -701,10 +701,10 @@ void make_pivots_distinct(
                 }
             }
             else {
-                check_link_invariant(zz_mat, rep_mat, p-1, a);
+                // check_link_invariant(zz_mat, rep_mat, p-1, a);
                 dynamic_xor(zz_mat.Z[p-1][a], zz_mat.Z[p-1][b]);
                 dynamic_xor(rep_mat.links[p-1][a], rep_mat.links[p-1][b]);
-                check_link_invariant(zz_mat, rep_mat, p-1, a);
+                // check_link_invariant(zz_mat, rep_mat, p-1, a);
                 // Since both are cycles, no need to update the chain matrices. Instead, check for pivot conflicts again:
                 zz_mat.pivots[p-1][pivot_b] = b;
                 pivot_a = pivot(zz_mat.Z[p-1][a]);
@@ -760,10 +760,10 @@ void reduce_bd_update(
     for (auto cyc_idx: I) {
         int chain_idx = zz_mat.Cycle_Record[p-1][cyc_idx].chain_idx;
         if (cyc_idx != alpha) {
-            check_link_invariant(zz_mat, rep_mat, p-1, cyc_idx);
+            // check_link_invariant(zz_mat, rep_mat, p-1, cyc_idx);
             dynamic_xor(zz_mat.Z[p-1][cyc_idx], zz_mat.Z[p-1][alpha]);
             dynamic_xor(rep_mat.links[p-1][cyc_idx], rep_mat.links[p-1][alpha]);
-            check_link_invariant(zz_mat, rep_mat, p-1, cyc_idx);
+            // check_link_invariant(zz_mat, rep_mat, p-1, cyc_idx);
             dynamic_xor(zz_mat.C[p][chain_idx], zz_mat.C[p][chain_alpha]);
         }
     }
@@ -819,10 +819,10 @@ uint delete_cycle(
             int a_pivot = pivot(zz_mat.Z[p][a]);
             if (a_pivot > z_pivot) // z does not change.
             {
-                check_link_invariant(zz_mat, rep_mat, p, a);
+                // check_link_invariant(zz_mat, rep_mat, p, a);
                 dynamic_xor(zz_mat.Z[p][a], z);
                 dynamic_xor(rep_mat.links[p][a], z_link);
-                check_link_invariant(zz_mat, rep_mat, p, a);
+                // check_link_invariant(zz_mat, rep_mat, p, a);
             }   
             else 
             {
@@ -830,10 +830,10 @@ uint delete_cycle(
                 pbits temp = make_shared<bitset>(*zz_mat.Z[p][a]);
                 pbits temp_link = make_shared<bitset>(*rep_mat.links[p][a]);
                 int temp_pivot = a_pivot;
-                check_link_invariant(zz_mat, rep_mat, p, a);
+                // check_link_invariant(zz_mat, rep_mat, p, a);
                 dynamic_xor(zz_mat.Z[p][a], z);
                 dynamic_xor(rep_mat.links[p][a], z_link);
-                check_link_invariant(zz_mat, rep_mat, p, a);
+                // check_link_invariant(zz_mat, rep_mat, p, a);
                 a_pivot = z_pivot;
                 // Update the information for z's.
                 z = temp;

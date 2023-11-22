@@ -8,8 +8,8 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig/src/zzrep.cpp" "CMakeFiles/zzrep.dir/src/zzrep.cpp.o" "gcc" "CMakeFiles/zzrep.dir/src/zzrep.cpp.o.d"
-  "/Users/amantimalsina/Documents/Research/Ongoing_Projects/TDA/Coding/ZigzagOrig/src/zzrep_main.cpp" "CMakeFiles/zzrep.dir/src/zzrep_main.cpp.o" "gcc" "CMakeFiles/zzrep.dir/src/zzrep_main.cpp.o.d"
+  "/Users/amantimalsina/Documents/Working Directory/TDA/ZigzagOrig/src/zzrep.cpp" "CMakeFiles/zzrep.dir/src/zzrep.cpp.o" "gcc" "CMakeFiles/zzrep.dir/src/zzrep.cpp.o.d"
+  "/Users/amantimalsina/Documents/Working Directory/TDA/ZigzagOrig/src/zzrep_main.cpp" "CMakeFiles/zzrep.dir/src/zzrep_main.cpp.o" "gcc" "CMakeFiles/zzrep.dir/src/zzrep_main.cpp.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.
