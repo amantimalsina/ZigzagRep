@@ -215,7 +215,12 @@ void ZigzagRep::compute(
         const std::vector<bool> &filt_op,
         std::vector <std::tuple <int, int, int, std::vector<std::tuple<int, std::vector<int>>> > > *persistence, 
         std::vector< std::vector<int>> *id_to_i,
-        int m) {
+        int m,
+        const int record_runtime,
+        std::vector<double> *runtimes) {
+    // Start the clock.
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    runtimes -> push_back(0.0);
     
     persistence -> clear();
     int n = filt_simp.size();
@@ -305,6 +310,11 @@ void ZigzagRep::compute(
                 delete_update(zz_mat, rep_mat, p, alpha, idx);
             }
         }
+        if (record_runtime && i % 50000 == 0) {
+            std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+            double runtime = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+            runtimes -> push_back(runtime/1000.0);
+        }
         /* Check the pivot invariant:
         for (size_t p = 0; p <= m; p++) {
             for (auto a: zz_mat.used_pbits_Z[p]) {
@@ -365,6 +375,11 @@ void ZigzagRep::compute(
                 output_representatives(zz_mat, rep_mat, persistence, p, n, a, birth, n);            
             }
         }
+    }
+    if (record_runtime) {
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        double runtime = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+        runtimes -> push_back(runtime/1000.0);
     }
 }
 

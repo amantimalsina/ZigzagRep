@@ -48,7 +48,9 @@ void run_persistence(
             filt_op,
             &persistence,
             &id_to_i,
-            m);
+            m,
+            0,
+            NULL);
         std::string purename;
         getFilePurename(infilename, &purename);
         std::ofstream pers_fout("../outputs/" + purename + "_pers_");
@@ -99,38 +101,6 @@ void run_persistence(
             }
         }
         i_to_id_fout.close();
-}
-
-void get_runtime(
-    const std::vector<std::vector<int> > &filt_simp, 
-    const std::vector<bool> &filt_op,
-    const int m,
-    const std::string &infilename
-)
-{
-        std::string purename;
-        getFilePurename(infilename, &purename);
-        std::ofstream runtime_fout("../outputs/" + purename + "_runtime_");
-
-        for (size_t i = 0; i < filt_simp.size(); i += 50000) {
-                ZZREP::ZigzagRep zzr;
-                // Let's measure the time it takes to compute the zigzag rep:
-                std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-                std::vector <std::tuple <int, int, int, std::vector<std::tuple<int, std::vector<int>>> > > persistence;
-                std::vector <std::vector<int> > id_to_i(m+1, std::vector<int>());
-                std::vector<std::vector<int>> filt_simp_trunc(filt_simp.begin(), filt_simp.begin() + i);
-                std::vector<bool> filt_op_trunc(filt_op.begin(), filt_op.begin() + i);
-                zzr.compute(
-                    filt_simp_trunc, 
-                    filt_op_trunc,
-                    &persistence,
-                    &id_to_i,
-                    m);
-                std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-                double runtime =  std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count()/1000.0;
-                runtime_fout << i << " " << runtime << std::endl;
-        }
-        runtime_fout.close();
 }
 
 void representative_test(
@@ -277,7 +247,25 @@ int main(const int argc, const char *argv[]) {
 
     // Run the compute algorithm by truncating the input in the increment of 50,000 simplices: 
     if (atoi(argv[2]) == 1) {
-        get_runtime(filt_simp, filt_op, m,infilename);
+        ZZREP::ZigzagRep zzr;
+        std::vector <std::tuple <int, int, int, std::vector<std::tuple<int, std::vector<int>>> > > persistence;
+        std::vector <std::vector<int> > id_to_i(m+1, std::vector<int>());
+        std::vector<double> runtimes;
+        zzr.compute(
+            filt_simp, 
+            filt_op,
+            &persistence,
+            &id_to_i,
+            m,
+            1,
+            &runtimes);
+        std::string purename;
+        getFilePurename(infilename, &purename);
+        std::ofstream runtime_fout("../outputs/" + purename + "_runtimes_");
+        for (int i = 0; i < runtimes.size()-1; ++i) {
+            runtime_fout << i*50000 << " " << runtimes[i] << std::endl;
+        }
+        runtime_fout << filt_simp.size() << " " << runtimes[runtimes.size()-1] << std::endl;
     }
     else {
         run_persistence(filt_simp, filt_op, m, infilename);
