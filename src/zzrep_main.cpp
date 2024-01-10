@@ -7,6 +7,7 @@
 #include <sstream>
 #include <tuple>
 
+
 #include "zzrep.h"
 
 void getFilePurename(const std::string& filename, std::string *purename) {
@@ -29,65 +30,86 @@ void parseSimplex(const std::string& str, char &op, std::vector<int> &simp) {
     while (iss >> index) { simp.push_back(index); }
 }
 
-int main(const int argc, const char *argv[]) {
-    if (argc < 2) 
-    { std::cerr << "Err: input not large enough" << std::endl; return -1; }
 
-    const std::string infilename(argv[1]);
-    std::ifstream filt_fin(infilename);
+void run_persistence(
+    const std::vector<std::vector<int> > &filt_simp, 
+    const std::vector<bool> &filt_op,
+    const int m,
+    const std::string &infilename
+)
+{
+        ZZREP::ZigzagRep zzr;
+        // Let's measure the time it takes to compute the zigzag rep:
+        std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+        std::vector <std::tuple <int, int, int, std::vector<std::tuple<int, std::vector<int>>> > > persistence;
+        std::vector <std::vector<int> > id_to_i(m+1, std::vector<int>());
+        zzr.compute(
+            filt_simp, 
+            filt_op,
+            &persistence,
+            &id_to_i,
+            m,
+            0,
+            NULL);
+        std::string purename;
+        getFilePurename(infilename, &purename);
+        std::ofstream pers_fout("../outputs/" + purename + "_pers_");
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
-    if (!filt_fin)
-    { std::cerr << "Err: input file open failed" << std::endl; return -1; }
-
-    std::string line;
-    char op;
-    std::vector<std::vector<int> > filt_simp;
-    std::vector<bool> filt_op;
-    int m = 0;
-
-    while (filt_fin) {
-        std::getline(filt_fin, line);
-        if (line.size() == 0) { continue; }
-
-        filt_simp.emplace_back();
-        parseSimplex(line, op, filt_simp.back());
-        m = std::max(m, (int)filt_simp.back().size() - 1);
-
-        if (op == 'i') {
-            filt_op.push_back(true);
-        } else {
-            //assert(op == 'd');
-            filt_op.push_back(false);
-        }
-    }
-
-
-    filt_fin.close();
-    filt_simp.pop_back();
-    filt_op.pop_back();
-    
-    // Let's measure the time it takes to compute the zigzag rep:
-    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-    std::vector <std::tuple <int, int, int, std::vector<std::tuple<int, std::vector<int>>> > > persistence;
-    std::vector <std::vector<int> > id_to_i(m+1, std::vector<int>());
-
-    ZZREP::ZigzagRep zzr;
-    zzr.compute(
-        filt_simp, 
-        filt_op,
-        &persistence,
-        &id_to_i,
-        m);
-    std::string purename;
-    getFilePurename(infilename, &purename);
-    std::ofstream pers_fout("../outputs/" + purename + "_pers");
-    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-
-    std::cout << "Time difference = " 
+        std::cout << "Runtime = " 
         << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count()
         << "[ms]" << std::endl;
 
+        // Change this to add the representatives to the file.
+        pers_fout << "n: " << filt_simp.size() << std::endl;
+        pers_fout << "m: " << m << std::endl;
+        pers_fout << "Runtime (in seconds): " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() / 1000.0 << std::endl;
 
+        for (const auto& e : persistence) {
+            pers_fout << std::get<2>(e) << "-dimensional bar [" << std::get<0>(e) << ", " << std::get<1>(e) << "]" << std::endl;   
+            pers_fout << "Representatives: " << std::endl;
+            for (auto i : std::get<3>(e)) {
+                pers_fout << "From " << std::get<0>(i) << ": ";
+                for (size_t k = 0; k < std::get<1>(i).size(); ++k) {
+                    pers_fout << std::get<1>(i)[k];
+                    if (k != std::get<1>(i).size() - 1) {
+                        pers_fout << " + ";
+                    }
+                }
+                pers_fout << std::endl;
+            } 
+            pers_fout << "-----------------------" << std::endl;    
+        }
+
+        pers_fout.close();
+
+        // Now, produce a file with the map from the simplices to the unique_id that they are first assigned. For this, we can simply use the i_to_id map.
+        std::ofstream i_to_id_fout("../outputs/" + purename + "_id_to_simp_");
+        // Iterate over filt_simp and for i in i_to_id, add the simp -> id mapping to the file.
+        for (size_t p = 0; p <= m; ++p) 
+        {
+            i_to_id_fout << "Dimension " << p << ": " << std::endl;
+            for (size_t i = 0; i < id_to_i[p].size(); ++i) 
+            {
+                i_to_id_fout << i << " -> ";
+                std::vector<int> simp_i = filt_simp[id_to_i[p][i]];
+                for (auto j: simp_i) 
+                {
+                    i_to_id_fout << j << " ";
+                }
+                i_to_id_fout << std::endl;
+            }
+        }
+        i_to_id_fout.close();
+}
+
+void representative_test(
+    const std::vector<std::vector<int> > &filt_simp, 
+    const std::vector<bool> &filt_op,
+    const std::vector <std::tuple <int, int, int, std::vector<std::tuple<int, std::vector<int>>> > > &persistence,
+    const std::vector <std::vector<int> > &id_to_i
+)
+{
     /*
     Test for checking the correctness of representatives. Here are the criterias:
     1. If filtop[b - 1] = 1 (the map is injective), the simplex being inserted at b - 1 should be in the representative at b.
@@ -169,44 +191,85 @@ int main(const int argc, const char *argv[]) {
             }
         }
     }
+}
 
-    // Change this to add the representatives to the file.
-    for (const auto& e : persistence) {
-        pers_fout << std::get<2>(e) << "-dimensional bar [" << std::get<0>(e) << ", " << std::get<1>(e) << "]" << std::endl;   
-        pers_fout << "Representatives: " << std::endl;
-        for (auto i : std::get<3>(e)) {
-            pers_fout << "From " << std::get<0>(i) << ": ";
-            for (size_t k = 0; k < std::get<1>(i).size(); ++k) {
-                pers_fout << std::get<1>(i)[k];
-                if (k != std::get<1>(i).size() - 1) {
-                    pers_fout << " + ";
-                }
-            }
-            pers_fout << std::endl;
-        } 
-        pers_fout << "-----------------------" << std::endl;    
+
+int main(const int argc, const char *argv[]) {
+    if (argc < 3) 
+    { std::cerr << "Err: input not large enough" << std::endl; return -1; }
+
+    // Diplay the arguments:
+    for (int i = 0; i < argc; ++i) {
+        std::cout << "i" << i << ": " << argv[i] << std::endl;
     }
 
-    pers_fout.close();
 
-    // Now, produce a file with the map from the simplices to the unique_id that they are first assigned. For this, we can simply use the i_to_id map.
-    std::ofstream i_to_id_fout("../outputs/" + purename + "_id_to_simp");
-    // Iterate over filt_simp and for i in i_to_id, add the simp -> id mapping to the file.
-    for (size_t p = 0; p <= m; ++p) 
+    if (atoi(argv[2]) == 1)
     {
-        i_to_id_fout << "Dimension " << p << ": " << std::endl;
-        for (size_t i = 0; i < id_to_i[p].size(); ++i) 
-        {
-            i_to_id_fout << i << " -> ";
-            std::vector<int> simp_i = filt_simp[id_to_i[p][i]];
-            for (auto j: simp_i) 
-            {
-                i_to_id_fout << j << " ";
-            }
-            i_to_id_fout << std::endl;
+        std::cout << "Getting runtimes." << std::endl;
+    }
+    else {
+        std::cout << "Running persistence." << std::endl;
+    }
+
+    const std::string infilename(argv[1]);
+    std::ifstream filt_fin(infilename);
+
+    if (!filt_fin)
+    { std::cerr << "Err: input file open failed" << std::endl; return -1; }
+
+    std::string line;
+    char op;
+    std::vector<std::vector<int> > filt_simp;
+    std::vector<bool> filt_op;
+    int m = 0;
+
+    while (filt_fin) {
+        std::getline(filt_fin, line);
+        if (line.size() == 0) { continue; }
+
+        filt_simp.emplace_back();
+        parseSimplex(line, op, filt_simp.back());
+        m = std::max(m, (int)filt_simp.back().size() - 1);
+
+        if (op == 'i') {
+            filt_op.push_back(true);
+        } else {
+            //assert(op == 'd');
+            filt_op.push_back(false);
         }
     }
-    i_to_id_fout.close();
+
+
+    filt_fin.close();
+    filt_simp.pop_back();
+    filt_op.pop_back();
+
+    // Run the compute algorithm by truncating the input in the increment of 50,000 simplices: 
+    if (atoi(argv[2]) == 1) {
+        ZZREP::ZigzagRep zzr;
+        std::vector <std::tuple <int, int, int, std::vector<std::tuple<int, std::vector<int>>> > > persistence;
+        std::vector <std::vector<int> > id_to_i(m+1, std::vector<int>());
+        std::vector<double> runtimes;
+        zzr.compute(
+            filt_simp, 
+            filt_op,
+            &persistence,
+            &id_to_i,
+            m,
+            1,
+            &runtimes);
+        std::string purename;
+        getFilePurename(infilename, &purename);
+        std::ofstream runtime_fout("../outputs/" + purename + "_runtimes_");
+        for (int i = 0; i < runtimes.size()-1; ++i) {
+            runtime_fout << i*50000 << " " << runtimes[i] << std::endl;
+        }
+        runtime_fout << filt_simp.size() << " " << runtimes[runtimes.size()-1] << std::endl;
+    }
+    else {
+        run_persistence(filt_simp, filt_op, m, infilename);
+    }
 
     return 0;
 }

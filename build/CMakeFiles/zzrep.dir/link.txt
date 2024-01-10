@@ -1,1 +1,0 @@
-/usr/bin/clang++  -std=c++14 -O3 -g -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/zzrep.dir/src/zzrep.cpp.o CMakeFiles/zzrep.dir/src/zzrep_main.cpp.o -o zzrep 
