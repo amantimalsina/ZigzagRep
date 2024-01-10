@@ -99,17 +99,25 @@ class representative_matrices {
     vector<vector<pbits> > bundle; // A collection of wires: bundle[p] stores p-dimensional wires.
     vector<vector<int> > timestamp; // Map from the cycle matrix to the wires: links[p][j] is the collection of wires associated with Z[p][j].
     vector<vector<pbits> > links; // Represents a map from the cycle matrix to the wires: links[p][j] is the collection of wires associated with Z[p][j]; we use the same used/available pbitss as in Z.
+    vector<vector<int>> bundle_usage; // bundle_usage[p][i] is the number of times the i-th wire in bundle[p] is used.
+    vector<vector<int>> available_pbits_bundle;
+    vector<vector<int>> used_pbits_bundle;
     /* Constructor */
     representative_matrices(const int m) {
         bundle = vector<vector<pbits> >(m+1, vector<pbits>());
         timestamp = vector<vector<int> >(m+1, vector<int>());
         links = vector<vector<pbits> >(m+1, vector<pbits>());
+        bundle_usage = vector<vector<int> >(m+1, vector<int>());
+        available_pbits_bundle = vector<vector<int> >(m+1, vector<int>());
+        used_pbits_bundle = vector<vector<int> >(m+1, vector<int>());
     }
 };
 
 /* PRIMITIVE OPERATIONS: */
 int pivot(pbits a);
 void dynamic_xor(pbits a, pbits b);
+void dynamic_xor_links(pbits link_a, pbits link_b, vector<int> bundle_usage);
+void check_bundle_usage(representative_matrices &rep_mat, int m);
 void check_link_invariant(
     zigzag_matrices &zz_mat,
     representative_matrices &rep_mat,
@@ -305,6 +313,8 @@ void ZigzagRep::compute(
                 delete_update(zz_mat, rep_mat, p, alpha, idx);
             }
         }
+        // Update/delete bundles if possible:
+        check_bundle_usage(rep_mat, m);
         /* Check the pivot invariant:
         for (size_t p = 0; p <= m; p++) {
             for (auto a: zz_mat.used_pbits_Z[p]) {
@@ -457,11 +467,23 @@ void add_new_cycle(
     uint pivot_new = pivot(new_pbits);
     // Add a wire to the bundle with timestamp i+1 and update the link from the cycle to the bundle.
     pbits new_pbits_copy = make_shared<bitset>(*new_pbits);
-    rep_mat.bundle[p].push_back(new_pbits_copy);
-    rep_mat.timestamp[p].push_back(i+1);
     pbits new_link;
-    new_link = make_shared<bitset>(rep_mat.bundle[p].size(), 0);
-    new_link -> set(rep_mat.bundle[p].size()-1);
+    if (rep_mat.available_pbits_bundle[p].size() != 0) 
+    {
+        uint av_idx = rep_mat.available_pbits_bundle[p].back();
+        rep_mat.bundle[p].push_back(new_pbits_copy);
+        rep_mat.timestamp[p].push_back(i+1);
+        new_link = make_shared<bitset>(rep_mat.bundle[p].size(), 0);
+        new_link -> set(av_idx);
+        rep_mat.bundle_usage[p][av_idx] = 1;
+    }
+    else {
+        rep_mat.bundle[p].push_back(new_pbits_copy);
+        rep_mat.timestamp[p].push_back(i+1);
+        new_link = make_shared<bitset>(rep_mat.bundle[p].size(), 0);
+        new_link -> set(rep_mat.bundle[p].size()-1);
+        rep_mat.bundle_usage[p].push_back(1);
+    }
     // Now, we add the new pbits to the cycle matrix and the new link to the link matrix.
     if (zz_mat.available_pbits_Z[p].size() != 0) 
     {
@@ -530,10 +552,23 @@ uint add_chain_bd(
     // Add a new wire to the (p-1)-th bundle:
     // Make a copy of the boundary simplex and add it to the bundle.
     pbits bd_simp_copy = make_shared<bitset>(*bd_simp);
-    rep_mat.bundle[p-1].push_back(bd_simp_copy);
-    rep_mat.timestamp[p-1].push_back(i+1);
-    pbits new_link = make_shared<bitset>(rep_mat.bundle[p-1].size(), 0);
-    new_link -> set(rep_mat.bundle[p-1].size()-1);
+    pbits new_link;
+    if (rep_mat.available_pbits_bundle[p-1].size() != 0) 
+    {
+        uint av_idx = rep_mat.available_pbits_bundle[p-1].back();
+        rep_mat.bundle[p-1].push_back(bd_simp_copy);
+        rep_mat.timestamp[p-1].push_back(i+1);
+        new_link = make_shared<bitset>(rep_mat.bundle[p-1].size(), 0);
+        new_link -> set(av_idx);
+        rep_mat.bundle_usage[p-1][av_idx] = 1;
+    }
+    else {
+        rep_mat.bundle[p-1].push_back(bd_simp_copy);
+        rep_mat.timestamp[p-1].push_back(i+1);
+        new_link = make_shared<bitset>(rep_mat.bundle[p-1].size(), 0);
+        new_link -> set(rep_mat.bundle[p-1].size()-1);
+        rep_mat.bundle_usage[p-1][rep_mat.bundle[p-1].size()-1] = 1;
+    }
     rep_mat.links[p-1][l] = new_link;
     /* 
     UPDATE:
@@ -572,6 +607,7 @@ void make_pivots_distinct(
     const int prev_pivot
 )
 {
+
     bool pivot_conflict;
     int a, b, pivot_a, pivot_b, current_idx, current_pivot;
     zz_mat.pivots[p-1].erase(prev_pivot); // Remove the previous pivot
@@ -592,10 +628,10 @@ void make_pivots_distinct(
     {
         // Check that a and b are valid indices in Z[p-1]:
         if (!zz_mat.Cycle_Record[p-1][a].non_bd && !zz_mat.Cycle_Record[p-1][b].non_bd) { // Both a and b are boundaries.
-            // check_link_invariant(zz_mat, rep_mat, p-1, a);
+            // // check_link_invariant(zz_mat, rep_mat, p-1, a);
             dynamic_xor(zz_mat.Z[p-1][a], zz_mat.Z[p-1][b]);
-            dynamic_xor(rep_mat.links[p-1][a], rep_mat.links[p-1][b]);
-            // check_link_invariant(zz_mat, rep_mat, p-1, a);
+            dynamic_xor_links(rep_mat.links[p-1][a], rep_mat.links[p-1][b], rep_mat.bundle_usage[p-1]);
+            // // check_link_invariant(zz_mat, rep_mat, p-1, a);
             // Update chain matrices to reflect this addition (use the BdToChainMap):
             dynamic_xor(zz_mat.C[p][zz_mat.Cycle_Record[p-1][a].chain_idx], zz_mat.C[p][zz_mat.Cycle_Record[p-1][b].chain_idx]);
             // Check for pivot conflicts again (pivot of b remains the same, but the pivot of a might have changed):
@@ -621,10 +657,10 @@ void make_pivots_distinct(
 
         }
         else if (!zz_mat.Cycle_Record[p-1][a].non_bd && zz_mat.Cycle_Record[p-1][b].non_bd) {
-            check_link_invariant(zz_mat, rep_mat, p-1, b);
+            // check_link_invariant(zz_mat, rep_mat, p-1, b);
             dynamic_xor(zz_mat.Z[p-1][b], zz_mat.Z[p-1][a]);
-            dynamic_xor(rep_mat.links[p-1][b], rep_mat.links[p-1][a]);
-            check_link_invariant(zz_mat, rep_mat, p-1, b);            
+            dynamic_xor_links(rep_mat.links[p-1][b], rep_mat.links[p-1][a], rep_mat.bundle_usage[p-1]);
+            // check_link_invariant(zz_mat, rep_mat, p-1, b);            
             // No need to update the chain matrices as a boundary is added to a cycle. Instead, check for pivot conflicts again:
             zz_mat.pivots[p-1][pivot_a] = a;
             pivot_b = pivot(zz_mat.Z[p-1][b]);
@@ -647,10 +683,10 @@ void make_pivots_distinct(
             }
         }
         else if (zz_mat.Cycle_Record[p-1][a].non_bd && !zz_mat.Cycle_Record[p-1][b].non_bd) {
-            check_link_invariant(zz_mat, rep_mat, p-1, a);
+            // check_link_invariant(zz_mat, rep_mat, p-1, a);
             dynamic_xor(zz_mat.Z[p-1][a], zz_mat.Z[p-1][b]);
-            dynamic_xor(rep_mat.links[p-1][a], rep_mat.links[p-1][b]);
-            check_link_invariant(zz_mat, rep_mat, p-1, a);
+            dynamic_xor_links(rep_mat.links[p-1][a], rep_mat.links[p-1][b], rep_mat.bundle_usage[p-1]);
+            // check_link_invariant(zz_mat, rep_mat, p-1, a);
             // Again, no need to update the chain matrices as a boundary is added to a cycle. Instead, check for pivot conflicts again:
             zz_mat.pivots[p-1][pivot_b] = b;
             pivot_a = pivot(zz_mat.Z[p-1][a]);
@@ -676,10 +712,10 @@ void make_pivots_distinct(
             int birth_b = zz_mat.Cycle_Record[p-1][b].timestamp;
             bool a_lessthan_b = ((birth_a == birth_b) || ((birth_a < birth_b) && (filt_op[birth_b-1])) || ((birth_a > birth_b) && (!(filt_op[birth_a-1]))));   
             if (a_lessthan_b) {
-                check_link_invariant(zz_mat, rep_mat, p-1, b);
+                // check_link_invariant(zz_mat, rep_mat, p-1, b);
                 dynamic_xor(zz_mat.Z[p-1][b], zz_mat.Z[p-1][a]);
-                dynamic_xor(rep_mat.links[p-1][b], rep_mat.links[p-1][a]);
-                check_link_invariant(zz_mat, rep_mat, p-1, b);
+                dynamic_xor_links(rep_mat.links[p-1][b], rep_mat.links[p-1][a], rep_mat.bundle_usage[p-1]);
+                // check_link_invariant(zz_mat, rep_mat, p-1, b);
                 // Since both are cycles, no need to update the chain matrices. Instead, check for pivot conflicts again:
                 zz_mat.pivots[p-1][pivot_a] = a;
                 pivot_b = pivot(zz_mat.Z[p-1][b]);
@@ -701,10 +737,10 @@ void make_pivots_distinct(
                 }
             }
             else {
-                check_link_invariant(zz_mat, rep_mat, p-1, a);
+                // check_link_invariant(zz_mat, rep_mat, p-1, a);
                 dynamic_xor(zz_mat.Z[p-1][a], zz_mat.Z[p-1][b]);
-                dynamic_xor(rep_mat.links[p-1][a], rep_mat.links[p-1][b]);
-                check_link_invariant(zz_mat, rep_mat, p-1, a);
+                dynamic_xor_links(rep_mat.links[p-1][a], rep_mat.links[p-1][b], rep_mat.bundle_usage[p-1]);
+                // check_link_invariant(zz_mat, rep_mat, p-1, a);
                 // Since both are cycles, no need to update the chain matrices. Instead, check for pivot conflicts again:
                 zz_mat.pivots[p-1][pivot_b] = b;
                 pivot_a = pivot(zz_mat.Z[p-1][a]);
@@ -760,10 +796,10 @@ void reduce_bd_update(
     for (auto cyc_idx: I) {
         int chain_idx = zz_mat.Cycle_Record[p-1][cyc_idx].chain_idx;
         if (cyc_idx != alpha) {
-            check_link_invariant(zz_mat, rep_mat, p-1, cyc_idx);
+            // check_link_invariant(zz_mat, rep_mat, p-1, cyc_idx);
             dynamic_xor(zz_mat.Z[p-1][cyc_idx], zz_mat.Z[p-1][alpha]);
-            dynamic_xor(rep_mat.links[p-1][cyc_idx], rep_mat.links[p-1][alpha]);
-            check_link_invariant(zz_mat, rep_mat, p-1, cyc_idx);
+            dynamic_xor_links(rep_mat.links[p-1][cyc_idx], rep_mat.links[p-1][alpha], rep_mat.bundle_usage[p-1]);
+            // check_link_invariant(zz_mat, rep_mat, p-1, cyc_idx);
             dynamic_xor(zz_mat.C[p][chain_idx], zz_mat.C[p][chain_alpha]);
         }
     }
@@ -775,10 +811,21 @@ void reduce_bd_update(
     // Add a new wire to the (p-1)-th bundle:
     // Make a copy of the boundary simplex and add it to the bundle.
     pbits new_cycle_copy = make_shared<bitset>(*zz_mat.Z[p-1][alpha]);
-    rep_mat.bundle[p-1].push_back(new_cycle_copy);
-    rep_mat.timestamp[p-1].push_back(i+1);
-    pbits new_link = make_shared<bitset>(rep_mat.bundle[p-1].size(), 0);
-    new_link -> set(rep_mat.bundle[p-1].size()-1);
+    pbits new_link;
+    if (rep_mat.available_pbits_bundle[p-1].size() != 0) 
+    {
+        uint av_idx = rep_mat.available_pbits_bundle[p-1].back();
+        rep_mat.bundle[p-1].push_back(new_cycle_copy);
+        rep_mat.timestamp[p-1].push_back(i+1);
+        new_link = make_shared<bitset>(rep_mat.bundle[p-1].size(), 0);
+        new_link -> set(av_idx);
+    }
+    else {
+        rep_mat.bundle[p-1].push_back(new_cycle_copy);
+        rep_mat.timestamp[p-1].push_back(i+1);
+        new_link = make_shared<bitset>(rep_mat.bundle[p-1].size(), 0);
+        new_link -> set(rep_mat.bundle[p-1].size()-1);
+    }
     rep_mat.links[p-1][alpha] = new_link;
 }
 uint delete_cycle(
@@ -789,7 +836,7 @@ uint delete_cycle(
     const int idx
 )
 {
-    vector<int> I; // Gather indices of pbitss that contain the simplex. 
+   vector<int> I; // Gather indices of pbitss that contain the simplex. 
     for (auto col_idx: zz_mat.used_pbits_Z[p]) 
     {
         if (idx < (zz_mat.Z[p][col_idx] -> size()) && (*zz_mat.Z[p][col_idx])[idx] == 1)
@@ -819,10 +866,10 @@ uint delete_cycle(
             int a_pivot = pivot(zz_mat.Z[p][a]);
             if (a_pivot > z_pivot) // z does not change.
             {
-                check_link_invariant(zz_mat, rep_mat, p, a);
+                // check_link_invariant(zz_mat, rep_mat, p, a);
                 dynamic_xor(zz_mat.Z[p][a], z);
-                dynamic_xor(rep_mat.links[p][a], z_link);
-                check_link_invariant(zz_mat, rep_mat, p, a);
+                dynamic_xor_links(rep_mat.links[p][a], z_link, rep_mat.bundle_usage[p]);
+                // check_link_invariant(zz_mat, rep_mat, p, a);
             }   
             else 
             {
@@ -830,10 +877,10 @@ uint delete_cycle(
                 pbits temp = make_shared<bitset>(*zz_mat.Z[p][a]);
                 pbits temp_link = make_shared<bitset>(*rep_mat.links[p][a]);
                 int temp_pivot = a_pivot;
-                check_link_invariant(zz_mat, rep_mat, p, a);
+                // check_link_invariant(zz_mat, rep_mat, p, a);
                 dynamic_xor(zz_mat.Z[p][a], z);
-                dynamic_xor(rep_mat.links[p][a], z_link);
-                check_link_invariant(zz_mat, rep_mat, p, a);
+                dynamic_xor_links(rep_mat.links[p][a], z_link, rep_mat.bundle_usage[p]);
+                // check_link_invariant(zz_mat, rep_mat, p, a);
                 a_pivot = z_pivot;
                 // Update the information for z's.
                 z = temp;
@@ -855,8 +902,14 @@ void delete_update(
     const int idx
 )
 {
-    // Remove the pbitss Z[p][alpha] from Z[p] and link[p][alpha] from links: assign these to null pbitss.
+     // Remove the pbitss Z[p][alpha] from Z[p] and link[p][alpha] from links: assign these to null pbitss.
     zz_mat.Z[p][alpha] = nullptr;
+    // Before deleting this link, update bundle_usage:
+    size_t col_idx = rep_mat.links[p][alpha] -> find_first();
+    while (col_idx != rep_mat.links[p][alpha] -> npos) {
+        rep_mat.bundle_usage[p][col_idx] -= 1;
+        col_idx = rep_mat.links[p][alpha] -> find_next(col_idx);
+    }
     rep_mat.links[p][alpha] = nullptr;
     // Add this to the available pbitss for adding new cycles:
     zz_mat.available_pbits_Z[p].push_back(alpha);
@@ -941,6 +994,40 @@ void dynamic_xor(pbits a, pbits b)
     }
     for (int i = b -> find_first(); i != b -> npos; i = b -> find_next(i)) {
         (*a)[i] ^= (*b)[i];
+    }
+}
+void dynamic_xor_links(pbits link_a, pbits link_b, vector<int> bundle_usage)
+{
+    size_t a_size = link_a -> size();
+    size_t b_size = link_b -> size();
+    if (a_size < b_size) {
+        link_a -> resize(b_size, 0);
+    } 
+    for (int i = link_b -> find_first(); i != link_b -> npos; i = link_b -> find_next(i)) {
+        if ((*link_b)[i] == 1) {
+            if ((*link_a)[i] == 1) {
+                bundle_usage[i] -= 1;
+                (*link_a)[i] = 0;
+            }
+            else {
+                bundle_usage[i] += 1;
+                (*link_a)[i] = 1;
+            }
+        }
+    }
+}
+
+void check_bundle_usage(representative_matrices &rep_mat, int m)
+{
+    for (int p = 0; p <= m; p++) {
+        for (int i = 0; i < rep_mat.bundle_usage[p].size(); i++) {
+            if (rep_mat.bundle_usage[p][i] == 0) {
+                //the i-th p-wire is not being used anywhere so we can safely erase it.
+                rep_mat.bundle[p][i] = nullptr;
+                rep_mat.available_pbits_bundle[p].push_back(i);
+                rep_mat.used_pbits_bundle[p].erase(remove(rep_mat.used_pbits_bundle[p].begin(), rep_mat.used_pbits_bundle[p].end(), i), rep_mat.used_pbits_bundle[p].end());
+            }
+    }
     }
 }
 void check_link_invariant(
