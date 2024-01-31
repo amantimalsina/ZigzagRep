@@ -97,11 +97,17 @@ class zigzag_matrices {
 class representative_matrices {
     public:
     vector<vector<pbits> > bundle; // A collection of wires: bundle[p] stores p-dimensional wires.
+    vector<vector<int> > available_pbits_bundle;
+    vector<vector<int> > used_pbits_bundle;
+    vector<vector<int> > bundle_usage;
     vector<vector<int> > timestamp; // Map from the cycle matrix to the wires: links[p][j] is the collection of wires associated with Z[p][j].
     vector<vector<pbits> > links; // Represents a map from the cycle matrix to the wires: links[p][j] is the collection of wires associated with Z[p][j]; we use the same used/available pbitss as in Z.
     /* Constructor */
     representative_matrices(const int m) {
         bundle = vector<vector<pbits> >(m+1, vector<pbits>());
+        available_pbits_bundle = vector<vector<int> >(m+1, vector<int>());
+        used_pbits_bundle = vector<vector<int> >(m+1, vector<int>());
+        bundle_usage = vector<vector<int> >(m+1, vector<int>());
         timestamp = vector<vector<int> >(m+1, vector<int>());
         links = vector<vector<pbits> >(m+1, vector<pbits>());
     }
@@ -931,7 +937,7 @@ int pivot (pbits a)
     }
     return pivot;
 }
-// Takes the XOR of bitsets of differing lengths. Instead of appending by 0s and then XORing, we XOR the bitsets directly.
+// Takes the XOR of bitsets of differing lengths.
 void dynamic_xor(pbits a, pbits b)
 {
     size_t a_size = a -> size();
@@ -941,6 +947,48 @@ void dynamic_xor(pbits a, pbits b)
     }
     for (int i = b -> find_first(); i != b -> npos; i = b -> find_next(i)) {
         (*a)[i] ^= (*b)[i];
+    }
+}
+void dynamic_xor_links(
+    int p, 
+    int a, int b,
+    representative_matrices &rep_mat)
+{
+    size_t a_size = (*rep_mat.links[p][a]) -> size();
+    size_t b_size = (*rep_mat.links[p][b]) -> size();
+    if (a_size < b_size) {
+        (*rep_mat.links[p][a]) -> resize(b_size, 0);
+    }
+    for (int i = (*rep_mat.links[p][b]) -> find_first(); i != (*rep_mat.links[p][b]) -> npos; i = (*rep_mat.links[p][b]) -> find_next(i)) {
+        // Only the link entries of a can change. So we need to keep track of when they flip.
+        if ((*rep_mat.links[p][b])[i] == 1) {
+            if ((*rep_mat.links[p][a])[i] == 1) {
+                // Both 1 implies 0.
+                (*rep_mat.links[p][a])[i] = 0;
+                // The bundle usage for index i at dim p is decreased by 1 as a no longer points to it.
+                *rep_mat.bundle_usage[p][i] -= 1;
+            }
+            else {
+                // 1 and 0 implies 1.
+                (*rep_mat.links[p][a])[i] = 1;
+                // The bundle usage for index i at dim p is increased by 1 as a now points to it.
+                *rep_mat.bundle_usage[p][i] += 1;
+            }
+        }
+        // The entries and bundle usage for index i at dim p does not change if the link entry of b is 0.
+    }
+}
+void bundle_update(representative_matrices &rep_mat)
+{
+    // Go over the bundle usage for each dimension and if any index has a usage of 0, then remove the corresponding wire from the bundle.
+    for (size_t p = 0; p < rep_mat.bundle_usage.size(); p++) {
+        for (size_t i = 0; i < rep_mat.bundle_usage[p].size(); i++) {
+            if (*rep_mat.bundle_usage[p][i] == 0) {
+                rep_mat.bundle[p][i] = nullptr;
+                rep_mat.available_indices[p].push_back(i);
+                rep_mat.used_indices[p].erase(remove(rep_mat.used_indices[p].begin(), rep_mat.used_indices[p].end(), i), rep_mat.used_indices[p].end());
+            }
+        }
     }
 }
 void check_link_invariant(
@@ -963,6 +1011,5 @@ void check_link_invariant(
         assert((*zz_mat.Z[p][a])[next_bit] == 1);
         next_bit = final_sum -> find_next(next_bit);
     } 
-}
 }
 // namespace ZZREP
