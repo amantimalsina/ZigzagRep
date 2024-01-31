@@ -30,7 +30,7 @@ void parseSimplex(const std::string& str, char &op, std::vector<int> &simp) {
     while (iss >> index) { simp.push_back(index); }
 }
 
-
+/*
 void run_persistence(
     const std::vector<std::vector<int> > &filt_simp, 
     const std::vector<bool> &filt_op,
@@ -102,7 +102,8 @@ void run_persistence(
         }
         i_to_id_fout.close();
 }
-
+*/
+/*
 void representative_test(
     const std::vector<std::vector<int> > &filt_simp, 
     const std::vector<bool> &filt_op,
@@ -110,7 +111,6 @@ void representative_test(
     const std::vector <std::vector<int> > &id_to_i
 )
 {
-    /*
     Test for checking the correctness of representatives. Here are the criterias:
     1. If filtop[b - 1] = 1 (the map is injective), the simplex being inserted at b - 1 should be in the representative at b.
     2. If filtop[b - 1] = 0 (the map is surjective), the representative's class is the non-zero element in the kernel of this map.
@@ -118,7 +118,7 @@ void representative_test(
     4. For i < n, if filtop[i] = 1 (surjective), the representative's class is the non-zero element in the kernel of this map.
     5. Each representative at index b <= j <= i should be present in the complex K_j.
     6. The map \psi_j: H(K_{j-1}) \lefrightarrow H(K_{j}) takes the representative at index j-1 to the representative at index j.
-    */
+    
     size_t n = filt_op.size();
     for (auto pers: persistence) {
         int birth = std::get<0>(pers);
@@ -192,25 +192,12 @@ void representative_test(
         }
     }
 }
+*/
 
 
 int main(const int argc, const char *argv[]) {
-    if (argc < 3) 
+    if (argc < 2) 
     { std::cerr << "Err: input not large enough" << std::endl; return -1; }
-
-    // Diplay the arguments:
-    for (int i = 0; i < argc; ++i) {
-        std::cout << "i" << i << ": " << argv[i] << std::endl;
-    }
-
-
-    if (atoi(argv[2]) == 1)
-    {
-        std::cout << "Getting runtimes." << std::endl;
-    }
-    else {
-        std::cout << "Running persistence." << std::endl;
-    }
 
     const std::string infilename(argv[1]);
     std::ifstream filt_fin(infilename);
@@ -244,7 +231,8 @@ int main(const int argc, const char *argv[]) {
     filt_fin.close();
     filt_simp.pop_back();
     filt_op.pop_back();
-
+    
+    /*
     // Run the compute algorithm by truncating the input in the increment of 50,000 simplices: 
     if (atoi(argv[2]) == 1) {
         ZZREP::ZigzagRep zzr;
@@ -270,6 +258,56 @@ int main(const int argc, const char *argv[]) {
     else {
         run_persistence(filt_simp, filt_op, m, infilename);
     }
+    */
+
+    // Simply run zzrep compute
+    ZZREP::ZigzagRep zzr;
+    std::vector <std::tuple <int, int, int, std::vector<std::tuple<int, std::vector<int>>> > > persistence;
+    std::vector <std::vector<int> > id_to_i(m+1, std::vector<int>());
+    zzr.compute(
+        filt_simp, 
+        filt_op,
+        &persistence,
+        &id_to_i,
+        m);
+    std::string purename;
+    getFilePurename(infilename, &purename);
+    std::ofstream pers_fout("../outputs/" + purename + "_pers_");
+    for (const auto& e : persistence) {
+        pers_fout << std::get<2>(e) << "-dimensional bar [" << std::get<0>(e) << ", " << std::get<1>(e) << "]" << std::endl;   
+        pers_fout << "Representatives: " << std::endl;
+        for (auto i : std::get<3>(e)) {
+            pers_fout << "From " << std::get<0>(i) << ": ";
+            for (size_t k = 0; k < std::get<1>(i).size(); ++k) {
+                pers_fout << std::get<1>(i)[k];
+                if (k != std::get<1>(i).size() - 1) {
+                    pers_fout << " + ";
+                }
+            }
+            pers_fout << std::endl;
+        } 
+        pers_fout << "-----------------------" << std::endl;    
+    }
+    pers_fout.close(); 
+
+    // Now, produce a file with the map from the simplices to the unique_id that they are first assigned. For this, we can simply use the i_to_id map.
+    std::ofstream i_to_id_fout("../outputs/" + purename + "_id_to_simp_");
+    // Iterate over filt_simp and for i in i_to_id, add the simp -> id mapping to the file.
+    for (size_t p = 0; p <= m; ++p) 
+    {
+        i_to_id_fout << "Dimension " << p << ": " << std::endl;
+        for (size_t i = 0; i < id_to_i[p].size(); ++i) 
+        {
+            i_to_id_fout << i << " -> ";
+            std::vector<int> simp_i = filt_simp[id_to_i[p][i]];
+            for (auto j: simp_i) 
+            {
+                i_to_id_fout << j << " ";
+            }
+            i_to_id_fout << std::endl;
+        }
+    }
+    i_to_id_fout.close();
 
     return 0;
 }

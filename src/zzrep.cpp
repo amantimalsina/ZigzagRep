@@ -69,7 +69,7 @@ struct cycle_record {
 class zigzag_matrices {
     public:
     vector<SimplexIdMap> id; //  The current integral id for each p-simplex.
-    vector<map<int, vector<int>>> simplex_id; // FIXME: Remove this temporary map from id to simplex for testing purposes.
+    vector<map<int, vector<int> > > simplex_id; // FIXME: Remove this temporary map from id to simplex for testing purposes.
     vector<vector<int> > unique_id; // The unique integral id for each p-simplex.
     vector<vector<pbits> > Z; // A cycle matrix Z[p] for each dimension p that is maintained such that each pbits of Z[p] represents a p-cycle in K_i.
     vector<vector<int> > available_pbits_Z; // A list of available pbitss in Z[p] for each dimension p.
@@ -82,7 +82,7 @@ class zigzag_matrices {
     /* Constructor */
     zigzag_matrices(const int m) {
         id = vector<SimplexIdMap>(m+1, SimplexIdMap());
-        simplex_id = vector<map<int, vector<int>>>(m+1, map<int, vector<int>>());
+        simplex_id = vector<map<int, vector<int> > >(m+1, map<int, vector<int>>());
         unique_id = vector<vector<int> >(m+1, vector<int>());
         Z = vector<vector<pbits> >(m+1, vector<pbits>());
         available_pbits_Z = vector<vector<int> >(m+1, vector<int>());
@@ -124,7 +124,7 @@ void update_id(
     vector<int> *unique_id_p,
     vector<int> *simp,
     vector<int> *id_to_i_p,
-    std::map<int, vector<int>> *simplex_id_p
+    std::map<int, vector<int> > *simplex_id_p
     );
 bool compute_boundary(
     const int p,
@@ -197,11 +197,11 @@ void delete_update(
     const int alpha,
     const int idx
 );
-// OUTPUT:
+
 void output_representatives(
     zigzag_matrices &zz_mat,
     representative_matrices &rep_mat,
-    vector<tuple<int, int, int, vector<tuple<int, vector<int>>>>> *persistence,
+    vector<tuple<int, int, int, vector<tuple<int, vector<int> > > > > *persistence,
     const int p,
     const int i,
     const int a,
@@ -215,12 +215,7 @@ void ZigzagRep::compute(
         const std::vector<bool> &filt_op,
         std::vector <std::tuple <int, int, int, std::vector<std::tuple<int, std::vector<int>>> > > *persistence, 
         std::vector< std::vector<int>> *id_to_i,
-        int m,
-        const int record_runtime,
-        std::vector<double> *runtimes) {
-    // Start the clock.
-    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-    runtimes -> push_back(0.0);
+        int m) {
     
     persistence -> clear();
     int n = filt_simp.size();
@@ -310,11 +305,6 @@ void ZigzagRep::compute(
                 delete_update(zz_mat, rep_mat, p, alpha, idx);
             }
         }
-        if (record_runtime && i % 50000 == 0) {
-            std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-            double runtime = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
-            runtimes -> push_back(runtime/1000.0);
-        }
         /* Check the pivot invariant:
         for (size_t p = 0; p <= m; p++) {
             for (auto a: zz_mat.used_pbits_Z[p]) {
@@ -375,11 +365,6 @@ void ZigzagRep::compute(
                 output_representatives(zz_mat, rep_mat, persistence, p, n, a, birth, n);            
             }
         }
-    }
-    if (record_runtime) {
-        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-        double runtime = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
-        runtimes -> push_back(runtime/1000.0);
     }
 }
 
@@ -785,7 +770,7 @@ void reduce_bd_update(
     zz_mat.C[p][chain_alpha] = nullptr; // Zero out the chain C[p][chain_alpha] from C[p].
     // Update the used and available indices for C[p]:
     zz_mat.available_pbits_C[p].push_back(chain_alpha);
-    zz_mat.used_pbits_C[p].erase(remove(zz_mat.used_pbits_C[p].begin(), zz_mat.used_pbits_C[p].end(), chain_alpha), zz_mat.used_pbits_C[p].end()); // TODO: Check that this is done correctly.
+    zz_mat.used_pbits_C[p].erase(remove(zz_mat.used_pbits_C[p].begin(), zz_mat.used_pbits_C[p].end(), chain_alpha), zz_mat.used_pbits_C[p].end());
     zz_mat.Cycle_Record[p-1][alpha] = cycle_record(true, -1, i+1);
     // Add a new wire to the (p-1)-th bundle:
     // Make a copy of the boundary simplex and add it to the bundle.
