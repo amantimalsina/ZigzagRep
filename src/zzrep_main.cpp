@@ -261,6 +261,9 @@ int main(const int argc, const char *argv[]) {
     */
 
     // Simply run zzrep compute
+    // Runtime
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
     ZZREP::ZigzagRep zzr;
     std::vector <std::tuple <int, int, int, std::vector<std::tuple<int, std::vector<int>>> > > persistence;
     std::vector <std::vector<int> > id_to_i(m+1, std::vector<int>());
@@ -270,6 +273,11 @@ int main(const int argc, const char *argv[]) {
         &persistence,
         &id_to_i,
         m);
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+
+    std::cout << "Runtime = "
+    << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count()
+    << "[ms]" << std::endl;
     std::string purename;
     getFilePurename(infilename, &purename);
     std::ofstream pers_fout("../outputs/" + purename + "_pers_");

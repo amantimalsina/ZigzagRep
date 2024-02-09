@@ -236,6 +236,7 @@ void ZigzagRep::compute(
 
     /* COMPUTATION of zigzag persistence and the associated representatives: */
     for (int i = 0; i < n; ++i) {
+        // Print every 1000th iteration:
         vector<int> simp = filt_simp[i];
         int p = simp.size() - 1; // p denotes the dimension of the simplex.
 
@@ -315,7 +316,9 @@ void ZigzagRep::compute(
                 delete_update(zz_mat, rep_mat, p, alpha, idx);
             }
         }
-        bundle_update(rep_mat);
+        if (i % 1000 == 0) {
+            bundle_update(rep_mat);
+        }
     }
     // POST-PROCESSING: 
     for (size_t p = 0; p <= m; p++) {
