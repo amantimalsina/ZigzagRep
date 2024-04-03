@@ -48,16 +48,18 @@ bool VecEqual<ElemType>
     return true;
 }
 /* DATA STRUCTURES */
-// Bitsets:
+// Bitsets are used for efficient storage and manipulation of chains and cycles.
 typedef boost::dynamic_bitset<> bitset;
 typedef shared_ptr<bitset> pbits;
 // Maps and Pairs:
+// SimplexIdMap maps a vector of integers (representing a simplex) to a unique identifier.
+// PivotMap maps each pivot position to its corresponding column in a matrix representation.
 typedef std::map< vector<int>, int> SimplexIdMap;
 typedef std::map<int, int> PivotMap;
 typedef SimplexIdMap::value_type SimplexIdPair;
 typedef PivotMap::value_type PivotPair;
 
-// Cycle Record:
+// Represents a record of a cycle, including whether it's non-boundary, its chain index, and timestamp.
 struct cycle_record {
     bool non_bd;
     int chain_idx; // The index of the chain in C[p] whose boundary is this cycle.

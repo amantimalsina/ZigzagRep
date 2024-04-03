@@ -10,6 +10,7 @@
 
 #include "zzrep.h"
 
+// Extracts the base filename without path and extension.
 void getFilePurename(const std::string& filename, std::string *purename) {
     auto pos = filename.find_last_of("/\\");
     if (pos != std::string::npos) {
@@ -22,6 +23,7 @@ void getFilePurename(const std::string& filename, std::string *purename) {
     *purename = purename->substr(0, pos);
 }
 
+// Parses a string to extract a simplex operation (insertion or deletion) and its vertices.
 void parseSimplex(const std::string& str, char &op, std::vector<int> &simp) {
     std::istringstream iss(str);
     iss >> op;
